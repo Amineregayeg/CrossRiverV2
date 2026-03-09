@@ -1,0 +1,30 @@
+CrossRiver - Asset Credits
+==========================
+
+Forest Graphics - Ground Layer
+-------------------------------
+Asset: Forest Ground Texture
+Author: ShareTextures.com
+License: CC0 (Public Domain)
+Source: https://www.sharetextures.com/textures/ground/forest
+Description: Seamless forest ground texture with PBR maps (albedo, height, normal, ambient occlusion)
+
+Downloaded: February 15, 2026
+Resolution: 2K (2048x2048)
+File: forest_tile.png
+Used in: week2.py for ground layer
+
+Forest Graphics - Tree Canopy Layer
+------------------------------------
+Asset: Custom Forest Image 1
+Author: User provided
+License: User owned
+Source: User's collection
+Description: Realistic top-down forest canopy image for dense tree coverage effect
+
+Resolution: 800x600
+File: forest1.jpg
+Used in: week2.py for tree canopy layer
+
+All textures are released under Creative Commons CC0 license, making them free to use
+without attribution in both personal and commercial projects.
