@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CrossRiver Map Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh}
+.app{display:flex;height:100vh}
+.sidebar-left{width:280px;background:#16213e;border-right:1px solid #334;display:flex;flex-direction:column;overflow:hidden}
+.canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-right{width:270px;background:#16213e;border-left:1px solid #334;display:flex;flex-direction:column;overflow-y:auto}
+.toolbar{background:#0f3460;padding:6px 10px;display:flex;align-items:center;gap:5px;border-bottom:1px solid #334;min-height:44px;flex-shrink:0;flex-wrap:wrap}
+.toolbar button{background:#1a1a4e;color:#ddd;border:1px solid #445;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;transition:all .15s;white-space:nowrap}
+.toolbar button:hover{background:#2a2a6e;border-color:#668}
+.toolbar button.active{background:#e94560;border-color:#e94560;color:#fff}
+.toolbar .sep{width:1px;height:24px;background:#445;margin:0 2px;flex-shrink:0}
+.toolbar label{font-size:10px;color:#aab;white-space:nowrap}
+.toolbar select{background:#1a1a4e;color:#eee;border:1px solid #445;padding:3px 5px;border-radius:4px;font-size:11px}
+.shdr{background:#0f3460;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#8ab4f8;cursor:pointer;user-select:none;border-bottom:1px solid #334;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.shdr:hover{background:#144080}
+.sketch-panel{max-height:200px;overflow-y:auto;padding:4px;flex-shrink:0}
+.sketch-item{display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;border-radius:4px;font-size:10px}
+.sketch-item:hover{background:#1a2a4e}
+.sketch-item.active{background:#2a3a5e;border-left:3px solid #8ab4f8}
+.sketch-thumb{width:48px;height:30px;object-fit:cover;border-radius:3px;border:1px solid #445}
+.opacity-row{padding:5px 8px;flex-shrink:0;border-bottom:1px solid #334}
+.opacity-row label{font-size:10px;color:#889}
+.opacity-row input{width:100%;margin-top:2px}
+.asset-panel{flex:1;overflow-y:auto;padding:4px}
+.asset-cat{margin-bottom:2px}
+.asset-cat-title{font-size:9px;color:#7a8;padding:3px 6px;background:#1a2a3e;border-radius:3px;margin:2px 0;cursor:pointer;display:flex;justify-content:space-between}
+.asset-cat-title:hover{background:#1e3048}
+.asset-grid{display:flex;flex-wrap:wrap;gap:3px;padding:3px}
+.asset-thumb{width:56px;height:56px;border:2px solid transparent;border-radius:5px;cursor:pointer;background:#111;position:relative;overflow:hidden;transition:all .12s}
+.asset-thumb:hover{border-color:#668;transform:scale(1.05)}
+.asset-thumb.selected{border-color:#e94560;box-shadow:0 0 8px rgba(233,69,96,.4)}
+.asset-thumb img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.asset-thumb .al{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.8);font-size:7px;padding:1px 2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ccc}
+.canvas-container{flex:1;display:flex;align-items:center;justify-content:center;background:#0a0a15;position:relative;overflow:auto}
+#mainCanvas{border:1px solid #334}
+.statusbar{background:#0f3460;padding:3px 14px;font-size:10px;color:#889;display:flex;gap:16px;border-top:1px solid #334;flex-shrink:0}
+.pg{padding:8px 10px;border-bottom:1px solid #223}
+.pg label{display:block;font-size:10px;color:#889;margin-bottom:2px}
+.pg input,.pg select{width:100%;background:#1a1a3e;color:#eee;border:1px solid #445;padding:4px 6px;border-radius:4px;font-size:11px;margin-bottom:5px}
+.pr{display:flex;gap:5px}
+.pr>div{flex:1}
+.pr label{font-size:9px}
+.items-list{flex:1;overflow-y:auto;padding:3px}
+.ie{padding:5px 8px;font-size:10px;cursor:pointer;border-radius:3px;display:flex;justify-content:space-between;align-items:center;margin-bottom:1px}
+.ie:hover{background:#1a2a4e}
+.ie.sel{background:#2a3a5e;border-left:3px solid #e94560}
+.ie .db{color:#e94560;cursor:pointer;font-size:12px;padding:0 3px;opacity:.5}
+.ie .db:hover{opacity:1}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:999}
+.modal{background:#1a1a2e;border:1px solid #445;border-radius:10px;padding:20px;min-width:380px;max-width:480px}
+.modal h3{margin-bottom:14px;color:#8ab4f8}
+.modal input,.modal select{width:100%;background:#111;color:#eee;border:1px solid #445;padding:7px 10px;border-radius:5px;margin-bottom:10px;font-size:13px}
+.modal .br{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.modal button{padding:7px 18px;border-radius:5px;border:1px solid #445;cursor:pointer;font-size:12px}
+.modal .bp{background:#e94560;color:#fff;border-color:#e94560}
+.modal .bs{background:#333;color:#ddd}
+.help-panel{padding:10px;font-size:10px;line-height:1.6;color:#889}
+.help-panel b{color:#8ab4f8}
+.help-panel kbd{background:#222;padding:1px 5px;border-radius:3px;font-size:9px;border:1px solid #445}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#445;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar-left">
+  <div class="shdr" onclick="togglePanel('sketchPanel')"><span>Sketch Reference</span><span>&#9660;</span></div>
+  <div id="sketchPanel" class="sketch-panel"><p style="color:#556;font-size:10px;padding:10px;text-align:center">Loading...</p></div>
+  <div class="opacity-row">
+    <label>Sketch Opacity: <span id="opVal">40%</span></label>
+    <input type="range" id="skOp" min="0" max="100" value="40">
+  </div>
+  <div class="shdr" onclick="togglePanel('assetPanel')"><span>Assets</span><span id="aCnt">...</span></div>
+  <div id="assetPanel" class="asset-panel"><p style="color:#556;font-size:10px;padding:10px;text-align:center">Loading...</p></div>
+</div>
+
+<div class="canvas-area">
+  <div class="toolbar">
+    <button id="btnSelect" class="active" onclick="setTool('select')">&#8598; Select</button>
+    <button id="btnRiver" onclick="setTool('river')">&#9776; River Path</button>
+    <button id="btnRect" onclick="setTool('rect')">&#9645; Rect Obstacle</button>
+    <button id="btnPoly" onclick="setTool('poly')">&#11206; Poly Obstacle</button>
+    <button id="btnSlow" onclick="setTool('slow')">&#9201; Slow Zone</button>
+    <button id="btnFinish" onclick="setTool('finish')">&#9873; Finish Line</button>
+    <button id="btnStart" onclick="setTool('start')">&#8853; Start Line</button>
+    <button id="btnSpawn" onclick="setTool('spawn')">&#9878; Spawn Point</button>
+    <div class="sep"></div>
+    <button onclick="deleteSelected()">&#10005; Del</button>
+    <button onclick="duplicateSelected()">Clone</button>
+    <button onclick="undoAction()">&#8630; Undo</button>
+    <div class="sep"></div>
+    <button onclick="showSaveModal()">Save</button>
+    <button onclick="showLoadModal()">Load</button>
+    <button onclick="reloadCatalog()">&#8635; Reload</button>
+    <button id="btnFullRes" onclick="toggleFullRes()" title="Load full resolution assets for canvas">&#128065; Full Res</button>
+    <button onclick="showImportModal()">&#8679; Import Assets</button>
+    <button onclick="exportData()">Export</button>
+    <div class="sep"></div>
+    <label>Snap:</label>
+    <select id="snapSize">
+      <option value="1">Off</option>
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="25">25</option>
+    </select>
+    <label>Grid:</label>
+    <select id="gridSize" onchange="render()">
+      <option value="0">Off</option>
+      <option value="25">25</option>
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+  <div class="canvas-container" id="cc"><canvas id="mainCanvas" width="1250" height="650"></canvas></div>
+  <div class="statusbar">
+    <span id="stC">X:0 Y:0</span>
+    <span id="stT">Tool: Select</span>
+    <span id="stI">-</span>
+    <span id="stM">Ready</span>
+  </div>
+</div>
+
+<div class="sidebar-right">
+  <div class="shdr">Map Settings</div>
+  <div class="pg">
+    <label>Name</label><input type="text" id="mName" value="Untitled">
+    <label>Season</label>
+    <select id="mSeason"><option value="forest">Forest</option><option value="snow">Snow</option><option value="desert">Desert</option><option value="tropics">Tropics</option></select>
+    <label>Level</label><input type="number" id="mLevel" value="1" min="1" max="5">
+    <label>Time (s)</label><input type="number" id="mTime" value="60" min="10" max="300">
+  </div>
+  <div class="shdr">Selection</div>
+  <div id="propPanel" class="pg"><p style="color:#556;font-size:10px;text-align:center;padding:8px 0">Nothing selected</p></div>
+  <div class="shdr"><span>Items</span><span id="iCnt" style="font-size:9px;color:#889">0</span></div>
+  <div id="itemsList" class="items-list"></div>
+  <div class="shdr">Help</div>
+  <div class="help-panel">
+    <b>River Path:</b> Click to add points. Close shape by clicking first point or press <kbd>Enter</kbd>. Draws river area — land is auto-generated outside.<br><br>
+    <b>Poly Obstacle:</b> Click to add points for a custom-shaped obstacle. Close by clicking first point or <kbd>Enter</kbd>. Any shape!<br><br>
+    <b>Select:</b> Click item to select. Drag to move. Corner handles resize. <b>Circle handle</b> above = rotate.<br><br>
+    <b>Scroll wheel</b> on selected asset = rotate by 15°<br>
+    <b>Finish/Start:</b> Click two points to draw the line. Auto-detects horizontal vs vertical based on your two clicks. Drag to reposition. Edit axis in properties.<br><br>
+    <b>Slow Zone:</b> Draw polygon area that halves boat speed. Invisible in game — place assets on top for visuals.<br><br>
+    <b>Spawn Point:</b> Click to place exact boat spawn position. Drag to reposition. Set angle in properties.<br><br>
+    <kbd>V</kbd> Select <kbd>B</kbd> River <kbd>R</kbd> Rect <kbd>G</kbd> Poly <kbd>W</kbd> Slow <kbd>X</kbd> Spawn <kbd>F</kbd> Finish <kbd>P</kbd> Start<br>
+    <kbd>Del</kbd> Delete <kbd>Ctrl+D</kbd> Clone <kbd>Ctrl+Z</kbd> Undo<br>
+    <kbd>Ctrl+S</kbd> Save <kbd>Ctrl+O</kbd> Load <kbd>[</kbd><kbd>]</kbd> Reorder
+  </div>
+</div>
+</div>
+
+<div id="saveModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal"><h3>Save Map</h3><label style="font-size:11px;color:#889">Filename</label>
+  <input type="text" id="saveFn"><div class="br">
+  <button class="bs" onclick="document.getElementById('saveModal').style.display='none'">Cancel</button>
+  <button class="bp" onclick="saveMap()">Save</button></div></div>
+</div>
+<div id="loadModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal"><h3>Load Map</h3><select id="loadSel" size="8" style="height:180px"></select>
+  <div class="br"><button class="bs" onclick="document.getElementById('loadModal').style.display='none'">Cancel</button>
+  <button class="bp" onclick="loadSelectedMap()">Load</button></div></div>
+</div>
+<div id="importModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal"><h3>Import Assets</h3>
+  <p style="font-size:11px;color:#889;margin-bottom:10px">Upload images to share with all editors. Assets go into <b>assets/images/imports/</b></p>
+  <label style="font-size:11px;color:#889">Your Name (subfolder)</label>
+  <input type="text" id="importUser" value="shared" placeholder="e.g. amine, shared">
+  <label style="font-size:11px;color:#889">Select Images</label>
+  <input type="file" id="importFiles" multiple accept="image/png,image/jpeg,image/gif" style="margin-bottom:10px;font-size:12px">
+  <div id="importPreview" style="display:flex;flex-wrap:wrap;gap:5px;max-height:150px;overflow-y:auto;margin-bottom:10px"></div>
+  <div id="importStatus" style="font-size:11px;color:#8ab4f8;margin-bottom:8px"></div>
+  <div class="br"><button class="bs" onclick="document.getElementById('importModal').style.display='none'">Cancel</button>
+  <button class="bp" onclick="uploadAssets()">Upload</button></div></div>
+</div>
+
+<script>
+const GW=1250, GH=650;
+const canvas=document.getElementById('mainCanvas');
+const ctx=canvas.getContext('2d');
+
+// ========== STATE ==========
+const S={
+  tool:'select', sketchImg:null, sketchOp:0.4,
+  riverPaths:[],      // Array of closed polygon paths [{points:[{x,y},...], closed:bool}]
+  polyObstacles:[],   // Array of polygon obstacles [{points:[{x,y},...], closed:bool}]
+  slowZones:[],       // Array of slow zone polygons [{points:[{x,y},...], closed:bool}]
+  currentPath:null,    // Path being drawn (river, poly, or slow)
+  currentPathType:null, // 'river', 'poly', or 'slow'
+  obstacles:[],        // Manual obstacle rects {id,x,y,w,h}
+  assets:[],           // Placed assets {id,src,name,x,y,w,h,rotation}
+  // Finish line: axis='x' means vertical line at finishPos, axis='y' means horizontal line at finishPos
+  finish:{axis:'y',pos:40,x1:0,x2:GW},   // default: horizontal line at y=40
+  // Start line: same logic
+  start:{axis:'y',pos:600,x1:0,x2:GW},   // default: horizontal line at y=600
+  spawnPoint:null,  // {x, y, angle} - exact boat spawn position
+  sel:null,            // {type:'obstacle'|'asset'|'riverPoint'|'polyPoint'|'polyPath'|'finish'|'start', id, pathIdx?, ptIdx?}
+  drag:false, dragOff:null,
+  resize:false, resizeDir:null, resizeStart:null,
+  rotating:false, rotStart:null,
+  drawRect:null,
+  nextId:1,
+  imgCache:{},
+  pickedSrc:null,
+  undoStack:[],
+};
+
+const SEASON_COLORS={forest:'#2d5a1e',snow:'#7a8899',desert:'#b89a4a',tropics:'#1a6a4a'};
+
+// ========== INIT ==========
+async function init(){
+  try{
+    const r=await fetch('/api/catalog');
+    const d=await r.json();
+    buildSketches(d.sketches);
+    buildAssets(d.assets);
+    document.getElementById('stM').textContent='Ready — '+cntAll(d.assets)+' assets';
+  }catch(e){console.error(e);document.getElementById('stM').textContent='Error: '+e.message}
+  setupEvents();
+  render();
+}
+function cntAll(o){let n=0;for(let k in o)n+=o[k].length;return n}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function encP(p){return p.split('/').map(s=>encodeURIComponent(s)).join('/')}
+function cleanName(f){let n=f.split('/').pop();return n.replace(/Pixel_art_/gi,'').replace(/_202603281320/g,'').replace(/_\d+\./,'.').replace(/\.\w+$/,'')||f}
+function snap(v){const s=parseInt(document.getElementById('snapSize').value)||1;return s<=1?Math.round(v):Math.round(v/s)*s}
+function getSeason(){return document.getElementById('mSeason').value}
+function getLandColor(){return SEASON_COLORS[getSeason()]||'#555'}
+
+// ========== PANELS ==========
+function buildSketches(sketches){
+  const p=document.getElementById('sketchPanel');
+  if(!sketches||!Object.keys(sketches).length){p.innerHTML='<p style="color:#556;font-size:10px;padding:8px">No sketches</p>';return}
+  let h='';
+  for(const cat of Object.keys(sketches).sort()){
+    h+='<div style="padding:2px 4px;font-size:9px;color:#7a8;text-transform:uppercase;margin-top:3px;font-weight:700">'+esc(cat)+'</div>';
+    sketches[cat].forEach((f,i)=>{
+      h+='<div class="sketch-item" data-src="'+esc(f)+'" onclick="loadSketch(this)"><img class="sketch-thumb" src="/file/'+encP(f)+'" loading="lazy"><span>'+esc(cat)+' #'+(i+1)+'</span></div>';
+    });
+  }
+  p.innerHTML=h;
+}
+function buildAssets(assets){
+  const p=document.getElementById('assetPanel');
+  if(!assets||!Object.keys(assets).length){p.innerHTML='<p style="color:#556;font-size:10px;padding:8px">No assets</p>';return}
+  let h='',total=0;
+  window._assetData=assets; // store for lazy loading
+  for(const cat of Object.keys(assets).sort()){
+    const files=assets[cat]; total+=files.length;
+    const dc=cat.replace(/^images\//,'').replace(/\//g,' > ')||cat;
+    h+='<div class="asset-cat"><div class="asset-cat-title" onclick="toggleAssetCat(this,\''+esc(cat)+'\')"><span>'+esc(dc)+'</span><span>'+files.length+'</span></div><div class="asset-grid" data-cat="'+esc(cat)+'" style="display:none"></div></div>';
+  }
+  p.innerHTML=h;
+  document.getElementById('aCnt').textContent=total;
+}
+function toggleAssetCat(titleEl,cat){
+  const grid=titleEl.nextElementSibling;
+  if(grid.style.display!=='none'){grid.style.display='none';return}
+  grid.style.display='flex';
+  // Lazy load: only populate thumbnails on first open
+  if(!grid.dataset.loaded){
+    grid.dataset.loaded='1';
+    const files=window._assetData[cat]||[];
+    let h='';
+    for(const f of files){
+      const n=cleanName(f);
+      h+='<div class="asset-thumb" data-src="'+esc(f)+'" onclick="pickAsset(this)" title="'+esc(n)+'"><img src="/thumb/'+encP(f)+'" loading="lazy"><div class="al">'+esc(n)+'</div></div>';
+    }
+    grid.innerHTML=h;
+  }
+}
+function loadSketch(el){
+  document.querySelectorAll('.sketch-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  const img=new Image();
+  img.onload=()=>{S.sketchImg=img;render()};
+  img.src='/file/'+encP(el.getAttribute('data-src'));
+}
+document.getElementById('skOp').addEventListener('input',function(){
+  S.sketchOp=this.value/100;
+  document.getElementById('opVal').textContent=this.value+'%';
+  render();
+});
+function pickAsset(el){
+  document.querySelectorAll('.asset-thumb').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  S.pickedSrc=el.getAttribute('data-src');
+  if(!S.imgCache[S.pickedSrc]){const img=new Image();img.onload=()=>{S.imgCache[S.pickedSrc]=img};img.src='/file/'+encP(S.pickedSrc)}
+  setTool('select');
+  canvas.style.cursor='copy';
+  document.getElementById('stT').textContent='Place: '+cleanName(S.pickedSrc);
+}
+function clearPick(){S.pickedSrc=null;document.querySelectorAll('.asset-thumb').forEach(e=>e.classList.remove('selected'))}
+
+// ========== TOOLS ==========
+function setTool(t){
+  S.tool=t;
+  if(t!=='select')clearPick();
+  if(t!=='river'&&t!=='poly'&&t!=='slow'&&S.currentPath){S.currentPath=null;S.currentPathType=null}
+  document.querySelectorAll('.toolbar button[id^=btn]').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('btn'+t.charAt(0).toUpperCase()+t.slice(1));
+  if(btn)btn.classList.add('active');
+  S._lineDraw=null; // cancel any in-progress line draw
+  canvas.style.cursor=(t==='rect'||t==='river'||t==='poly'||t==='slow'||t==='finish'||t==='start'||t==='spawn')?'crosshair':'default';
+  const labels={select:'Select',river:'River Path',rect:'Rect Obstacle',poly:'Poly Obstacle',slow:'Slow Zone',finish:'Finish Line',start:'Start Line',spawn:'Spawn Point'};
+  document.getElementById('stT').textContent='Tool: '+(labels[t]||t);
+  render();
+}
+
+// ========== UNDO ==========
+function saveUndo(){
+  S.undoStack.push(JSON.stringify({
+    riverPaths:S.riverPaths, polyObstacles:S.polyObstacles, slowZones:S.slowZones, obstacles:S.obstacles, assets:S.assets,
+    finish:S.finish, start:S.start, spawnPoint:S.spawnPoint
+  }));
+  if(S.undoStack.length>30)S.undoStack.shift();
+}
+function undoAction(){
+  if(!S.undoStack.length)return;
+  const d=JSON.parse(S.undoStack.pop());
+  S.riverPaths=d.riverPaths; S.polyObstacles=d.polyObstacles||[]; S.slowZones=d.slowZones||[]; S.obstacles=d.obstacles; S.assets=d.assets; S.spawnPoint=d.spawnPoint||null;
+  S.finish=d.finish; S.start=d.start;
+  S.sel=null; updateItems();updateProps();render();
+}
+
+// ========== MOUSE EVENTS ==========
+function getPos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(GW/r.width),y:(e.clientY-r.top)*(GH/r.height)}}
+
+function setupEvents(){
+  canvas.addEventListener('mousedown',onDown);
+  canvas.addEventListener('mousemove',onMove);
+  canvas.addEventListener('mouseup',onUp);
+  canvas.addEventListener('wheel',onWheel,{passive:false});
+  canvas.addEventListener('dblclick',onDblClick);
+  document.addEventListener('keydown',onKey);
+}
+
+function onDown(e){
+  const p=getPos(e);
+  const sx=snap(p.x),sy=snap(p.y);
+
+  // Place asset
+  if(S.pickedSrc&&S.tool==='select'){saveUndo();placeAsset(sx,sy);return}
+
+  // River path drawing
+  if(S.tool==='river'){
+    if(!S.currentPath||S.currentPathType!=='river'){
+      saveUndo();
+      S.currentPath={points:[{x:sx,y:sy}],closed:false};
+      S.currentPathType='river';
+    }else{
+      const fp=S.currentPath.points[0];
+      if(S.currentPath.points.length>=3&&Math.hypot(sx-fp.x,sy-fp.y)<20){
+        S.currentPath.closed=true;
+        S.riverPaths.push(S.currentPath);
+        S.currentPath=null;S.currentPathType=null;
+      }else{
+        S.currentPath.points.push({x:sx,y:sy});
+      }
+    }
+    render();return;
+  }
+
+  // Polygon obstacle drawing
+  if(S.tool==='poly'){
+    if(!S.currentPath||S.currentPathType!=='poly'){
+      saveUndo();
+      S.currentPath={points:[{x:sx,y:sy}],closed:false};
+      S.currentPathType='poly';
+    }else{
+      const fp=S.currentPath.points[0];
+      if(S.currentPath.points.length>=3&&Math.hypot(sx-fp.x,sy-fp.y)<20){
+        S.currentPath.closed=true;
+        S.polyObstacles.push(S.currentPath);
+        S.currentPath=null;S.currentPathType=null;
+        updateItems();
+      }else{
+        S.currentPath.points.push({x:sx,y:sy});
+      }
+    }
+    render();return;
+  }
+
+  // Slow zone drawing
+  if(S.tool==='slow'){
+    if(!S.currentPath||S.currentPathType!=='slow'){
+      saveUndo();
+      S.currentPath={points:[{x:sx,y:sy}],closed:false};
+      S.currentPathType='slow';
+    }else{
+      const fp=S.currentPath.points[0];
+      if(S.currentPath.points.length>=3&&Math.hypot(sx-fp.x,sy-fp.y)<20){
+        S.currentPath.closed=true;
+        S.slowZones.push(S.currentPath);
+        S.currentPath=null;S.currentPathType=null;
+        updateItems();
+      }else{
+        S.currentPath.points.push({x:sx,y:sy});
+      }
+    }
+    render();return;
+  }
+
+  // Spawn point - click to place
+  if(S.tool==='spawn'){
+    saveUndo();
+    S.spawnPoint={x:sx,y:sy,angle:S.spawnPoint?S.spawnPoint.angle:0};
+    S.sel={type:'spawn',id:0};
+    document.getElementById('stM').textContent='Spawn placed at ('+sx+', '+sy+')';
+    updateProps();render();return;
+  }
+
+  // Obstacle rect
+  if(S.tool==='rect'){saveUndo();S.drawRect={x:sx,y:sy,w:0,h:0};return}
+
+  // Finish line — first click sets point 1, second click sets point 2
+  if(S.tool==='finish'){
+    saveUndo();
+    if(!S._lineDraw){
+      S._lineDraw={which:'finish',x1:sx,y1:sy};
+      document.getElementById('stT').textContent='Finish: click end point';
+    }else{
+      const ld=S._lineDraw;
+      const dx=Math.abs(sx-ld.x1), dy=Math.abs(sy-ld.y1);
+      if(dy>=dx){
+        // More horizontal = Y line (horizontal finish)
+        S.finish={axis:'y',pos:ld.y1,x1:Math.min(ld.x1,sx),x2:Math.max(ld.x1,sx)};
+      }else{
+        // More vertical = X line (vertical finish)
+        S.finish={axis:'x',pos:ld.x1,y1:Math.min(ld.y1,sy),y2:Math.max(ld.y1,sy)};
+      }
+      S._lineDraw=null;
+      document.getElementById('stT').textContent='Tool: Finish';
+    }
+    render();return;
+  }
+
+  // Start line — same two-click approach
+  if(S.tool==='start'){
+    saveUndo();
+    if(!S._lineDraw){
+      S._lineDraw={which:'start',x1:sx,y1:sy};
+      document.getElementById('stT').textContent='Start: click end point';
+    }else{
+      const ld=S._lineDraw;
+      const dx=Math.abs(sx-ld.x1), dy=Math.abs(sy-ld.y1);
+      if(dy>=dx){
+        S.start={axis:'y',pos:ld.y1,x1:Math.min(ld.x1,sx),x2:Math.max(ld.x1,sx)};
+      }else{
+        S.start={axis:'x',pos:ld.x1,y1:Math.min(ld.y1,sy),y2:Math.max(ld.y1,sy)};
+      }
+      S._lineDraw=null;
+      document.getElementById('stT').textContent='Tool: Start';
+    }
+    render();return;
+  }
+
+  // SELECT TOOL
+  if(S.tool==='select'){
+    // 1. Check rotation handle
+    const ri=hitRotateHandle(p);
+    if(ri){S.rotating=true;const item=getSelItem();S.rotStart={angle:Math.atan2(p.y-(item.y+item.h/2),p.x-(item.x+item.w/2)),origRot:item.rotation||0};return}
+
+    // 2. Check resize handles
+    const rh=hitResize(p);
+    if(rh){const item=getSelItem();S.resize=true;S.resizeDir=rh;S.resizeStart={mx:p.x,my:p.y,ox:item.x,oy:item.y,ow:item.w,oh:item.h};return}
+
+    // 3. Check finish/start line hit (within ~10px)
+    if(hitLine(p,S.finish)){
+      S.sel={type:'finish',id:0};S.drag=true;S.dragOff={x:p.x,y:p.y};
+      saveUndo();updateProps();updateItems();render();return;
+    }
+    if(hitLine(p,S.start)){
+      S.sel={type:'start',id:0};S.drag=true;S.dragOff={x:p.x,y:p.y};
+      saveUndo();updateProps();updateItems();render();return;
+    }
+
+    // 4a. Check river path points
+    for(let pi=0;pi<S.riverPaths.length;pi++){
+      const path=S.riverPaths[pi];
+      for(let i=0;i<path.points.length;i++){
+        const pt=path.points[i];
+        if(Math.hypot(p.x-pt.x,p.y-pt.y)<10){
+          S.sel={type:'riverPoint',pathIdx:pi,ptIdx:i};
+          S.drag=true;S.dragOff={x:0,y:0};
+          saveUndo();updateProps();updateItems();render();return;
+        }
+      }
+    }
+
+    // 4b. Check poly obstacle points
+    for(let pi=0;pi<S.polyObstacles.length;pi++){
+      const path=S.polyObstacles[pi];
+      for(let i=0;i<path.points.length;i++){
+        const pt=path.points[i];
+        if(Math.hypot(p.x-pt.x,p.y-pt.y)<10){
+          S.sel={type:'polyPoint',pathIdx:pi,ptIdx:i};
+          S.drag=true;S.dragOff={x:0,y:0};
+          saveUndo();updateProps();updateItems();render();return;
+        }
+      }
+    }
+
+    // 4c. Check slow zone points
+    for(let pi=0;pi<S.slowZones.length;pi++){
+      const path=S.slowZones[pi];
+      for(let i=0;i<path.points.length;i++){
+        const pt=path.points[i];
+        if(Math.hypot(p.x-pt.x,p.y-pt.y)<10){
+          S.sel={type:'slowPoint',pathIdx:pi,ptIdx:i};
+          S.drag=true;S.dragOff={x:0,y:0};
+          saveUndo();updateProps();updateItems();render();return;
+        }
+      }
+    }
+
+    // 4d. Hit spawn point
+    if(S.spawnPoint&&Math.hypot(p.x-S.spawnPoint.x,p.y-S.spawnPoint.y)<20){
+      S.sel={type:'spawn',id:0};
+      S.drag=true;S.dragOff={x:p.x-S.spawnPoint.x,y:p.y-S.spawnPoint.y};
+      saveUndo();updateProps();updateItems();render();return;
+    }
+
+    // 4e. Hit assets (top to bottom)
+    for(let i=S.assets.length-1;i>=0;i--){
+      const a=S.assets[i];
+      if(hitTestAsset(p,a)){
+        S.sel={type:'asset',id:a.id};
+        S.drag=true;S.dragOff={x:p.x-a.x,y:p.y-a.y};
+        saveUndo();updateProps();updateItems();render();return;
+      }
+    }
+
+    // 5. Hit obstacles
+    for(let i=S.obstacles.length-1;i>=0;i--){
+      const o=S.obstacles[i];
+      if(p.x>=o.x&&p.x<=o.x+o.w&&p.y>=o.y&&p.y<=o.y+o.h){
+        S.sel={type:'obstacle',id:o.id};
+        S.drag=true;S.dragOff={x:p.x-o.x,y:p.y-o.y};
+        saveUndo();updateProps();updateItems();render();return;
+      }
+    }
+
+    // 6. Hit river paths (click on edge)
+    for(let pi=0;pi<S.riverPaths.length;pi++){
+      if(pointNearPathEdge(p,S.riverPaths[pi])){
+        S.sel={type:'riverPath',id:pi};
+        updateProps();updateItems();render();return;
+      }
+    }
+
+    // 6b. Hit poly obstacle paths (click on edge)
+    for(let pi=0;pi<S.polyObstacles.length;pi++){
+      if(pointNearPathEdge(p,S.polyObstacles[pi])){
+        S.sel={type:'polyPath',id:pi};
+        updateProps();updateItems();render();return;
+      }
+    }
+
+    // 6c. Hit slow zone paths
+    for(let pi=0;pi<S.slowZones.length;pi++){
+      if(pointNearPathEdge(p,S.slowZones[pi])){
+        S.sel={type:'slowPath',id:pi};
+        updateProps();updateItems();render();return;
+      }
+    }
+
+    S.sel=null;updateProps();updateItems();render();
+  }
+}
+
+function onMove(e){
+  const p=getPos(e);
+  document.getElementById('stC').textContent='X:'+Math.round(p.x)+' Y:'+Math.round(p.y);
+
+  // Drawing rect
+  if(S.drawRect){S.drawRect.w=snap(p.x)-S.drawRect.x;S.drawRect.h=snap(p.y)-S.drawRect.y;render();return}
+
+  // Path preview (river or poly)
+  if(S.currentPath){render();
+    ctx.beginPath();ctx.moveTo(S.currentPath.points[S.currentPath.points.length-1].x,S.currentPath.points[S.currentPath.points.length-1].y);
+    ctx.lineTo(p.x,p.y);
+    ctx.strokeStyle=S.currentPathType==='poly'?'rgba(255,100,100,0.5)':S.currentPathType==='slow'?'rgba(255,200,0,0.5)':'rgba(0,200,255,0.5)';
+    ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+    return;
+  }
+
+  // Rotating
+  if(S.rotating&&S.sel){
+    const item=getSelItem();if(!item)return;
+    const cx=item.x+item.w/2,cy=item.y+item.h/2;
+    const angle=Math.atan2(p.y-cy,p.x-cx);
+    let deg=S.rotStart.origRot+(angle-S.rotStart.angle)*180/Math.PI;
+    // Snap to 15° increments when holding shift
+    if(e.shiftKey)deg=Math.round(deg/15)*15;
+    item.rotation=((deg%360)+360)%360;
+    render();updateProps();return;
+  }
+
+  // Resizing
+  if(S.resize&&S.sel){
+    const item=getSelItem();if(!item)return;
+    const dx=snap(p.x)-snap(S.resizeStart.mx);
+    const dy=snap(p.y)-snap(S.resizeStart.my);
+    const d=S.resizeDir;
+    if(d.includes('e'))item.w=Math.max(10,S.resizeStart.ow+dx);
+    if(d.includes('s'))item.h=Math.max(10,S.resizeStart.oh+dy);
+    if(d.includes('w')){item.x=S.resizeStart.ox+dx;item.w=Math.max(10,S.resizeStart.ow-dx)}
+    if(d.includes('n')){item.y=S.resizeStart.oy+dy;item.h=Math.max(10,S.resizeStart.oh-dy)}
+    render();updateProps();return;
+  }
+
+  // Dragging
+  if(S.drag&&S.sel){
+    if(S.sel.type==='riverPoint'){
+      const pt=S.riverPaths[S.sel.pathIdx].points[S.sel.ptIdx];
+      pt.x=snap(p.x);pt.y=snap(p.y);
+    }else if(S.sel.type==='polyPoint'){
+      const pt=S.polyObstacles[S.sel.pathIdx].points[S.sel.ptIdx];
+      pt.x=snap(p.x);pt.y=snap(p.y);
+    }else if(S.sel.type==='slowPoint'){
+      const pt=S.slowZones[S.sel.pathIdx].points[S.sel.ptIdx];
+      pt.x=snap(p.x);pt.y=snap(p.y);
+    }else if(S.sel.type==='spawn'&&S.spawnPoint){
+      S.spawnPoint.x=snap(p.x-S.dragOff.x);
+      S.spawnPoint.y=snap(p.y-S.dragOff.y);
+    }else if(S.sel.type==='finish'||S.sel.type==='start'){
+      const line=S.sel.type==='finish'?S.finish:S.start;
+      if(line.axis==='y')line.pos=snap(p.y);
+      else line.pos=snap(p.x);
+    }else{
+      const item=getSelItem();
+      if(item){item.x=snap(p.x-S.dragOff.x);item.y=snap(p.y-S.dragOff.y)}
+    }
+    render();updateProps();return;
+  }
+
+  // Cursor hints
+  if(S.tool==='select'&&!S.pickedSrc){
+    if(S.sel){
+      if(hitRotateHandle(p)){canvas.style.cursor='grab';return}
+      const rh=hitResize(p);
+      if(rh){const c={nw:'nw-resize',n:'n-resize',ne:'ne-resize',w:'w-resize',e:'e-resize',sw:'sw-resize',s:'s-resize',se:'se-resize'};canvas.style.cursor=c[rh]||'default';return}
+    }
+    canvas.style.cursor='default';
+  }
+}
+
+function onUp(e){
+  if(S.drawRect){
+    let{x,y,w,h}=S.drawRect;
+    if(w<0){x+=w;w=-w}if(h<0){y+=h;h=-h}
+    if(w>=10&&h>=10){
+      const o={id:S.nextId++,x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)};
+      S.obstacles.push(o);
+      S.sel={type:'obstacle',id:o.id};updateItems();updateProps();
+    }
+    S.drawRect=null;render();return;
+  }
+  S.drag=false;S.resize=false;S.rotating=false;S.resizeDir=null;S.resizeStart=null;S.dragOff=null;S.rotStart=null;
+}
+
+function onWheel(e){
+  if(!S.sel||S.sel.type!=='asset')return;
+  e.preventDefault();
+  const item=getSelItem();if(!item)return;
+  saveUndo();
+  const delta=e.deltaY>0?-15:15;
+  item.rotation=((item.rotation||0)+delta+360)%360;
+  render();updateProps();
+}
+
+function onDblClick(e){
+  // Double click on river path edge to add point
+  if(S.tool==='select'){
+    const p=getPos(e);
+    for(let pi=0;pi<S.riverPaths.length;pi++){
+      const path=S.riverPaths[pi];
+      for(let i=0;i<path.points.length;i++){
+        const a=path.points[i];
+        const b=path.points[(i+1)%path.points.length];
+        if(distToSegment(p,a,b)<12){
+          saveUndo();
+          path.points.splice(i+1,0,{x:snap(p.x),y:snap(p.y)});
+          S.sel={type:'riverPoint',pathIdx:pi,ptIdx:i+1};
+          updateProps();render();return;
+        }
+      }
+    }
+  }
+}
+
+// ========== HIT TESTING ==========
+function hitLine(p,line){
+  if(line.axis==='y'){
+    return Math.abs(p.y-line.pos)<10 && p.x>=(line.x1||0)-10 && p.x<=(line.x2||GW)+10;
+  }else{
+    return Math.abs(p.x-line.pos)<10 && p.y>=(line.y1||0)-10 && p.y<=(line.y2||GH)+10;
+  }
+}
+
+function getSelItem(){
+  if(!S.sel)return null;
+  if(S.sel.type==='obstacle')return S.obstacles.find(o=>o.id===S.sel.id);
+  if(S.sel.type==='asset')return S.assets.find(a=>a.id===S.sel.id);
+  return null;
+}
+
+function hitTestAsset(p,a){
+  // Simple AABB for now (could improve with rotation)
+  return p.x>=a.x&&p.x<=a.x+a.w&&p.y>=a.y&&p.y<=a.y+a.h;
+}
+
+function hitResize(p){
+  const item=getSelItem();
+  if(!item)return null;
+  const hs=8,{x,y,w,h}=item;
+  const pts={nw:[x,y],n:[x+w/2,y],ne:[x+w,y],w:[x,y+h/2],e:[x+w,y+h/2],sw:[x,y+h],s:[x+w/2,y+h],se:[x+w,y+h]};
+  for(const[dir,[hx,hy]]of Object.entries(pts)){if(Math.abs(p.x-hx)<hs&&Math.abs(p.y-hy)<hs)return dir}
+  return null;
+}
+
+function hitRotateHandle(p){
+  const item=getSelItem();
+  if(!item||S.sel.type==='obstacle')return false;
+  const cx=item.x+item.w/2, ry=item.y-25;
+  return Math.hypot(p.x-cx,p.y-ry)<12;
+}
+
+function pointNearPathEdge(p,path){
+  for(let i=0;i<path.points.length;i++){
+    const a=path.points[i];
+    const b=path.points[(i+1)%path.points.length];
+    if(distToSegment(p,a,b)<10)return true;
+  }
+  return false;
+}
+
+function distToSegment(p,a,b){
+  const dx=b.x-a.x,dy=b.y-a.y;
+  const len2=dx*dx+dy*dy;
+  if(len2===0)return Math.hypot(p.x-a.x,p.y-a.y);
+  let t=((p.x-a.x)*dx+(p.y-a.y)*dy)/len2;
+  t=Math.max(0,Math.min(1,t));
+  return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy));
+}
+
+// ========== ACTIONS ==========
+function placeAsset(x,y){
+  const src=S.pickedSrc;const img=S.imgCache[src];
+  let w=120,h=120;
+  if(img){const sc=Math.min(150/img.naturalWidth,150/img.naturalHeight,.25);w=Math.max(30,Math.round(img.naturalWidth*sc));h=Math.max(30,Math.round(img.naturalHeight*sc))}
+  S.assets.push({id:S.nextId++,src,name:cleanName(src),x:snap(x-w/2),y:snap(y-h/2),w,h,rotation:0});
+  S.sel={type:'asset',id:S.assets[S.assets.length-1].id};
+  // Exit placement mode immediately so next click selects/modifies the asset
+  clearPick();
+  canvas.style.cursor='default';
+  document.getElementById('stT').textContent='Tool: Select';
+  updateItems();updateProps();render();
+}
+
+function deleteSelected(){
+  if(!S.sel)return;
+  saveUndo();
+  if(S.sel.type==='obstacle')S.obstacles=S.obstacles.filter(o=>o.id!==S.sel.id);
+  else if(S.sel.type==='asset')S.assets=S.assets.filter(a=>a.id!==S.sel.id);
+  else if(S.sel.type==='riverPath')S.riverPaths.splice(S.sel.id,1);
+  else if(S.sel.type==='riverPoint'){
+    const path=S.riverPaths[S.sel.pathIdx];
+    if(path.points.length<=3)S.riverPaths.splice(S.sel.pathIdx,1);
+    else path.points.splice(S.sel.ptIdx,1);
+  }
+  else if(S.sel.type==='polyPath')S.polyObstacles.splice(S.sel.id,1);
+  else if(S.sel.type==='polyPoint'){
+    const path=S.polyObstacles[S.sel.pathIdx];
+    if(path.points.length<=3)S.polyObstacles.splice(S.sel.pathIdx,1);
+    else path.points.splice(S.sel.ptIdx,1);
+  }
+  else if(S.sel.type==='slowPath')S.slowZones.splice(S.sel.id,1);
+  else if(S.sel.type==='slowPoint'){
+    const path=S.slowZones[S.sel.pathIdx];
+    if(path.points.length<=3)S.slowZones.splice(S.sel.pathIdx,1);
+    else path.points.splice(S.sel.ptIdx,1);
+  }
+  S.sel=null;updateItems();updateProps();render();
+}
+
+function duplicateSelected(){
+  const item=getSelItem();if(!item)return;
+  saveUndo();
+  const c=Object.assign({},item,{id:S.nextId++,x:item.x+20,y:item.y+20});
+  if(S.sel.type==='obstacle')S.obstacles.push(c);else S.assets.push(c);
+  S.sel={type:S.sel.type,id:c.id};updateItems();render();
+}
+
+// ========== RIVER POLYGON TO OBSTACLE RECTS ==========
+function riverToObstacles(){
+  if(S.riverPaths.length===0)return S.obstacles.slice();
+  // Create a combined list: manual obstacles + auto-generated from river paths
+  const auto=[];
+  const cellSize=25;
+  const cols=Math.ceil(GW/cellSize),rows=Math.ceil(GH/cellSize);
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cx=c*cellSize+cellSize/2, cy=r*cellSize+cellSize/2;
+      let inRiver=false;
+      for(const path of S.riverPaths){
+        if(pointInPolygon(cx,cy,path.points)){inRiver=true;break}
+      }
+      if(!inRiver){
+        auto.push({x:c*cellSize,y:r*cellSize,w:cellSize,h:cellSize});
+      }
+    }
+  }
+  // Merge adjacent rects into larger ones (greedy row merge)
+  return mergeRects(auto).concat(S.obstacles.map(o=>({x:o.x,y:o.y,w:o.w,h:o.h})));
+}
+
+function pointInPolygon(x,y,pts){
+  let inside=false;
+  for(let i=0,j=pts.length-1;i<pts.length;j=i++){
+    const xi=pts[i].x,yi=pts[i].y,xj=pts[j].x,yj=pts[j].y;
+    if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside;
+  }
+  return inside;
+}
+
+function mergeRects(cells){
+  if(cells.length===0)return[];
+  // Grid-based merge
+  const cs=cells[0].w; // cell size
+  const grid=new Map();
+  for(const c of cells)grid.set(c.x+','+c.y,true);
+  const used=new Set();
+  const merged=[];
+  // Sort by y then x
+  cells.sort((a,b)=>a.y-b.y||a.x-b.x);
+  for(const c of cells){
+    const key=c.x+','+c.y;
+    if(used.has(key))continue;
+    // Expand right
+    let w=cs;
+    while(grid.has((c.x+w)+','+c.y)&&!used.has((c.x+w)+','+c.y))w+=cs;
+    // Expand down
+    let h=cs;
+    let canExpand=true;
+    while(canExpand){
+      for(let x=c.x;x<c.x+w;x+=cs){
+        if(!grid.has(x+','+(c.y+h))||used.has(x+','+(c.y+h))){canExpand=false;break}
+      }
+      if(canExpand)h+=cs;
+    }
+    // Mark used
+    for(let y=c.y;y<c.y+h;y+=cs)for(let x=c.x;x<c.x+w;x+=cs)used.add(x+','+y);
+    merged.push({x:c.x,y:c.y,w,h});
+  }
+  return merged;
+}
+
+// ========== RENDERING ==========
+function render(){
+  ctx.clearRect(0,0,GW,GH);
+
+  // Water
+  ctx.fillStyle='#1a6fc4';
+  ctx.fillRect(0,0,GW,GH);
+
+  // Sketch
+  if(S.sketchImg){ctx.globalAlpha=S.sketchOp;ctx.drawImage(S.sketchImg,0,0,GW,GH);ctx.globalAlpha=1}
+
+  // Grid
+  const gs=parseInt(document.getElementById('gridSize').value)||0;
+  if(gs>0){
+    ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=0.5;
+    for(let x=0;x<GW;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,GH);ctx.stroke()}
+    for(let y=0;y<GH;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(GW,y);ctx.stroke()}
+  }
+
+  // River paths — fill OUTSIDE with land color
+  if(S.riverPaths.length>0){
+    ctx.save();
+    // Draw land everywhere, then cut out river
+    ctx.fillStyle=getLandColor();
+    ctx.globalAlpha=0.7;
+    ctx.beginPath();
+    ctx.rect(0,0,GW,GH);
+    // Cut out each river path (using evenodd)
+    for(const path of S.riverPaths){
+      if(path.points.length<3)continue;
+      ctx.moveTo(path.points[0].x,path.points[0].y);
+      for(let i=1;i<path.points.length;i++)ctx.lineTo(path.points[i].x,path.points[i].y);
+      ctx.closePath();
+    }
+    ctx.fill('evenodd');
+    ctx.globalAlpha=1;
+
+    // Draw river edges
+    for(const path of S.riverPaths){
+      ctx.beginPath();
+      ctx.moveTo(path.points[0].x,path.points[0].y);
+      for(let i=1;i<path.points.length;i++)ctx.lineTo(path.points[i].x,path.points[i].y);
+      ctx.closePath();
+      ctx.strokeStyle='#0ff';ctx.lineWidth=2;ctx.stroke();
+      // Draw points
+      for(let i=0;i<path.points.length;i++){
+        const pt=path.points[i];
+        ctx.beginPath();ctx.arc(pt.x,pt.y,5,0,Math.PI*2);
+        ctx.fillStyle=i===0?'#0f0':'#0ff';ctx.fill();
+        ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // Current path being drawn
+  if(S.currentPath&&S.currentPath.points.length>0){
+    const isPoly=S.currentPathType==='poly';
+    const isSlow=S.currentPathType==='slow';
+    ctx.beginPath();
+    ctx.moveTo(S.currentPath.points[0].x,S.currentPath.points[0].y);
+    for(let i=1;i<S.currentPath.points.length;i++)ctx.lineTo(S.currentPath.points[i].x,S.currentPath.points[i].y);
+    ctx.strokeStyle=isSlow?'#ffaa00':isPoly?'#e94560':'#0ff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+    const ptCol=isSlow?'#ffaa00':isPoly?'#e94560':'#0ff';
+    for(const pt of S.currentPath.points){
+      ctx.beginPath();ctx.arc(pt.x,pt.y,5,0,Math.PI*2);ctx.fillStyle=ptCol;ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();
+    }
+    // Highlight close zone near first point
+    if(S.currentPath.points.length>=3){
+      const fp=S.currentPath.points[0];
+      ctx.beginPath();ctx.arc(fp.x,fp.y,20,0,Math.PI*2);
+      ctx.strokeStyle='rgba(0,255,0,0.4)';ctx.lineWidth=2;ctx.stroke();
+    }
+  }
+
+  // Manual obstacles
+  const lc=getLandColor();
+  for(const o of S.obstacles){
+    ctx.fillStyle=lc;ctx.globalAlpha=0.75;ctx.fillRect(o.x,o.y,o.w,o.h);ctx.globalAlpha=1;
+    ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.strokeRect(o.x,o.y,o.w,o.h);
+    ctx.fillStyle='#fff';ctx.font='9px monospace';ctx.fillText(o.w+'x'+o.h,o.x+3,o.y+12);
+  }
+
+  // Polygon obstacles
+  for(let pi=0;pi<S.polyObstacles.length;pi++){
+    const path=S.polyObstacles[pi];
+    if(path.points.length<2)continue;
+    // Fill
+    ctx.beginPath();
+    ctx.moveTo(path.points[0].x,path.points[0].y);
+    for(let i=1;i<path.points.length;i++)ctx.lineTo(path.points[i].x,path.points[i].y);
+    ctx.closePath();
+    ctx.fillStyle=lc;ctx.globalAlpha=0.75;ctx.fill();ctx.globalAlpha=1;
+    // Stroke
+    const isSel=S.sel&&(S.sel.type==='polyPath'&&S.sel.id===pi)||(S.sel&&S.sel.type==='polyPoint'&&S.sel.pathIdx===pi);
+    ctx.strokeStyle=isSel?'#ff0':'#e94560';ctx.lineWidth=2;ctx.stroke();
+    // Points
+    for(let i=0;i<path.points.length;i++){
+      const pt=path.points[i];
+      ctx.beginPath();ctx.arc(pt.x,pt.y,5,0,Math.PI*2);
+      ctx.fillStyle=i===0?'#ff0':'#e94560';ctx.fill();
+      ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();
+    }
+    // Label
+    const cx=path.points.reduce((s,p)=>s+p.x,0)/path.points.length;
+    const cy=path.points.reduce((s,p)=>s+p.y,0)/path.points.length;
+    ctx.fillStyle='#fff';ctx.font='9px monospace';ctx.fillText('poly '+path.points.length+'pts',cx-20,cy);
+  }
+
+  // Slow zones (semi-transparent yellow)
+  for(let pi=0;pi<S.slowZones.length;pi++){
+    const path=S.slowZones[pi];
+    if(path.points.length<2)continue;
+    ctx.beginPath();
+    ctx.moveTo(path.points[0].x,path.points[0].y);
+    for(let i=1;i<path.points.length;i++)ctx.lineTo(path.points[i].x,path.points[i].y);
+    ctx.closePath();
+    ctx.fillStyle='rgba(255,170,0,0.2)';ctx.fill();
+    const isSel=S.sel&&(S.sel.type==='slowPath'&&S.sel.id===pi)||(S.sel&&S.sel.type==='slowPoint'&&S.sel.pathIdx===pi);
+    ctx.strokeStyle=isSel?'#fff':'#ffaa00';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+    for(let i=0;i<path.points.length;i++){
+      const pt=path.points[i];
+      ctx.beginPath();ctx.arc(pt.x,pt.y,5,0,Math.PI*2);
+      ctx.fillStyle=i===0?'#ff0':'#ffaa00';ctx.fill();
+      ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();
+    }
+    const cx=path.points.reduce((s,p)=>s+p.x,0)/path.points.length;
+    const cy=path.points.reduce((s,p)=>s+p.y,0)/path.points.length;
+    ctx.fillStyle='#ffaa00';ctx.font='bold 10px monospace';ctx.fillText('SLOW',cx-15,cy+4);
+  }
+
+  // Drawing rect preview
+  if(S.drawRect){
+    const dr=S.drawRect;
+    ctx.fillStyle=lc;ctx.globalAlpha=0.4;ctx.fillRect(dr.x,dr.y,dr.w,dr.h);ctx.globalAlpha=1;
+    ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.strokeRect(dr.x,dr.y,dr.w,dr.h);ctx.setLineDash([]);
+    ctx.fillStyle='#ff0';ctx.font='11px monospace';ctx.fillText(Math.abs(Math.round(dr.w))+'x'+Math.abs(Math.round(dr.h)),dr.x+3,dr.y-5);
+  }
+
+  // Assets - use thumbnails for canvas, lazy-load without spamming render
+  for(const a of S.assets){
+    const img=S.imgCache[a.src];
+    if(img){
+      ctx.save();
+      ctx.translate(a.x+a.w/2,a.y+a.h/2);
+      if(a.rotation)ctx.rotate(a.rotation*Math.PI/180);
+      ctx.drawImage(img,-a.w/2,-a.h/2,a.w,a.h);
+      ctx.restore();
+    }else if(!S._loading){
+      // Show placeholder
+      ctx.fillStyle='rgba(255,105,180,0.3)';ctx.fillRect(a.x,a.y,a.w,a.h);
+      ctx.strokeStyle='#f69';ctx.lineWidth=1;ctx.strokeRect(a.x,a.y,a.w,a.h);
+      ctx.fillStyle='#fff';ctx.font='8px sans-serif';ctx.fillText(a.name||'...',a.x+3,a.y+a.h/2);
+    }
+  }
+
+  // Spawn point marker
+  if(S.spawnPoint){
+    const sp=S.spawnPoint;
+    const isSel=S.sel&&S.sel.type==='spawn';
+    // Draw boat direction arrow
+    ctx.save();
+    ctx.translate(sp.x,sp.y);
+    ctx.rotate(-(sp.angle||0)*Math.PI/180);  // 0=up
+    // Arrow body
+    ctx.fillStyle=isSel?'#ff0':'#00ff88';
+    ctx.globalAlpha=0.9;
+    ctx.beginPath();
+    ctx.moveTo(0,-18);ctx.lineTo(10,12);ctx.lineTo(-10,12);ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle=isSel?'#fff':'#005';ctx.lineWidth=2;ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.restore();
+    // Outer ring
+    ctx.beginPath();ctx.arc(sp.x,sp.y,22,0,Math.PI*2);
+    ctx.strokeStyle=isSel?'#ff0':'#00ff88';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle='#fff';ctx.font='bold 9px monospace';
+    ctx.fillText('SPAWN ('+Math.round(sp.x)+','+Math.round(sp.y)+')',sp.x-40,sp.y+35);
+    if(sp.angle)ctx.fillText(sp.angle+'°',sp.x-8,sp.y+46);
+  }
+
+  // Draw a line helper
+  function drawLine(line,color,label){
+    const isSel=S.sel&&S.sel.type===label.toLowerCase();
+    ctx.strokeStyle=isSel?'#fff':color;
+    ctx.lineWidth=isSel?4:3;
+    ctx.setLineDash([8,6]);
+    ctx.beginPath();
+    if(line.axis==='y'){
+      const x1=line.x1!=null?line.x1:0, x2=line.x2!=null?line.x2:GW;
+      ctx.moveTo(x1,line.pos);ctx.lineTo(x2,line.pos);
+    }else{
+      const y1=line.y1!=null?line.y1:0, y2=line.y2!=null?line.y2:GH;
+      ctx.moveTo(line.pos,y1);ctx.lineTo(line.pos,y2);
+    }
+    ctx.stroke();ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle=color;ctx.font='bold 10px monospace';
+    if(line.axis==='y'){
+      ctx.fillText(label+' Y='+Math.round(line.pos),8,line.pos-5);
+    }else{
+      ctx.save();ctx.translate(line.pos+14,(line.y1||0)+20);
+      ctx.fillText(label+' X='+Math.round(line.pos),0,0);
+      ctx.restore();
+    }
+    // Drag handle dots
+    if(line.axis==='y'){
+      const mx=(line.x1||0+line.x2||GW)/2;
+      ctx.beginPath();ctx.arc((line.x1||0)+20,line.pos,5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+      ctx.beginPath();ctx.arc((line.x2||GW)-20,line.pos,5,0,Math.PI*2);ctx.fill();
+    }else{
+      ctx.beginPath();ctx.arc(line.pos,(line.y1||0)+20,5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+      ctx.beginPath();ctx.arc(line.pos,(line.y2||GH)-20,5,0,Math.PI*2);ctx.fill();
+    }
+  }
+  drawLine(S.finish,'#0f0','FINISH');
+  drawLine(S.start,'#ff0','START');
+
+  // Preview line being drawn
+  if(S._lineDraw){
+    ctx.strokeStyle=S._lineDraw.which==='finish'?'rgba(0,255,0,0.5)':'rgba(255,255,0,0.5)';
+    ctx.lineWidth=2;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.arc(S._lineDraw.x1,S._lineDraw.y1,6,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=S._lineDraw.which==='finish'?'#0f0':'#ff0';
+    ctx.font='9px monospace';ctx.fillText('Click end point...',S._lineDraw.x1+10,S._lineDraw.y1-5);
+  }
+
+  // Selection
+  const sel=getSelItem();
+  if(sel){
+    ctx.strokeStyle='#e94560';ctx.lineWidth=2;ctx.setLineDash([5,3]);
+    ctx.strokeRect(sel.x-2,sel.y-2,sel.w+4,sel.h+4);ctx.setLineDash([]);
+    // Resize handles
+    const hs=5;
+    const hpts=[[sel.x,sel.y],[sel.x+sel.w/2,sel.y],[sel.x+sel.w,sel.y],[sel.x,sel.y+sel.h/2],[sel.x+sel.w,sel.y+sel.h/2],[sel.x,sel.y+sel.h],[sel.x+sel.w/2,sel.y+sel.h],[sel.x+sel.w,sel.y+sel.h]];
+    for(const[hx,hy]of hpts){ctx.fillStyle='#fff';ctx.fillRect(hx-hs,hy-hs,hs*2,hs*2);ctx.strokeStyle='#e94560';ctx.lineWidth=1;ctx.strokeRect(hx-hs,hy-hs,hs*2,hs*2)}
+    // Rotation handle (for assets)
+    if(S.sel.type==='asset'){
+      const cx=sel.x+sel.w/2,ry=sel.y-25;
+      ctx.beginPath();ctx.moveTo(cx,sel.y);ctx.lineTo(cx,ry);ctx.strokeStyle='#e94560';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,ry,8,0,Math.PI*2);ctx.fillStyle='#e94560';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+      // Rotation arrow icon
+      ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('↻',cx,ry+4);ctx.textAlign='left';
+    }
+  }
+
+  // Highlight selected river point
+  if(S.sel&&S.sel.type==='riverPoint'){
+    const pt=S.riverPaths[S.sel.pathIdx].points[S.sel.ptIdx];
+    ctx.beginPath();ctx.arc(pt.x,pt.y,8,0,Math.PI*2);
+    ctx.strokeStyle='#e94560';ctx.lineWidth=3;ctx.stroke();
+  }
+
+  document.getElementById('stI').textContent='Rivers:'+S.riverPaths.length+' Obs:'+S.obstacles.length+' Assets:'+S.assets.length;
+}
+
+// ========== PROPERTIES ==========
+function updateProps(){
+  const p=document.getElementById('propPanel');
+  const item=getSelItem();
+
+  if(S.sel&&S.sel.type==='riverPoint'){
+    const pt=S.riverPaths[S.sel.pathIdx].points[S.sel.ptIdx];
+    p.innerHTML='<label>River Point #'+(S.sel.ptIdx+1)+'</label><div class="pr"><div><label>X</label><input type="number" value="'+Math.round(pt.x)+'" onchange="setRiverPt(\'x\',+this.value)"></div><div><label>Y</label><input type="number" value="'+Math.round(pt.y)+'" onchange="setRiverPt(\'y\',+this.value)"></div></div><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Point</button>';
+    return;
+  }
+  if(S.sel&&S.sel.type==='riverPath'){
+    const path=S.riverPaths[S.sel.id];
+    p.innerHTML='<label>River Path ('+path.points.length+' points)</label><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Path</button>';
+    return;
+  }
+  if(S.sel&&S.sel.type==='spawn'&&S.spawnPoint){
+    const sp=S.spawnPoint;
+    let h='<label style="color:#00ff88;font-weight:bold">SPAWN POINT</label>';
+    h+='<div class="pr"><div><label>X</label><input type="number" value="'+Math.round(sp.x)+'" onchange="setSpawnProp(\'x\',+this.value)"></div>';
+    h+='<div><label>Y</label><input type="number" value="'+Math.round(sp.y)+'" onchange="setSpawnProp(\'y\',+this.value)"></div></div>';
+    h+='<label>Boat Angle (°)</label><input type="number" value="'+Math.round(sp.angle||0)+'" min="0" max="360" step="15" onchange="setSpawnProp(\'angle\',+this.value)">';
+    h+='<p style="font-size:9px;color:#889;margin-top:4px">0°=up, 90°=right, 180°=down, 270°=left</p>';
+    h+='<button onclick="deleteSpawnPoint()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Remove Spawn</button>';
+    p.innerHTML=h;return;
+  }
+  if(S.sel&&S.sel.type==='polyPoint'){
+    const pt=S.polyObstacles[S.sel.pathIdx].points[S.sel.ptIdx];
+    p.innerHTML='<label>Poly Obstacle Point #'+(S.sel.ptIdx+1)+'</label><div class="pr"><div><label>X</label><input type="number" value="'+Math.round(pt.x)+'" onchange="setPolyPt(\'x\',+this.value)"></div><div><label>Y</label><input type="number" value="'+Math.round(pt.y)+'" onchange="setPolyPt(\'y\',+this.value)"></div></div><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Point</button>';
+    return;
+  }
+  if(S.sel&&S.sel.type==='polyPath'){
+    const path=S.polyObstacles[S.sel.id];
+    p.innerHTML='<label>Poly Obstacle ('+path.points.length+' points)</label><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Poly</button>';
+    return;
+  }
+  if(S.sel&&S.sel.type==='slowPoint'){
+    const pt=S.slowZones[S.sel.pathIdx].points[S.sel.ptIdx];
+    p.innerHTML='<label>Slow Zone Point #'+(S.sel.ptIdx+1)+'</label><div class="pr"><div><label>X</label><input type="number" value="'+Math.round(pt.x)+'" onchange="setSlowPt(\'x\',+this.value)"></div><div><label>Y</label><input type="number" value="'+Math.round(pt.y)+'" onchange="setSlowPt(\'y\',+this.value)"></div></div><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Point</button>';
+    return;
+  }
+  if(S.sel&&S.sel.type==='slowPath'){
+    const path=S.slowZones[S.sel.id];
+    p.innerHTML='<label>Slow Zone ('+path.points.length+' points)</label><p style="font-size:9px;color:#ffaa00;margin:4px 0">Invisible in game. Halves boat speed.</p><button onclick="deleteSelected()" style="margin-top:6px;background:#e94560;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px">Delete Slow Zone</button>';
+    return;
+  }
+  if(S.sel&&(S.sel.type==='finish'||S.sel.type==='start')){
+    const line=S.sel.type==='finish'?S.finish:S.start;
+    const label=S.sel.type==='finish'?'Finish':'Start';
+    let h='<label>'+label+' Line</label>';
+    h+='<label>Direction</label><select onchange="setLineAxis(\''+S.sel.type+'\',this.value)"><option value="y"'+(line.axis==='y'?' selected':'')+'>Horizontal (Y)</option><option value="x"'+(line.axis==='x'?' selected':'')+'>Vertical (X)</option></select>';
+    h+='<label>Position</label><input type="number" value="'+Math.round(line.pos)+'" onchange="setLinePos(\''+S.sel.type+'\',+this.value)">';
+    if(line.axis==='y'){
+      h+='<div class="pr"><div><label>From X</label><input type="number" value="'+Math.round(line.x1||0)+'" onchange="setLineBound(\''+S.sel.type+'\',\'x1\',+this.value)"></div>';
+      h+='<div><label>To X</label><input type="number" value="'+Math.round(line.x2||GW)+'" onchange="setLineBound(\''+S.sel.type+'\',\'x2\',+this.value)"></div></div>';
+    }else{
+      h+='<div class="pr"><div><label>From Y</label><input type="number" value="'+Math.round(line.y1||0)+'" onchange="setLineBound(\''+S.sel.type+'\',\'y1\',+this.value)"></div>';
+      h+='<div><label>To Y</label><input type="number" value="'+Math.round(line.y2||GH)+'" onchange="setLineBound(\''+S.sel.type+'\',\'y2\',+this.value)"></div></div>';
+    }
+    // Spawn position and angle controls (only for Start line)
+    if(S.sel.type==='start'){
+      h+='<hr style="margin:8px 0;border:none;border-top:1px solid #334">';
+      h+='<label style="color:#8ab4f8;font-weight:bold">SPAWN CONTROLS</label>';
+      h+='<label>Spawn X Position</label><input type="number" value="'+Math.round(line.x1||625)+'" onchange="setSpawnX(+this.value)">';
+      h+='<label>Boat Facing Angle (°)</label><input type="number" value="'+Math.round(line.angle||0)+'" min="0" max="360" step="15" onchange="setSpawnAngle(+this.value)">';
+      h+='<p style="font-size:9px;color:#889;margin-top:4px">0°=up, 90°=right, 180°=down, 270°=left</p>';
+    }
+    p.innerHTML=h;return;
+  }
+
+  if(!item){p.innerHTML='<p style="color:#556;font-size:10px;text-align:center;padding:8px 0">Nothing selected</p>';return}
+  const isA=S.sel.type==='asset';
+  let h='';
+  h+='<div class="pr"><div><label>X</label><input type="number" value="'+Math.round(item.x)+'" onchange="setPr(\'x\',+this.value)"></div>';
+  h+='<div><label>Y</label><input type="number" value="'+Math.round(item.y)+'" onchange="setPr(\'y\',+this.value)"></div></div>';
+  h+='<div class="pr"><div><label>W</label><input type="number" value="'+Math.round(item.w)+'" onchange="setPr(\'w\',+this.value)"></div>';
+  h+='<div><label>H</label><input type="number" value="'+Math.round(item.h)+'" onchange="setPr(\'h\',+this.value)"></div></div>';
+  if(isA){
+    h+='<label>Rotation (°)</label><input type="number" value="'+Math.round(item.rotation||0)+'" step="15" onchange="setPr(\'rotation\',+this.value)">';
+    h+='<label style="margin-top:4px">Asset: '+esc(item.name||'')+'</label>';
+    h+='<div style="margin-top:6px;display:flex;gap:4px">';
+    h+='<button onclick="flipAssetH()" style="flex:1;background:#1a1a4e;color:#ddd;border:1px solid #445;padding:3px;border-radius:3px;cursor:pointer;font-size:10px">Flip H</button>';
+    h+='<button onclick="flipAssetV()" style="flex:1;background:#1a1a4e;color:#ddd;border:1px solid #445;padding:3px;border-radius:3px;cursor:pointer;font-size:10px">Flip V</button>';
+    h+='</div>';
+  }
+  p.innerHTML=h;
+}
+
+function setPr(k,v){const item=getSelItem();if(item){item[k]=v;render();updateProps()}}
+function setRiverPt(k,v){
+  if(S.sel&&S.sel.type==='riverPoint'){
+    S.riverPaths[S.sel.pathIdx].points[S.sel.ptIdx][k]=v;render();
+  }
+}
+function setPolyPt(k,v){
+  if(S.sel&&S.sel.type==='polyPoint'){
+    S.polyObstacles[S.sel.pathIdx].points[S.sel.ptIdx][k]=v;render();
+  }
+}
+function setSlowPt(k,v){
+  if(S.sel&&S.sel.type==='slowPoint'){
+    S.slowZones[S.sel.pathIdx].points[S.sel.ptIdx][k]=v;render();
+  }
+}
+function flipAssetH(){const item=getSelItem();if(item){saveUndo();item.rotation=((item.rotation||0)+180)%360;render();updateProps()}}
+function flipAssetV(){const item=getSelItem();if(item){saveUndo();item.rotation=(360-(item.rotation||0))%360;render();updateProps()}}
+function setLineAxis(which,axis){
+  saveUndo();
+  const line=which==='finish'?S.finish:S.start;
+  line.axis=axis;
+  if(axis==='y'){line.x1=0;line.x2=GW;delete line.y1;delete line.y2}
+  else{line.y1=0;line.y2=GH;delete line.x1;delete line.x2}
+  render();updateProps();
+}
+function setLinePos(which,v){const line=which==='finish'?S.finish:S.start;line.pos=v;render()}
+function setLineBound(which,key,v){const line=which==='finish'?S.finish:S.start;line[key]=v;render()}
+function setSpawnX(v){saveUndo();S.start.x1=v;S.start.x2=v;render();updateProps()}
+function setSpawnAngle(v){saveUndo();S.start.angle=(v%360+360)%360;render();updateProps()}
+function setSpawnProp(k,v){if(!S.spawnPoint)return;saveUndo();S.spawnPoint[k]=v;render();updateProps()}
+function deleteSpawnPoint(){saveUndo();S.spawnPoint=null;S.sel=null;updateProps();render()}
+
+// ========== ITEMS LIST ==========
+function updateItems(){
+  const l=document.getElementById('itemsList');
+  let h='';
+  S.riverPaths.forEach((rp,i)=>{
+    const sel=S.sel&&S.sel.type==='riverPath'&&S.sel.id===i;
+    h+='<div class="ie'+(sel?' sel':'')+'" onclick="selIt(\'riverPath\','+i+')"><span>~ River ('+rp.points.length+'pts)</span><span class="db" onclick="event.stopPropagation();delIt(\'riverPath\','+i+')">&#10005;</span></div>';
+  });
+  S.polyObstacles.forEach((po,i)=>{
+    const sel=S.sel&&S.sel.type==='polyPath'&&S.sel.id===i;
+    h+='<div class="ie'+(sel?' sel':'')+'" onclick="selIt(\'polyPath\','+i+')"><span>&#11206; Poly ('+po.points.length+'pts)</span><span class="db" onclick="event.stopPropagation();delIt(\'polyPath\','+i+')">&#10005;</span></div>';
+  });
+  S.slowZones.forEach((sz,i)=>{
+    const sel=S.sel&&S.sel.type==='slowPath'&&S.sel.id===i;
+    h+='<div class="ie'+(sel?' sel':'')+'" style="color:#ffaa00" onclick="selIt(\'slowPath\','+i+')"><span>&#9201; Slow ('+sz.points.length+'pts)</span><span class="db" onclick="event.stopPropagation();delIt(\'slowPath\','+i+')">&#10005;</span></div>';
+  });
+  S.obstacles.forEach(o=>{
+    const sel=S.sel&&S.sel.type==='obstacle'&&S.sel.id===o.id;
+    h+='<div class="ie'+(sel?' sel':'')+'" onclick="selIt(\'obstacle\','+o.id+')"><span>&#9645; '+o.w+'x'+o.h+'</span><span class="db" onclick="event.stopPropagation();delIt(\'obstacle\','+o.id+')">&#10005;</span></div>';
+  });
+  S.assets.forEach(a=>{
+    const sel=S.sel&&S.sel.type==='asset'&&S.sel.id===a.id;
+    h+='<div class="ie'+(sel?' sel':'')+'" onclick="selIt(\'asset\','+a.id+')"><span>'+esc(a.name||'asset')+(a.rotation?' ('+Math.round(a.rotation)+'°)':'')+'</span><span class="db" onclick="event.stopPropagation();delIt(\'asset\','+a.id+')">&#10005;</span></div>';
+  });
+  l.innerHTML=h||'<p style="color:#556;font-size:10px;padding:16px;text-align:center">Draw river paths or place items</p>';
+  document.getElementById('iCnt').textContent=S.riverPaths.length+S.polyObstacles.length+S.slowZones.length+S.obstacles.length+S.assets.length;
+}
+
+function selIt(type,id){S.sel={type,id};updateProps();updateItems();render()}
+function delIt(type,id){
+  saveUndo();
+  if(type==='riverPath')S.riverPaths.splice(id,1);
+  else if(type==='polyPath')S.polyObstacles.splice(id,1);
+  else if(type==='slowPath')S.slowZones.splice(id,1);
+  else if(type==='obstacle')S.obstacles=S.obstacles.filter(o=>o.id!==id);
+  else S.assets=S.assets.filter(a=>a.id!==id);
+  if(S.sel&&((S.sel.type===type&&S.sel.id===id)||(S.sel.type===type)))S.sel=null;
+  updateItems();updateProps();render();
+}
+
+// ========== KEYBOARD ==========
+function onKey(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA')return;
+  const k=e.key.toLowerCase();
+  if(k==='v')setTool('select');
+  else if(k==='b')setTool('river');
+  else if(k==='r')setTool('rect');
+  else if(k==='f')setTool('finish');
+  else if(k==='p')setTool('start');
+  else if(k==='delete'||k==='backspace'){e.preventDefault();deleteSelected()}
+  else if(k==='g')setTool('poly');
+  else if(k==='w')setTool('slow');
+  else if(k==='x')setTool('spawn');
+  else if(k==='escape'){clearPick();if(S.currentPath){S.currentPath=null;S.currentPathType=null;render()}S.sel=null;updateProps();updateItems();render()}
+  else if(k==='enter'&&S.currentPath&&S.currentPath.points.length>=3){
+    S.currentPath.closed=true;
+    if(S.currentPathType==='poly'){S.polyObstacles.push(S.currentPath)}
+    else if(S.currentPathType==='slow'){S.slowZones.push(S.currentPath)}
+    else{S.riverPaths.push(S.currentPath)}
+    S.currentPath=null;S.currentPathType=null;updateItems();render();
+  }
+  else if(k==='d'&&(e.ctrlKey||e.metaKey)){e.preventDefault();duplicateSelected()}
+  else if(k==='z'&&(e.ctrlKey||e.metaKey)){e.preventDefault();undoAction()}
+  else if(k==='s'&&(e.ctrlKey||e.metaKey)){e.preventDefault();showSaveModal()}
+  else if(k==='o'&&(e.ctrlKey||e.metaKey)){e.preventDefault();showLoadModal()}
+  else if(k==='['&&S.sel&&S.sel.type==='asset'){
+    const idx=S.assets.findIndex(a=>a.id===S.sel.id);
+    if(idx>0){[S.assets[idx-1],S.assets[idx]]=[S.assets[idx],S.assets[idx-1]];render();updateItems()}
+  }
+  else if(k===']'&&S.sel&&S.sel.type==='asset'){
+    const idx=S.assets.findIndex(a=>a.id===S.sel.id);
+    if(idx<S.assets.length-1){[S.assets[idx],S.assets[idx+1]]=[S.assets[idx+1],S.assets[idx]];render();updateItems()}
+  }
+}
+
+// ========== SAVE / LOAD ==========
+function showSaveModal(){
+  const n=document.getElementById('mSeason').value+'_'+document.getElementById('mLevel').value+'_'+document.getElementById('mName').value.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+  document.getElementById('saveFn').value=n;
+  document.getElementById('saveModal').style.display='flex';
+}
+
+async function saveMap(){
+  const fn=document.getElementById('saveFn').value.trim();if(!fn)return;
+  const data={
+    name:document.getElementById('mName').value,
+    season:document.getElementById('mSeason').value,
+    level:parseInt(document.getElementById('mLevel').value)||1,
+    time_limit:parseInt(document.getElementById('mTime').value)||60,
+    finish:S.finish,
+    start:S.start,
+    river_paths:S.riverPaths.map(p=>({points:p.points.map(pt=>({x:Math.round(pt.x),y:Math.round(pt.y)})),closed:p.closed})),
+    poly_obstacles:S.polyObstacles.map(p=>({points:p.points.map(pt=>({x:Math.round(pt.x),y:Math.round(pt.y)})),closed:p.closed})),
+    slow_zones:S.slowZones.map(p=>({points:p.points.map(pt=>({x:Math.round(pt.x),y:Math.round(pt.y)})),closed:p.closed})),
+    spawn_point:S.spawnPoint?{x:Math.round(S.spawnPoint.x),y:Math.round(S.spawnPoint.y),angle:Math.round(S.spawnPoint.angle||0)}:null,
+    obstacles:S.obstacles.map(o=>({x:Math.round(o.x),y:Math.round(o.y),w:Math.round(o.w),h:Math.round(o.h)})),
+    generated_obstacles:riverToObstacles().map(o=>({x:Math.round(o.x),y:Math.round(o.y),w:Math.round(o.w),h:Math.round(o.h)})),
+    assets:S.assets.map(a=>({src:a.src,name:a.name,x:Math.round(a.x),y:Math.round(a.y),w:Math.round(a.w),h:Math.round(a.h),rotation:Math.round(a.rotation||0)}))
+  };
+  try{
+    const r=await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename:fn+'.json',data})});
+    const res=await r.json();
+    if(res.ok){document.getElementById('stM').textContent='Saved: '+fn;document.getElementById('saveModal').style.display='none'}
+  }catch(e){alert('Save failed: '+e.message)}
+}
+
+function showLoadModal(){
+  fetch('/api/catalog').then(r=>r.json()).then(d=>{
+    const sel=document.getElementById('loadSel');sel.innerHTML='';
+    for(const f of(d.saved_maps||[])){const o=document.createElement('option');o.value=f;o.textContent=f;sel.appendChild(o)}
+    if(!sel.options.length)sel.innerHTML='<option disabled>No saved maps</option>';
+    document.getElementById('loadModal').style.display='flex';
+  });
+}
+
+async function loadSelectedMap(){
+  const fn=document.getElementById('loadSel').value;if(!fn)return;
+  try{
+    const r=await fetch('/api/load?file='+encodeURIComponent(fn));
+    const d=await r.json();if(d.error){alert(d.error);return}
+    document.getElementById('mName').value=d.name||'Untitled';
+    document.getElementById('mSeason').value=d.season||'forest';
+    document.getElementById('mLevel').value=d.level||1;
+    document.getElementById('mTime').value=d.time_limit||60;
+    S.finish=d.finish||{axis:'y',pos:40,x1:0,x2:GW};
+    S.start=d.start||{axis:'y',pos:600,x1:0,x2:GW};
+    S.riverPaths=(d.river_paths||[]).map(p=>({points:p.points,closed:p.closed!==false}));
+    S.polyObstacles=(d.poly_obstacles||[]).map(p=>({points:p.points,closed:p.closed!==false}));
+    S.slowZones=(d.slow_zones||[]).map(p=>({points:p.points,closed:p.closed!==false}));
+    S.spawnPoint=d.spawn_point||null;
+    S.obstacles=(d.obstacles||[]).map(o=>Object.assign({},o,{id:S.nextId++}));
+    S.assets=(d.assets||[]).map(a=>Object.assign({},a,{id:S.nextId++}));
+    S.sel=null;
+    S._fullResLoaded=false;
+    document.getElementById('btnFullRes').classList.remove('active');
+    document.getElementById('loadModal').style.display='none';
+    updateItems();updateProps();render();
+    // Batch preload all asset images using thumbnails
+    preloadMapAssets(fn);
+  }catch(e){alert('Load failed: '+e.message)}
+}
+
+// ========== EXPORT ==========
+function exportData(){
+  const obs=riverToObstacles();
+  const lines=['{'];
+  lines.push('    "name": "'+document.getElementById('mName').value+'",');
+  lines.push('    "season": "'+document.getElementById('mSeason').value+'",');
+  lines.push('    "level": '+(parseInt(document.getElementById('mLevel').value)||1)+',');
+  lines.push('    "time_limit": '+(parseInt(document.getElementById('mTime').value)||60)+',');
+  lines.push('    "finish": '+JSON.stringify(S.finish)+',');
+  lines.push('    "start": '+JSON.stringify(S.start)+',');
+  lines.push('    "obstacles": [');
+  obs.forEach((o,i)=>{lines.push('        ('+Math.round(o.x)+', '+Math.round(o.y)+', '+Math.round(o.w)+', '+Math.round(o.h)+')'+(i<obs.length-1?',':''))});
+  lines.push('    ],');
+  lines.push('    "assets": [');
+  S.assets.forEach((a,i)=>{lines.push('        {"src": "'+a.src+'", "x": '+Math.round(a.x)+', "y": '+Math.round(a.y)+', "w": '+Math.round(a.w)+', "h": '+Math.round(a.h)+', "rotation": '+Math.round(a.rotation||0)+'}'+(i<S.assets.length-1?',':''))});
+  lines.push('    ]');
+  lines.push('}');
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>{document.getElementById('stM').textContent='Exported to clipboard!'}).catch(()=>{prompt('Copy:',lines.join('\n'))});
+}
+
+function togglePanel(id){const el=document.getElementById(id);el.style.display=el.style.display==='none'?'':'none'}
+
+// ========== FULL RES TOGGLE ==========
+function toggleFullRes(){
+  const btn=document.getElementById('btnFullRes');
+  if(S._fullResLoaded){
+    // Already loaded, no need to reload
+    btn.style.background='#1a1a4e';
+    document.getElementById('stM').textContent='Already at full resolution';
+    return;
+  }
+  // Load full-res versions of all placed assets
+  const uniqueSrcs=new Set();
+  for(const a of S.assets){if(a.src)uniqueSrcs.add(a.src)}
+  if(!uniqueSrcs.size)return;
+
+  S._loading=true;
+  btn.classList.add('active');
+  let loaded=0, total=uniqueSrcs.size;
+  document.getElementById('stM').textContent='Loading full res: 0/'+total+'...';
+
+  const srcs=[...uniqueSrcs];
+  let idx=0;
+  const BATCH=10;
+
+  function loadBatch(){
+    const batch=srcs.slice(idx,idx+BATCH);
+    idx+=BATCH;
+    for(const src of batch){
+      const img=new Image();
+      img.onload=()=>{
+        S.imgCache[src]=img; // overwrite thumbnail with full res
+        loaded++;
+        if(loaded%10===0||loaded===total){
+          document.getElementById('stM').textContent='Loading full res: '+loaded+'/'+total+'...';
+          render();
+        }
+        if(loaded===total){
+          S._loading=false;
+          S._fullResLoaded=true;
+          document.getElementById('stM').textContent='Full resolution loaded ('+total+' assets)';
+          render();
+        }
+      };
+      img.onerror=()=>{loaded++;if(loaded===total){S._loading=false;S._fullResLoaded=true;render()}};
+      img.src='/file/'+encP(src);
+    }
+    if(idx<srcs.length)setTimeout(loadBatch,100);
+  }
+  loadBatch();
+}
+
+// ========== BATCH PRELOAD ==========
+function preloadMapAssets(mapName){
+  // Collect unique asset sources
+  const uniqueSrcs=new Set();
+  for(const a of S.assets){
+    if(a.src && !S.imgCache[a.src]) uniqueSrcs.add(a.src);
+  }
+  if(!uniqueSrcs.size){document.getElementById('stM').textContent='Loaded: '+mapName;return}
+
+  S._loading=true;
+  let loaded=0, total=uniqueSrcs.size;
+  document.getElementById('stM').textContent='Loading assets: 0/'+total+'...';
+
+  // Load in parallel batches of 20 using thumbnails first, then full images
+  const srcs=[...uniqueSrcs];
+  let idx=0;
+  const BATCH=20;
+
+  function loadBatch(){
+    const batch=srcs.slice(idx,idx+BATCH);
+    idx+=BATCH;
+    for(const src of batch){
+      const img=new Image();
+      img.onload=()=>{
+        S.imgCache[src]=img;
+        loaded++;
+        if(loaded%25===0||loaded===total){
+          document.getElementById('stM').textContent='Loading assets: '+loaded+'/'+total+'...';
+          render();
+        }
+        if(loaded===total){
+          S._loading=false;
+          document.getElementById('stM').textContent='Loaded: '+mapName+' ('+total+' assets)';
+          render();
+        }
+      };
+      img.onerror=()=>{
+        loaded++;
+        if(loaded===total){S._loading=false;render();document.getElementById('stM').textContent='Loaded: '+mapName}
+      };
+      // Use thumbnail for canvas display (fast + small)
+      img.src='/thumb/'+encP(src);
+    }
+    if(idx<srcs.length)setTimeout(loadBatch,50);
+  }
+  loadBatch();
+}
+
+// ========== RELOAD ==========
+async function reloadCatalog(){
+  document.getElementById('stM').textContent='Reloading...';
+  try{
+    const r=await fetch('/api/catalog');
+    const d=await r.json();
+    buildSketches(d.sketches);
+    buildAssets(d.assets);
+    document.getElementById('stM').textContent='Reloaded — '+cntAll(d.assets)+' assets, '+d.saved_maps.length+' maps';
+  }catch(e){document.getElementById('stM').textContent='Reload failed: '+e.message}
+}
+
+// ========== IMPORT ASSETS ==========
+function showImportModal(){
+  document.getElementById('importFiles').value='';
+  document.getElementById('importPreview').innerHTML='';
+  document.getElementById('importStatus').textContent='';
+  document.getElementById('importModal').style.display='flex';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('importFiles').addEventListener('change',function(){
+    const preview=document.getElementById('importPreview');
+    preview.innerHTML='';
+    for(const file of this.files){
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const div=document.createElement('div');
+        div.style.cssText='width:60px;height:60px;border:1px solid #445;border-radius:4px;overflow:hidden;position:relative';
+        div.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:contain"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.8);font-size:7px;padding:1px;text-align:center;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+file.name+'</div>';
+        preview.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+});
+
+async function uploadAssets(){
+  const files=document.getElementById('importFiles').files;
+  if(!files.length){alert('Select images first');return}
+  const user=document.getElementById('importUser').value.trim()||'shared';
+  const category='imports/'+user.replace(/[^a-zA-Z0-9_\-]/g,'_');
+  const status=document.getElementById('importStatus');
+  let uploaded=0;
+
+  for(const file of files){
+    status.textContent='Uploading '+(uploaded+1)+'/'+files.length+': '+file.name+'...';
+    try{
+      const b64=await fileToBase64(file);
+      const r=await fetch('/api/upload-asset',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({category,filename:file.name,data:b64})
+      });
+      const res=await r.json();
+      if(res.ok)uploaded++;
+      else status.textContent='Error: '+(res.error||'Unknown');
+    }catch(e){status.textContent='Failed: '+e.message}
+  }
+
+  status.textContent='Uploaded '+uploaded+'/'+files.length+' assets!';
+  if(uploaded>0){
+    // Reload asset panel to show new assets
+    await reloadCatalog();
+    setTimeout(()=>{document.getElementById('importModal').style.display='none'},1500);
+  }
+}
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result.split(',')[1]);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

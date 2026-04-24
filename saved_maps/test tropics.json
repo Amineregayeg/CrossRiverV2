@@ -1,0 +1,1696 @@
+{
+  "name": "Untitled",
+  "season": "forest",
+  "level": 1,
+  "time_limit": 60,
+  "finish": {
+    "axis": "y",
+    "pos": 20,
+    "x1": 0,
+    "x2": 1250
+  },
+  "start": {
+    "axis": "y",
+    "pos": 630,
+    "x1": 0,
+    "x2": 1250
+  },
+  "river_paths": [
+    {
+      "points": [
+        {
+          "x": 960,
+          "y": 630
+        },
+        {
+          "x": 1090,
+          "y": 630
+        },
+        {
+          "x": 1080,
+          "y": 610
+        },
+        {
+          "x": 1080,
+          "y": 580
+        },
+        {
+          "x": 1050,
+          "y": 550
+        },
+        {
+          "x": 1020,
+          "y": 520
+        },
+        {
+          "x": 990,
+          "y": 510
+        },
+        {
+          "x": 950,
+          "y": 500
+        },
+        {
+          "x": 900,
+          "y": 490
+        },
+        {
+          "x": 800,
+          "y": 480
+        },
+        {
+          "x": 760,
+          "y": 480
+        },
+        {
+          "x": 720,
+          "y": 470
+        },
+        {
+          "x": 710,
+          "y": 450
+        },
+        {
+          "x": 720,
+          "y": 420
+        },
+        {
+          "x": 780,
+          "y": 400
+        },
+        {
+          "x": 820,
+          "y": 370
+        },
+        {
+          "x": 850,
+          "y": 330
+        },
+        {
+          "x": 860,
+          "y": 280
+        },
+        {
+          "x": 860,
+          "y": 250
+        },
+        {
+          "x": 830,
+          "y": 200
+        },
+        {
+          "x": 780,
+          "y": 160
+        },
+        {
+          "x": 690,
+          "y": 130
+        },
+        {
+          "x": 600,
+          "y": 120
+        },
+        {
+          "x": 520,
+          "y": 140
+        },
+        {
+          "x": 480,
+          "y": 180
+        },
+        {
+          "x": 440,
+          "y": 200
+        },
+        {
+          "x": 410,
+          "y": 180
+        },
+        {
+          "x": 410,
+          "y": 160
+        },
+        {
+          "x": 420,
+          "y": 130
+        },
+        {
+          "x": 490,
+          "y": 110
+        },
+        {
+          "x": 570,
+          "y": 100
+        },
+        {
+          "x": 730,
+          "y": 110
+        },
+        {
+          "x": 830,
+          "y": 140
+        },
+        {
+          "x": 920,
+          "y": 220
+        },
+        {
+          "x": 1000,
+          "y": 250
+        },
+        {
+          "x": 1060,
+          "y": 250
+        },
+        {
+          "x": 1160,
+          "y": 220
+        },
+        {
+          "x": 1200,
+          "y": 180
+        },
+        {
+          "x": 1190,
+          "y": 20
+        },
+        {
+          "x": 1100,
+          "y": 20
+        },
+        {
+          "x": 1110,
+          "y": 150
+        },
+        {
+          "x": 1060,
+          "y": 180
+        },
+        {
+          "x": 1020,
+          "y": 170
+        },
+        {
+          "x": 970,
+          "y": 140
+        },
+        {
+          "x": 960,
+          "y": 90
+        },
+        {
+          "x": 910,
+          "y": 70
+        },
+        {
+          "x": 860,
+          "y": 60
+        },
+        {
+          "x": 420,
+          "y": 50
+        },
+        {
+          "x": 350,
+          "y": 60
+        },
+        {
+          "x": 310,
+          "y": 100
+        },
+        {
+          "x": 310,
+          "y": 190
+        },
+        {
+          "x": 350,
+          "y": 250
+        },
+        {
+          "x": 410,
+          "y": 270
+        },
+        {
+          "x": 460,
+          "y": 270
+        },
+        {
+          "x": 510,
+          "y": 240
+        },
+        {
+          "x": 540,
+          "y": 210
+        },
+        {
+          "x": 600,
+          "y": 200
+        },
+        {
+          "x": 670,
+          "y": 200
+        },
+        {
+          "x": 750,
+          "y": 230
+        },
+        {
+          "x": 770,
+          "y": 270
+        },
+        {
+          "x": 760,
+          "y": 310
+        },
+        {
+          "x": 710,
+          "y": 340
+        },
+        {
+          "x": 650,
+          "y": 350
+        },
+        {
+          "x": 590,
+          "y": 400
+        },
+        {
+          "x": 570,
+          "y": 440
+        },
+        {
+          "x": 590,
+          "y": 500
+        },
+        {
+          "x": 630,
+          "y": 530
+        },
+        {
+          "x": 680,
+          "y": 560
+        },
+        {
+          "x": 830,
+          "y": 550
+        },
+        {
+          "x": 880,
+          "y": 560
+        },
+        {
+          "x": 930,
+          "y": 570
+        },
+        {
+          "x": 950,
+          "y": 590
+        },
+        {
+          "x": 960,
+          "y": 610
+        }
+      ],
+      "closed": true
+    }
+  ],
+  "obstacles": [],
+  "generated_obstacles": [
+    {
+      "x": 0,
+      "y": 0,
+      "w": 1250,
+      "h": 25
+    },
+    {
+      "x": 0,
+      "y": 25,
+      "w": 1100,
+      "h": 25
+    },
+    {
+      "x": 1200,
+      "y": 25,
+      "w": 50,
+      "h": 625
+    },
+    {
+      "x": 0,
+      "y": 50,
+      "w": 350,
+      "h": 25
+    },
+    {
+      "x": 875,
+      "y": 50,
+      "w": 225,
+      "h": 25
+    },
+    {
+      "x": 0,
+      "y": 75,
+      "w": 325,
+      "h": 25
+    },
+    {
+      "x": 950,
+      "y": 75,
+      "w": 150,
+      "h": 25
+    },
+    {
+      "x": 0,
+      "y": 100,
+      "w": 300,
+      "h": 550
+    },
+    {
+      "x": 475,
+      "y": 100,
+      "w": 275,
+      "h": 25
+    },
+    {
+      "x": 975,
+      "y": 100,
+      "w": 125,
+      "h": 50
+    },
+    {
+      "x": 425,
+      "y": 125,
+      "w": 100,
+      "h": 25
+    },
+    {
+      "x": 700,
+      "y": 125,
+      "w": 125,
+      "h": 25
+    },
+    {
+      "x": 400,
+      "y": 150,
+      "w": 100,
+      "h": 25
+    },
+    {
+      "x": 775,
+      "y": 150,
+      "w": 75,
+      "h": 25
+    },
+    {
+      "x": 1000,
+      "y": 150,
+      "w": 100,
+      "h": 25
+    },
+    {
+      "x": 425,
+      "y": 175,
+      "w": 50,
+      "h": 25
+    },
+    {
+      "x": 825,
+      "y": 175,
+      "w": 50,
+      "h": 50
+    },
+    {
+      "x": 300,
+      "y": 200,
+      "w": 25,
+      "h": 450
+    },
+    {
+      "x": 525,
+      "y": 200,
+      "w": 175,
+      "h": 150
+    },
+    {
+      "x": 875,
+      "y": 200,
+      "w": 25,
+      "h": 300
+    },
+    {
+      "x": 1175,
+      "y": 200,
+      "w": 25,
+      "h": 450
+    },
+    {
+      "x": 325,
+      "y": 225,
+      "w": 25,
+      "h": 425
+    },
+    {
+      "x": 500,
+      "y": 225,
+      "w": 25,
+      "h": 425
+    },
+    {
+      "x": 700,
+      "y": 225,
+      "w": 50,
+      "h": 100
+    },
+    {
+      "x": 850,
+      "y": 225,
+      "w": 25,
+      "h": 250
+    },
+    {
+      "x": 900,
+      "y": 225,
+      "w": 75,
+      "h": 275
+    },
+    {
+      "x": 1100,
+      "y": 225,
+      "w": 75,
+      "h": 425
+    },
+    {
+      "x": 350,
+      "y": 250,
+      "w": 25,
+      "h": 400
+    },
+    {
+      "x": 475,
+      "y": 250,
+      "w": 25,
+      "h": 400
+    },
+    {
+      "x": 750,
+      "y": 250,
+      "w": 25,
+      "h": 50
+    },
+    {
+      "x": 975,
+      "y": 250,
+      "w": 125,
+      "h": 250
+    },
+    {
+      "x": 375,
+      "y": 275,
+      "w": 100,
+      "h": 375
+    },
+    {
+      "x": 700,
+      "y": 325,
+      "w": 25,
+      "h": 25
+    },
+    {
+      "x": 525,
+      "y": 350,
+      "w": 100,
+      "h": 25
+    },
+    {
+      "x": 825,
+      "y": 350,
+      "w": 25,
+      "h": 125
+    },
+    {
+      "x": 525,
+      "y": 375,
+      "w": 75,
+      "h": 25
+    },
+    {
+      "x": 800,
+      "y": 375,
+      "w": 25,
+      "h": 100
+    },
+    {
+      "x": 525,
+      "y": 400,
+      "w": 50,
+      "h": 250
+    },
+    {
+      "x": 750,
+      "y": 400,
+      "w": 50,
+      "h": 75
+    },
+    {
+      "x": 725,
+      "y": 425,
+      "w": 25,
+      "h": 50
+    },
+    {
+      "x": 575,
+      "y": 500,
+      "w": 25,
+      "h": 150
+    },
+    {
+      "x": 1000,
+      "y": 500,
+      "w": 100,
+      "h": 25
+    },
+    {
+      "x": 600,
+      "y": 525,
+      "w": 50,
+      "h": 125
+    },
+    {
+      "x": 1025,
+      "y": 525,
+      "w": 75,
+      "h": 25
+    },
+    {
+      "x": 650,
+      "y": 550,
+      "w": 250,
+      "h": 100
+    },
+    {
+      "x": 1050,
+      "y": 550,
+      "w": 50,
+      "h": 25
+    },
+    {
+      "x": 900,
+      "y": 575,
+      "w": 50,
+      "h": 75
+    },
+    {
+      "x": 1075,
+      "y": 575,
+      "w": 25,
+      "h": 75
+    },
+    {
+      "x": 950,
+      "y": 625,
+      "w": 125,
+      "h": 25
+    }
+  ],
+  "assets": [
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 270,
+      "y": 550,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 350,
+      "y": 560,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 310,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 360,
+      "y": 470,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 380,
+      "y": 490,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 410,
+      "y": 510,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 430,
+      "y": 530,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 410,
+      "y": 560,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 310,
+      "y": 570,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 290,
+      "y": 440,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 310,
+      "y": 390,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 350,
+      "y": 330,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 350,
+      "y": 330,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 370,
+      "y": 390,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 390,
+      "y": 410,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 410,
+      "y": 430,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 430,
+      "y": 450,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 450,
+      "y": 370,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 490,
+      "y": 470,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 510,
+      "y": 490,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 490,
+      "y": 550,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 500,
+      "y": 300,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 410,
+      "y": 300,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 470,
+      "y": 370,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 530,
+      "y": 200,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 860,
+      "y": 400,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 270,
+      "y": 240,
+      "w": 150,
+      "h": 82,
+      "rotation": 20
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 1090,
+      "y": 270,
+      "w": 150,
+      "h": 82,
+      "rotation": 20
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 560,
+      "y": 270,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 480,
+      "y": 240,
+      "w": 98,
+      "h": 95,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 840,
+      "y": 270,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 860,
+      "y": 290,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 880,
+      "y": 310,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 920,
+      "y": 320,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 920,
+      "y": 350,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 950,
+      "y": 370,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 960,
+      "y": 390,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 900,
+      "y": 330,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 970,
+      "y": 360,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 870,
+      "y": 260,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 910,
+      "y": 290,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 990,
+      "y": 410,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1010,
+      "y": 430,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1040,
+      "y": 440,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1040,
+      "y": 480,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1050,
+      "y": 510,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1070,
+      "y": 530,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 770,
+      "y": 350,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 810,
+      "y": 300,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 840,
+      "y": 310,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 750,
+      "y": 370,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 930,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 990,
+      "y": 240,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1010,
+      "y": 260,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1050,
+      "y": 300,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1100,
+      "y": 320,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1090,
+      "y": 380,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1040,
+      "y": 350,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1150,
+      "y": 370,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1140,
+      "y": 430,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1130,
+      "y": 460,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1120,
+      "y": 460,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1150,
+      "y": 490,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1150,
+      "y": 540,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1170,
+      "y": 560,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1090,
+      "y": 550,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 1090,
+      "y": 590,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 990,
+      "y": 280,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1150,
+      "y": 210,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1170,
+      "y": 230,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1170,
+      "y": 300,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1170,
+      "y": 160,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 250,
+      "y": 480,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 360,
+      "y": 300,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 300,
+      "y": 310,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 280,
+      "y": 320,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 230,
+      "y": 300,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 260,
+      "y": 370,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 370,
+      "y": 270,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 250,
+      "y": 200,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 250,
+      "y": 250,
+      "w": 78,
+      "h": 85,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 230,
+      "y": 150,
+      "w": 78,
+      "h": 85,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 100,
+      "y": 250,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 120,
+      "y": 270,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 140,
+      "y": 290,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 80,
+      "y": 310,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 60,
+      "y": 260,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 100,
+      "y": 250,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_2.png",
+      "name": "rock",
+      "x": 100,
+      "y": 290,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_2.png",
+      "name": "desert_asset",
+      "x": 90,
+      "y": 290,
+      "w": 150,
+      "h": 82,
+      "rotation": 9
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 20,
+      "y": 10,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 180,
+      "y": 10,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 100,
+      "y": -10,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 170,
+      "y": 70,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 60,
+      "y": 90,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 60,
+      "y": 90,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 110,
+      "y": 70,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 240,
+      "y": -30,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 170,
+      "y": -50,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": -20,
+      "y": 90,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 120,
+      "y": 140,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 30,
+      "y": 160,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 530,
+      "y": 530,
+      "w": 180,
+      "h": 104,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 60,
+      "y": -30,
+      "w": 150,
+      "h": 94,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 0,
+      "y": -40,
+      "w": 150,
+      "h": 94,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": -40,
+      "y": 20,
+      "w": 150,
+      "h": 94,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": -70,
+      "y": 80,
+      "w": 150,
+      "h": 94,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": -60,
+      "y": 160,
+      "w": 150,
+      "h": 94,
+      "rotation": 60
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 970,
+      "y": -10,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 990,
+      "y": 10,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 1010,
+      "y": 60,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 980,
+      "y": 90,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 930,
+      "y": 70,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 900,
+      "y": 10,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 960,
+      "y": 90,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 830,
+      "y": -10,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 900,
+      "y": -40,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 770,
+      "y": -20,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 690,
+      "y": -20,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_jungle_202603281320.png",
+      "name": "jungle",
+      "x": 610,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    }
+  ]
+}

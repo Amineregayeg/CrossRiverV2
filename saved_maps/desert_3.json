@@ -1,0 +1,1567 @@
+{
+  "name": "Untitled",
+  "season": "desert",
+  "level": 3,
+  "time_limit": 60,
+  "finish": {
+    "axis": "y",
+    "pos": 590,
+    "x1": 500,
+    "x2": 680
+  },
+  "start": {
+    "axis": "x",
+    "pos": 30,
+    "y1": 340,
+    "y2": 370,
+    "angle": 90
+  },
+  "river_paths": [
+    {
+      "points": [
+        {
+          "x": 30,
+          "y": 290
+        },
+        {
+          "x": 330,
+          "y": 290
+        },
+        {
+          "x": 330,
+          "y": 290
+        },
+        {
+          "x": 330,
+          "y": 150
+        },
+        {
+          "x": 340,
+          "y": 130
+        },
+        {
+          "x": 360,
+          "y": 120
+        },
+        {
+          "x": 390,
+          "y": 110
+        },
+        {
+          "x": 1130,
+          "y": 110
+        },
+        {
+          "x": 1150,
+          "y": 120
+        },
+        {
+          "x": 1170,
+          "y": 130
+        },
+        {
+          "x": 1190,
+          "y": 150
+        },
+        {
+          "x": 1190,
+          "y": 220
+        },
+        {
+          "x": 1190,
+          "y": 540
+        },
+        {
+          "x": 1170,
+          "y": 560
+        },
+        {
+          "x": 1150,
+          "y": 580
+        },
+        {
+          "x": 1120,
+          "y": 590
+        },
+        {
+          "x": 1120,
+          "y": 590
+        },
+        {
+          "x": 660,
+          "y": 600
+        },
+        {
+          "x": 660,
+          "y": 630
+        },
+        {
+          "x": 520,
+          "y": 630
+        },
+        {
+          "x": 520,
+          "y": 530
+        },
+        {
+          "x": 540,
+          "y": 510
+        },
+        {
+          "x": 560,
+          "y": 480
+        },
+        {
+          "x": 590,
+          "y": 480
+        },
+        {
+          "x": 1050,
+          "y": 480
+        },
+        {
+          "x": 1050,
+          "y": 220
+        },
+        {
+          "x": 470,
+          "y": 220
+        },
+        {
+          "x": 460,
+          "y": 360
+        },
+        {
+          "x": 450,
+          "y": 380
+        },
+        {
+          "x": 450,
+          "y": 380
+        },
+        {
+          "x": 430,
+          "y": 390
+        },
+        {
+          "x": 400,
+          "y": 400
+        },
+        {
+          "x": 340,
+          "y": 400
+        },
+        {
+          "x": 230,
+          "y": 400
+        },
+        {
+          "x": 30,
+          "y": 400
+        }
+      ],
+      "closed": true
+    }
+  ],
+  "poly_obstacles": [],
+  "slow_zones": [],
+  "spawn_point": {
+    "x": 70,
+    "y": 350,
+    "angle": 90
+  },
+  "obstacles": [],
+  "generated_obstacles": [
+    {
+      "x": 0,
+      "y": 0,
+      "w": 1250,
+      "h": 100
+    },
+    {
+      "x": 0,
+      "y": 100,
+      "w": 375,
+      "h": 25
+    },
+    {
+      "x": 1125,
+      "y": 100,
+      "w": 125,
+      "h": 25
+    },
+    {
+      "x": 0,
+      "y": 125,
+      "w": 325,
+      "h": 175
+    },
+    {
+      "x": 1175,
+      "y": 125,
+      "w": 75,
+      "h": 25
+    },
+    {
+      "x": 1200,
+      "y": 150,
+      "w": 50,
+      "h": 500
+    },
+    {
+      "x": 475,
+      "y": 225,
+      "w": 575,
+      "h": 250
+    },
+    {
+      "x": 0,
+      "y": 300,
+      "w": 25,
+      "h": 350
+    },
+    {
+      "x": 450,
+      "y": 325,
+      "w": 25,
+      "h": 325
+    },
+    {
+      "x": 425,
+      "y": 375,
+      "w": 25,
+      "h": 275
+    },
+    {
+      "x": 25,
+      "y": 400,
+      "w": 400,
+      "h": 250
+    },
+    {
+      "x": 475,
+      "y": 475,
+      "w": 75,
+      "h": 25
+    },
+    {
+      "x": 475,
+      "y": 500,
+      "w": 50,
+      "h": 150
+    },
+    {
+      "x": 1175,
+      "y": 550,
+      "w": 25,
+      "h": 100
+    },
+    {
+      "x": 1125,
+      "y": 575,
+      "w": 50,
+      "h": 75
+    },
+    {
+      "x": 650,
+      "y": 600,
+      "w": 475,
+      "h": 50
+    },
+    {
+      "x": 525,
+      "y": 625,
+      "w": 125,
+      "h": 25
+    }
+  ],
+  "assets": [
+    {
+      "src": "assets/images/imports/Desert_Neil/desert2_top.png",
+      "name": "desert2_top",
+      "x": 0,
+      "y": 20,
+      "w": 1250,
+      "h": 614,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/desert2_bottom.png",
+      "name": "desert2_bottom",
+      "x": 0,
+      "y": 0,
+      "w": 1250,
+      "h": 654,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 530,
+      "y": 260,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 440,
+      "y": 400,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 620,
+      "y": 390,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 620,
+      "y": 400,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/Screenshot 2026-04-02 011824.png",
+      "name": "Screenshot 2026-04-02 011824",
+      "x": 520,
+      "y": 220,
+      "w": 530,
+      "h": 260,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 500,
+      "y": 460,
+      "w": 60,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 530,
+      "y": 460,
+      "w": 50,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/water_tile_transparent.png",
+      "name": "water_tile_transparent",
+      "x": 640,
+      "y": 260,
+      "w": 288,
+      "h": 176,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 640,
+      "y": 250,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 740,
+      "y": 230,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 830,
+      "y": 330,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 640,
+      "y": 360,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 730,
+      "y": 400,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 890,
+      "y": 400,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 920,
+      "y": 230,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 520,
+      "y": 400,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 510,
+      "y": 290,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_forest_202603281320_10.png",
+      "name": "forest",
+      "x": 420,
+      "y": 360,
+      "w": 120,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 600,
+      "y": 240,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 510,
+      "y": 330,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 640,
+      "y": 390,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 930,
+      "y": 340,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 860,
+      "y": 230,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 1.png",
+      "name": "cactus 1",
+      "x": 980,
+      "y": 290,
+      "w": 70,
+      "h": 70,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 630,
+      "y": 340,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 570,
+      "y": 340,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 650,
+      "y": 300,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 710,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 770,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 810,
+      "y": 270,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 860,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 890,
+      "y": 310,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 860,
+      "y": 380,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 820,
+      "y": 390,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 740,
+      "y": 400,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 760,
+      "y": 440,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 780,
+      "y": 440,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 920,
+      "y": 450,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 950,
+      "y": 440,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 950,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 980,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 600,
+      "y": 440,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 480,
+      "y": 400,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 490,
+      "y": 330,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/camel.png",
+      "name": "camel",
+      "x": 620,
+      "y": 380,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/camel.png",
+      "name": "camel",
+      "x": 610,
+      "y": 310,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/camel.png",
+      "name": "camel",
+      "x": 840,
+      "y": 410,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/camel.png",
+      "name": "camel",
+      "x": 710,
+      "y": 400,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/camel.png",
+      "name": "camel",
+      "x": 730,
+      "y": 250,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/skull.png",
+      "name": "skull",
+      "x": 520,
+      "y": 280,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/snake_2.png",
+      "name": "snake",
+      "x": 990,
+      "y": 440,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 450,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 490,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 540,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 580,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 620,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 510,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 600,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 550,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 650,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 820,
+      "y": 190,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 860,
+      "y": 200,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 990,
+      "y": 190,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 720,
+      "y": 210,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 750,
+      "y": 210,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 780,
+      "y": 210,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 940,
+      "y": 210,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 970,
+      "y": 210,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 460,
+      "y": 330,
+      "w": 30,
+      "h": 30,
+      "rotation": 4
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 460,
+      "y": 300,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 460,
+      "y": 250,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 940,
+      "y": 320,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 880,
+      "y": 430,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 490,
+      "y": 430,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 980,
+      "y": 430,
+      "w": 80,
+      "h": 60,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/snake.png",
+      "name": "snake",
+      "x": 1000,
+      "y": 400,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/boat/Pixel_art_boat_202603281320_2.png",
+      "name": "boat",
+      "x": 830,
+      "y": 300,
+      "w": 60,
+      "h": 34,
+      "rotation": 27
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/campfire.png",
+      "name": "campfire",
+      "x": 460,
+      "y": 430,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_2.png",
+      "name": "rock",
+      "x": 1160,
+      "y": 560,
+      "w": 90,
+      "h": 90,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 20,
+      "y": 260,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 100,
+      "y": 250,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 130,
+      "y": 250,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 2.png",
+      "name": "cactus 2",
+      "x": 160,
+      "y": 250,
+      "w": 30,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 270,
+      "y": 230,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 50,
+      "y": 190,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 50,
+      "y": 100,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 380,
+      "y": 20,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 150,
+      "y": 50,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 20,
+      "y": 430,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 80,
+      "y": 490,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 450,
+      "y": 600,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 260,
+      "y": 620,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 570,
+      "y": 260,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 990,
+      "y": 360,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 960,
+      "y": 40,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 1210,
+      "y": 70,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 680,
+      "y": 610,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 1130,
+      "y": 610,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 1220,
+      "y": 300,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 260,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 240,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 220,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 200,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 180,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 160,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 300,
+      "y": 140,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 310,
+      "y": 120,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 330,
+      "y": 110,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 350,
+      "y": 100,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 370,
+      "y": 90,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 390,
+      "y": 90,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 410,
+      "y": 90,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 280,
+      "y": 260,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 270,
+      "y": 260,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/bsuh 1.png",
+      "name": "bsuh 1",
+      "x": 250,
+      "y": 260,
+      "w": 40,
+      "h": 40,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/sign.png",
+      "name": "sign",
+      "x": 40,
+      "y": 390,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": -30,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 90,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 210,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 340,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 470,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 590,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 710,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 840,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 960,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 1080,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_desert_202603281320_3.png",
+      "name": "desert",
+      "x": 1140,
+      "y": -30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 650,
+      "y": 20,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/cactus 4.png",
+      "name": "cactus 4",
+      "x": 380,
+      "y": 20,
+      "w": 30,
+      "h": 30,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 200,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 220,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 240,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 260,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 280,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 300,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 320,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 340,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 360,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 380,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 400,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/imports/Desert_Neil/rock_3.png",
+      "name": "rock",
+      "x": 1180,
+      "y": 420,
+      "w": 40,
+      "h": 50,
+      "rotation": 0
+    }
+  ]
+}

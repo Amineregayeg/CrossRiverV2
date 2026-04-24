@@ -1,0 +1,3070 @@
+{
+  "name": "level2",
+  "season": "forest",
+  "level": 3,
+  "time_limit": 60,
+  "finish": {
+    "axis": "y",
+    "pos": 30,
+    "x1": 970,
+    "x2": 1170
+  },
+  "start": {
+    "axis": "x",
+    "pos": 10,
+    "y1": 380,
+    "y2": 380
+  },
+  "river_paths": [
+    {
+      "points": [
+        {
+          "x": 0,
+          "y": 430
+        },
+        {
+          "x": 380,
+          "y": 430
+        },
+        {
+          "x": 380,
+          "y": 430
+        },
+        {
+          "x": 460,
+          "y": 300
+        },
+        {
+          "x": 480,
+          "y": 310
+        },
+        {
+          "x": 570,
+          "y": 310
+        },
+        {
+          "x": 570,
+          "y": 310
+        },
+        {
+          "x": 650,
+          "y": 560
+        },
+        {
+          "x": 650,
+          "y": 560
+        },
+        {
+          "x": 950,
+          "y": 540
+        },
+        {
+          "x": 1050,
+          "y": 540
+        },
+        {
+          "x": 1050,
+          "y": 540
+        },
+        {
+          "x": 1080,
+          "y": 380
+        },
+        {
+          "x": 1110,
+          "y": 140
+        },
+        {
+          "x": 1110,
+          "y": 140
+        },
+        {
+          "x": 1140,
+          "y": 0
+        },
+        {
+          "x": 1110,
+          "y": 0
+        },
+        {
+          "x": 990,
+          "y": 0
+        },
+        {
+          "x": 980,
+          "y": 40
+        },
+        {
+          "x": 900,
+          "y": 470
+        },
+        {
+          "x": 900,
+          "y": 470
+        },
+        {
+          "x": 740,
+          "y": 470
+        },
+        {
+          "x": 740,
+          "y": 470
+        },
+        {
+          "x": 650,
+          "y": 200
+        },
+        {
+          "x": 650,
+          "y": 200
+        },
+        {
+          "x": 420,
+          "y": 200
+        },
+        {
+          "x": 420,
+          "y": 200
+        },
+        {
+          "x": 300,
+          "y": 340
+        },
+        {
+          "x": 300,
+          "y": 340
+        },
+        {
+          "x": 0,
+          "y": 340
+        }
+      ],
+      "closed": true
+    }
+  ],
+  "poly_obstacles": [],
+  "slow_zones": [
+    {
+      "points": [
+        {
+          "x": 400,
+          "y": 390
+        },
+        {
+          "x": 400,
+          "y": 420
+        },
+        {
+          "x": 300,
+          "y": 410
+        }
+      ],
+      "closed": true
+    },
+    {
+      "points": [
+        {
+          "x": 680,
+          "y": 420
+        },
+        {
+          "x": 690,
+          "y": 480
+        },
+        {
+          "x": 730,
+          "y": 480
+        },
+        {
+          "x": 730,
+          "y": 420
+        }
+      ],
+      "closed": true
+    },
+    {
+      "points": [
+        {
+          "x": 1020,
+          "y": 400
+        },
+        {
+          "x": 1070,
+          "y": 430
+        },
+        {
+          "x": 1040,
+          "y": 470
+        },
+        {
+          "x": 990,
+          "y": 480
+        }
+      ],
+      "closed": true
+    }
+  ],
+  "spawn_point": {
+    "x": 30,
+    "y": 390,
+    "angle": 90
+  },
+  "obstacles": [],
+  "generated_obstacles": [
+    {
+      "x": 0,
+      "y": 0,
+      "w": 975,
+      "h": 125
+    },
+    {
+      "x": 1125,
+      "y": 0,
+      "w": 125,
+      "h": 650
+    },
+    {
+      "x": 0,
+      "y": 125,
+      "w": 950,
+      "h": 75
+    },
+    {
+      "x": 1100,
+      "y": 125,
+      "w": 25,
+      "h": 525
+    },
+    {
+      "x": 0,
+      "y": 200,
+      "w": 400,
+      "h": 50
+    },
+    {
+      "x": 650,
+      "y": 200,
+      "w": 300,
+      "h": 50
+    },
+    {
+      "x": 0,
+      "y": 250,
+      "w": 375,
+      "h": 25
+    },
+    {
+      "x": 675,
+      "y": 250,
+      "w": 275,
+      "h": 25
+    },
+    {
+      "x": 0,
+      "y": 275,
+      "w": 350,
+      "h": 25
+    },
+    {
+      "x": 675,
+      "y": 275,
+      "w": 250,
+      "h": 50
+    },
+    {
+      "x": 0,
+      "y": 300,
+      "w": 325,
+      "h": 25
+    },
+    {
+      "x": 450,
+      "y": 300,
+      "w": 125,
+      "h": 350
+    },
+    {
+      "x": 0,
+      "y": 325,
+      "w": 300,
+      "h": 25
+    },
+    {
+      "x": 425,
+      "y": 325,
+      "w": 25,
+      "h": 325
+    },
+    {
+      "x": 700,
+      "y": 325,
+      "w": 225,
+      "h": 75
+    },
+    {
+      "x": 1075,
+      "y": 325,
+      "w": 25,
+      "h": 325
+    },
+    {
+      "x": 400,
+      "y": 375,
+      "w": 25,
+      "h": 275
+    },
+    {
+      "x": 575,
+      "y": 375,
+      "w": 25,
+      "h": 275
+    },
+    {
+      "x": 725,
+      "y": 400,
+      "w": 175,
+      "h": 75
+    },
+    {
+      "x": 0,
+      "y": 425,
+      "w": 400,
+      "h": 225
+    },
+    {
+      "x": 600,
+      "y": 450,
+      "w": 25,
+      "h": 200
+    },
+    {
+      "x": 1050,
+      "y": 475,
+      "w": 25,
+      "h": 175
+    },
+    {
+      "x": 625,
+      "y": 525,
+      "w": 25,
+      "h": 125
+    },
+    {
+      "x": 650,
+      "y": 550,
+      "w": 400,
+      "h": 100
+    }
+  ],
+  "assets": [
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 80,
+      "y": 440,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 240,
+      "y": 440,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_2.png",
+      "name": "desert_asset",
+      "x": 130,
+      "y": 470,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 260,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 190,
+      "y": 410,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 110,
+      "y": 270,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 90,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 150,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 200,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 250,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 80,
+      "y": 80,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 150,
+      "y": 90,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 200,
+      "y": 100,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 320,
+      "y": 90,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 260,
+      "y": 100,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 300,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 370,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 420,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/props/Pixel_art_palm_202603281320.png",
+      "name": "palm",
+      "x": 470,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 420,
+      "y": 90,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 90,
+      "y": 120,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 170,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 130,
+      "y": 200,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 130,
+      "y": 230,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 100,
+      "y": 190,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 130,
+      "y": 260,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 110,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 210,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 160,
+      "y": 200,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 370,
+      "y": 400,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 360,
+      "y": 450,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 320,
+      "y": 430,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 240,
+      "y": 410,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 140,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 90,
+      "y": 550,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 70,
+      "y": 460,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 110,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 150,
+      "y": 560,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 180,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 230,
+      "y": 510,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_grass_202603281320.png",
+      "name": "grass",
+      "x": 480,
+      "y": 480,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_grass_202603281320.png",
+      "name": "grass",
+      "x": 230,
+      "y": 570,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_fallen_202603281320.png",
+      "name": "fallen",
+      "x": 500,
+      "y": 540,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 390,
+      "y": 360,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 420,
+      "y": 310,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 430,
+      "y": 280,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 470,
+      "y": 290,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 500,
+      "y": 300,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 400,
+      "y": 340,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 460,
+      "y": 350,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 520,
+      "y": 350,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 360,
+      "y": 310,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 370,
+      "y": 390,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 440,
+      "y": 420,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 400,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 110,
+      "y": 490,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 170,
+      "y": 450,
+      "w": 78,
+      "h": 75,
+      "rotation": 358
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 130,
+      "y": 400,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 160,
+      "y": 550,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 330,
+      "y": 500,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 320,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 260,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 210,
+      "y": 150,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 300,
+      "y": 180,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 270,
+      "y": 170,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 240,
+      "y": 290,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 240,
+      "y": 240,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 280,
+      "y": 220,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 160,
+      "y": 210,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 220,
+      "y": 210,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 230,
+      "y": 190,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 290,
+      "y": 560,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 410,
+      "y": 500,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 390,
+      "y": 550,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 840,
+      "y": 30,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 800,
+      "y": 170,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 820,
+      "y": 80,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 320,
+      "y": 130,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 400,
+      "y": 150,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 480,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 410,
+      "y": 130,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 440,
+      "y": 80,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 490,
+      "y": 120,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 570,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 500,
+      "y": 410,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 530,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 510,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 400,
+      "y": 450,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 550,
+      "y": 50,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 630,
+      "y": 30,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 670,
+      "y": 60,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 610,
+      "y": 110,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 690,
+      "y": 390,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 690,
+      "y": 330,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 700,
+      "y": 270,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 710,
+      "y": 220,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 720,
+      "y": 180,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 730,
+      "y": 130,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 740,
+      "y": 80,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 740,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320_3.png",
+      "name": "rock",
+      "x": 730,
+      "y": -10,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_boulder_202603281320_3.png",
+      "name": "boulder",
+      "x": 690,
+      "y": 350,
+      "w": 150,
+      "h": 84,
+      "rotation": 285
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_boulder_202603281320_3.png",
+      "name": "boulder",
+      "x": 720,
+      "y": 250,
+      "w": 150,
+      "h": 84,
+      "rotation": 120
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_boulder_202603281320_3.png",
+      "name": "boulder",
+      "x": 750,
+      "y": 30,
+      "w": 150,
+      "h": 84,
+      "rotation": 105
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_boulder_202603281320_3.png",
+      "name": "boulder",
+      "x": 740,
+      "y": 130,
+      "w": 150,
+      "h": 84,
+      "rotation": 105
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320.png",
+      "name": "rock",
+      "x": 480,
+      "y": 510,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/Pixel_art_rock_202603281320.png",
+      "name": "rock",
+      "x": 510,
+      "y": 510,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 630,
+      "y": 200,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 610,
+      "y": 160,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 640,
+      "y": 220,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 620,
+      "y": 250,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 420,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 630,
+      "y": 300,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 690,
+      "y": 360,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 650,
+      "y": 170,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 680,
+      "y": 210,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 690,
+      "y": 260,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 680,
+      "y": 260,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 670,
+      "y": 170,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 720,
+      "y": 150,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 720,
+      "y": 120,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 720,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 520,
+      "y": 80,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 560,
+      "y": 90,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 500,
+      "y": 550,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 800,
+      "y": 230,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 840,
+      "y": 420,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 780,
+      "y": 420,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest_asset_2.png",
+      "name": "forest_asset",
+      "x": 750,
+      "y": 300,
+      "w": 150,
+      "h": 82,
+      "rotation": 105
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 760,
+      "y": 380,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 570,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 590,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 800,
+      "y": 340,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 690,
+      "y": 330,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 830,
+      "y": 310,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 850,
+      "y": 260,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 860,
+      "y": 180,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 880,
+      "y": 140,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 890,
+      "y": 100,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 910,
+      "y": 50,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 920,
+      "y": 0,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 900,
+      "y": -10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 840,
+      "y": -10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 870,
+      "y": -20,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 690,
+      "y": -20,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 650,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 570,
+      "y": 10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 600,
+      "y": -10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 470,
+      "y": -20,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 450,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 110,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 160,
+      "y": -10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 210,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 220,
+      "y": -20,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 290,
+      "y": -10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 320,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 350,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 380,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 420,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 450,
+      "y": 570,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 80,
+      "y": 560,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 580,
+      "y": 540,
+      "w": 154,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 550,
+      "y": 590,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 700,
+      "y": 540,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 740,
+      "y": 530,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 790,
+      "y": 530,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 840,
+      "y": 530,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 860,
+      "y": 510,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 900,
+      "y": 510,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 930,
+      "y": 510,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 960,
+      "y": 490,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1000,
+      "y": 480,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 730,
+      "y": 560,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 770,
+      "y": 570,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 820,
+      "y": 570,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 660,
+      "y": 610,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 620,
+      "y": 590,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 390,
+      "y": 590,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 860,
+      "y": 580,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 900,
+      "y": 580,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 940,
+      "y": 590,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 950,
+      "y": 560,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 960,
+      "y": 570,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 990,
+      "y": 560,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1030,
+      "y": 570,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1030,
+      "y": 540,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 850,
+      "y": 150,
+      "w": 128,
+      "h": 55,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 800,
+      "y": 150,
+      "w": 108,
+      "h": 55,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 890,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 830,
+      "y": 290,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1100,
+      "y": 40,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1070,
+      "y": 120,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1020,
+      "y": 440,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1030,
+      "y": 380,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1040,
+      "y": 350,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1010,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1050,
+      "y": 320,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1050,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1050,
+      "y": 240,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1070,
+      "y": 200,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1070,
+      "y": 160,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1010,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1040,
+      "y": 80,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1040,
+      "y": 290,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1090,
+      "y": 220,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1060,
+      "y": 340,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 650,
+      "y": 540,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1130,
+      "y": 0,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1120,
+      "y": 70,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1100,
+      "y": 110,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1100,
+      "y": 160,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1080,
+      "y": 280,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1040,
+      "y": 400,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1040,
+      "y": 470,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1070,
+      "y": 510,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1090,
+      "y": 540,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1100,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1130,
+      "y": 570,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1160,
+      "y": 540,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1110,
+      "y": 500,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1170,
+      "y": 480,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1160,
+      "y": 440,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1110,
+      "y": 460,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1090,
+      "y": 400,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1130,
+      "y": 400,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1100,
+      "y": 340,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1150,
+      "y": 360,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 1150,
+      "y": 20,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 1140,
+      "y": 70,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 1140,
+      "y": 110,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 1120,
+      "y": 160,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/desert_asset_1.png",
+      "name": "desert_asset",
+      "x": 1160,
+      "y": 210,
+      "w": 150,
+      "h": 82,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1170,
+      "y": 320,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1160,
+      "y": 290,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1160,
+      "y": 250,
+      "w": 144,
+      "h": 108,
+      "rotation": 105
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_grass_202603281320.png",
+      "name": "grass",
+      "x": 290,
+      "y": 600,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_grass_202603281320.png",
+      "name": "grass",
+      "x": 390,
+      "y": 590,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_grass_202603281320.png",
+      "name": "grass",
+      "x": 220,
+      "y": 590,
+      "w": 150,
+      "h": 84,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_dirt_202603281320.png",
+      "name": "dirt",
+      "x": 260,
+      "y": 380,
+      "w": 210,
+      "h": 64,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 440,
+      "y": 270,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 500,
+      "y": 270,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_dirt_202603281320.png",
+      "name": "dirt",
+      "x": 640,
+      "y": 370,
+      "w": 140,
+      "h": 134,
+      "rotation": 165
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 900,
+      "y": 230,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/decor/Pixel_art_dirt_202603281320.png",
+      "name": "dirt",
+      "x": 970,
+      "y": 330,
+      "w": 150,
+      "h": 214,
+      "rotation": 30
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1030,
+      "y": 350,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1000,
+      "y": 460,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 90,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 40,
+      "y": 410,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 30,
+      "y": 430,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 120,
+      "y": 430,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 0,
+      "y": 420,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 40,
+      "y": 480,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 60,
+      "y": 500,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 40,
+      "y": 530,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": -70,
+      "y": 430,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": -60,
+      "y": 530,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 0,
+      "y": 590,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -10,
+      "y": 490,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -20,
+      "y": 590,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 80,
+      "y": 600,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 170,
+      "y": 610,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 210,
+      "y": 550,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 200,
+      "y": 600,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 50,
+      "y": 420,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": -20,
+      "y": 190,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 10,
+      "y": 80,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": -50,
+      "y": -20,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 30,
+      "y": -60,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": -90,
+      "y": 90,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 50,
+      "y": 270,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -20,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 20,
+      "y": 280,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 60,
+      "y": 230,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 50,
+      "y": 170,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -20,
+      "y": 230,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -20,
+      "y": 170,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 10,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -10,
+      "y": 70,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 30,
+      "y": 30,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 50,
+      "y": 50,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 90,
+      "y": 10,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 20,
+      "y": -30,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": -10,
+      "y": 100,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 70,
+      "y": 140,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 710,
+      "y": 600,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 680,
+      "y": 630,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 520,
+      "y": 600,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 720,
+      "y": 600,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 860,
+      "y": 600,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 840,
+      "y": 610,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 800,
+      "y": 620,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 930,
+      "y": -30,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 540,
+      "y": -40,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 560,
+      "y": -20,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 650,
+      "y": -40,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 610,
+      "y": -50,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1130,
+      "y": -30,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1190,
+      "y": -20,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 1190,
+      "y": 320,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest2-removebg-preview.png",
+      "name": "forest2-removebg-preview",
+      "x": 810,
+      "y": -50,
+      "w": 78,
+      "h": 75,
+      "rotation": 0
+    },
+    {
+      "src": "assets/images/obstacles/forest1-removebg-preview.png",
+      "name": "forest1-removebg-preview",
+      "x": 1080,
+      "y": 570,
+      "w": 144,
+      "h": 108,
+      "rotation": 0
+    }
+  ]
+}

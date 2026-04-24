@@ -1,394 +1,1001 @@
-import random
-import pygame
-import sys
-import math
-import os
-from typing import Optional, Tuple
+"""
+Seasonal maps for CrossRiver - precisely traced from sketch images.
+Game resolution: 1250×650
+Each map defines obstacle rectangles that create the river path.
+Assets are placed as decoration within the river and on obstacle areas.
 
-# --- TMX loader (pip install pytmx) ---
-from pytmx.util_pygame import load_pygame
-import pytmx
+20 maps across 4 seasons (5 levels per season):
+- FOREST: Closing Door, Muddy Zigzag, Rock Horseshoe, Cloud Cover, Dense Forest
+- SNOW: The Freeze, Ice Block Alley, Ice Field, Frozen S-Curve, Wind Corridor
+- DESERT: Sandy S-Curve, Cactus Zigzag, Rock Hairpin, Sandstorm Run, Scorpion Slalom
+- TROPICS: Foggy River, Vine Corridor, Mud Bend, Jungle S, Dark Swamp
+"""
 
-pygame.init()
+# ============================================================================
+# FOREST THEME - Ancient trees and muddy waters
+# ============================================================================
 
-# ==================================================
-# 1) Create a tiny temporary display BEFORE load_tmx
-#    (needed because pytmx uses convert_alpha() on tiles)
-# ==================================================
-# _temp_screen = pygame.display.set_mode((1, 1))
-screen = pygame.display.set_mode((1440, 810), pygame.FULLSCREEN | pygame.SCALED)
-pygame.display.set_caption("Cross River (loading...)")
+FOREST_CLOSING_DOOR = {
+    "name": "Forest - Closing Door",
+    "theme": "forest",
+    "level": 1,
+    "season": "forest",
+    "time_limit": 60,
+    "description": "Navigate an L-shaped river. Watch the closing door mechanic at the exit!",
 
-# =======================
-# Paths (match your setup)
-# =======================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MAP_DIR = os.path.join(BASE_DIR, "maps")
-MAP_FILE = "crossRiver_Map_Level1.tmx"   # <-- matches your screenshot/file
-MAP_PATH = os.path.join(MAP_DIR, MAP_FILE)
+    # Traced from sketch: L-shaped river flowing up then right, large mass on right/bottom
+    "obstacles": [
+        # Left wall (continuous narrow strip)
+        (0, 0, 100, 500),
+        # Bottom-right wall (wide area, leaving spawn gap at bottom-center)
+        (700, 520, 550, 130),
+        # Right wall at top (the closing door area)
+        (1100, 0, 150, 300),
+        # Interior obstacles creating current effect
+        (150, 100, 120, 100),
+        (200, 250, 100, 90),
+        (350, 350, 110, 120),
+        (600, 200, 130, 110),
+        (800, 380, 150, 100),
+        (0, 520, 200, 130),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_forest_202603281320.png", "x": 50, "y": 150, "scale": 0.15, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_3.png", "x": 50, "y": 350, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_10.png", "x": 50, "y": 500, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_2.png", "x": 1100, "y": 50, "scale": 0.15, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_3.png", "x": 1100, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "decor/Pixel_art_fallen_202603281320.png", "x": 150, "y": 550, "scale": 0.2, "z_order": 2},
+        {"file": "decor/Pixel_art_fallen_202603281320.png", "x": 500, "y": 550, "scale": 0.2, "z_order": 2},
+        {"file": "decor/Pixel_art_fallen_202603281320.png", "x": 900, "y": 550, "scale": 0.2, "z_order": 2},
+        {"file": "decor/Pixel_art_moss_202603281320.png", "x": 200, "y": 400, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_mushroom_202603281320.png", "x": 600, "y": 450, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_grass_202603281320.png", "x": 800, "y": 350, "scale": 0.08, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 100,
+    "finish_x2": 1100,
+    "mechanics": {"closing_door": True, "difficulty": 1},
+}
 
-print("[DEBUG] CWD        :", os.getcwd())
-print("[DEBUG] MAP_DIR    :", MAP_DIR)
-print("[DEBUG] MAP_PATH   :", MAP_PATH)
-print("[DEBUG] Map exists :", os.path.exists(MAP_PATH))
+FOREST_MUDDY_ZIGZAG = {
+    "name": "Forest - Muddy Zigzag",
+    "theme": "forest",
+    "level": 2,
+    "season": "forest",
+    "time_limit": 55,
+    "description": "Zigzag through muddy patches. Mud slows your boat significantly!",
 
-if not os.path.exists(MAP_PATH):
-    try:
-        print("[DEBUG] maps/ contents:", os.listdir(MAP_DIR))
-    except Exception as e:
-        print("[DEBUG] Unable to list maps/:", e)
-    raise FileNotFoundError(
-        "TMX not found.\n"
-        f"Expected here: {MAP_PATH}\n"
-        "• Put your .tmx and its tileset PNGs inside the 'maps' folder (as in your screenshots),\n"
-        "• or change MAP_FILE above to the correct filename."
-    )
+    # Traced: Zigzag pattern with mud obstacles in the water
+    "obstacles": [
+        # Top left wall
+        (0, 0, 150, 200),
+        # Top right wall
+        (900, 0, 350, 150),
+        # First zigzag - left jut
+        (0, 150, 250, 200),
+        # First zigzag - right jut
+        (700, 150, 550, 150),
+        # Second zigzag - left jut
+        (150, 350, 280, 150),
+        # Second zigzag - right jut
+        (600, 350, 650, 150),
+        # Bottom section walls
+        (0, 500, 200, 150),
+        (1000, 500, 250, 150),
+        # Mud patches in water (circular obstacles as rectangles)
+        (350, 100, 110, 90),
+        (600, 250, 100, 100),
+        (300, 400, 120, 100),
+        (800, 400, 110, 90),
+        (450, 550, 130, 80),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_forest_202603281320_3.png", "x": 50, "y": 80, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_9.png", "x": 50, "y": 200, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320.png", "x": 950, "y": 50, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_10.png", "x": 1050, "y": 80, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 350, "y": 120, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 600, "y": 280, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 300, "y": 430, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 800, "y": 430, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_dirt_202603281320.png", "x": 700, "y": 200, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_grass_202603281320.png", "x": 900, "y": 350, "scale": 0.09, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 150,
+    "finish_x2": 900,
+    "mechanics": {"mud_patches": True, "difficulty": 2},
+}
 
-# ==================
-# Load TMX and tiles
-# ==================
-try:
-    tmx = load_pygame(MAP_PATH)  # resolves tileset images relative to the TMX file
-except Exception as e:
-    print(f"[TMX] Failed to load {MAP_PATH}: {e}")
-    pygame.quit()
-    sys.exit(1)
+FOREST_ROCK_HORSESHOE = {
+    "name": "Forest - Rock Horseshoe",
+    "theme": "forest",
+    "level": 3,
+    "season": "forest",
+    "time_limit": 50,
+    "description": "Navigate a wide horseshoe/U-turn. Gray rocks scatter the waterway!",
 
-# Map dimensions
-tile_w, tile_h = tmx.tilewidth, tmx.tileheight
-map_px_width = tmx.width * tile_w
-map_px_height = tmx.height * tile_h
+    # Traced: U-turn river flowing right then back left
+    "obstacles": [
+        # Top left wall
+        (0, 0, 180, 250),
+        # Top right wall (enters from right side)
+        (950, 0, 300, 200),
+        # Inner curve right wall
+        (900, 200, 350, 200),
+        # Inner curve left wall
+        (150, 250, 250, 200),
+        # Bottom left wall
+        (0, 450, 200, 200),
+        # Bottom right opening
+        (1050, 450, 200, 200),
+        # Rock obstacles scattered throughout
+        (300, 50, 120, 110),
+        (700, 100, 130, 120),
+        (200, 200, 110, 100),
+        (800, 300, 120, 110),
+        (400, 400, 130, 100),
+        (550, 520, 120, 80),
+        (300, 530, 100, 70),
+    ],
+    "assets": [
+        {"file": "obstacles/Pixel_art_rock_202603281320.png", "x": 50, "y": 100, "scale": 0.14, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_2.png", "x": 950, "y": 80, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 900, "y": 280, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_3.png", "x": 150, "y": 350, "scale": 0.14, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_3.png", "x": 50, "y": 480, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_moss_202603281320.png", "x": 400, "y": 80, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_moss_202603281320.png", "x": 750, "y": 150, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_moss_202603281320.png", "x": 250, "y": 250, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_moss_202603281320.png", "x": 850, "y": 350, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 180,
+    "finish_x2": 950,
+    "mechanics": {"rocky_obstacles": True, "difficulty": 3},
+}
 
-# ==============================================
-# 2) Now that we know the map size, set real mode
-# ==============================================
-# screen = pygame.display.set_mode((map_px_width, map_px_height))
-# screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN | pygame.SCALED)
-# pygame.display.set_caption("Cross River")
-clock = pygame.time.Clock()
+FOREST_CLOUD_COVER = {
+    "name": "Forest - Cloud Cover",
+    "theme": "forest",
+    "level": 4,
+    "season": "forest",
+    "time_limit": 45,
+    "description": "Heavy clouds reduce visibility. Navigate by memory and compass!",
 
-# ==========================
-# Pre-render visible layers
-# ==========================
-map_surface = pygame.Surface((map_px_width, map_px_height), pygame.SRCALPHA)
+    # Traced: U-shaped/spiral with center path
+    "obstacles": [
+        # Left wall
+        (0, 0, 220, 650),
+        # Right wall
+        (1000, 0, 250, 650),
+        # Center divider (island in middle)
+        (400, 150, 450, 200),
+        # Scattered obstacles
+        (250, 50, 130, 110),
+        (700, 80, 140, 100),
+        (300, 300, 120, 100),
+        (750, 280, 130, 110),
+        (350, 450, 140, 120),
+        (750, 500, 130, 100),
+        (450, 580, 120, 60),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_forest_202603281320.png", "x": 80, "y": 150, "scale": 0.14, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_10.png", "x": 80, "y": 400, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_3.png", "x": 1050, "y": 200, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_9.png", "x": 1050, "y": 450, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_2.png", "x": 400, "y": 230, "scale": 0.13, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_3.png", "x": 550, "y": 210, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_hanging_202603281320.png", "x": 300, "y": 50, "scale": 0.15, "z_order": 3},
+        {"file": "decor/Pixel_art_hanging_202603281320.png", "x": 750, "y": 80, "scale": 0.15, "z_order": 3},
+        {"file": "decor/Pixel_art_hanging_202603281320.png", "x": 400, "y": 300, "scale": 0.15, "z_order": 3},
+    ],
+    "finish_y": 50,
+    "finish_x1": 220,
+    "finish_x2": 1000,
+    "mechanics": {"fog": True, "reduced_visibility": True, "difficulty": 4},
+}
 
-# Handles Tile layers even inside Group layers (e.g., your "Level1" group)
-for layer in tmx.visible_layers:
-    if isinstance(layer, pytmx.TiledTileLayer):
-        for x, y, gid in layer:
-            if gid == 0:
-                continue
-            img = tmx.get_tile_image_by_gid(gid)
-            if img:
-                map_surface.blit(img, (x * tile_w, y * tile_h))
+FOREST_DENSE_FOREST = {
+    "name": "Forest - Dense Forest",
+    "theme": "forest",
+    "level": 5,
+    "season": "forest",
+    "time_limit": 40,
+    "description": "The densest forest. Narrow winding passages through thick obstacles!",
 
-# ==========================
-# Build collision rectangles
-# ==========================
-# Treat these tile layers as blocking (present in your TMX):
-BLOCKING_LAYER_NAMES = {"Trees", "Puie"}
-collision_rects = []
+    # Traced: Very narrow winding with tight turns (min 130px gaps)
+    "obstacles": [
+        # Left wall
+        (0, 0, 180, 650),
+        # Right wall
+        (1000, 0, 250, 650),
+        # First tight turn - left jut
+        (180, 80, 200, 150),
+        # First turn - right jut
+        (750, 60, 250, 120),
+        # Second turn - left jut
+        (220, 260, 200, 120),
+        # Second turn - right jut
+        (720, 250, 280, 120),
+        # Third turn - left jut
+        (180, 420, 220, 130),
+        # Third turn - right jut
+        (800, 410, 200, 140),
+        # Dense interior obstacles (placed in wider sections)
+        (480, 80, 100, 80),
+        (380, 180, 100, 70),
+        (550, 300, 100, 80),
+        (400, 400, 100, 70),
+        (650, 480, 100, 80),
+        (480, 570, 100, 60),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_forest_202603281320.png", "x": 50, "y": 100, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_10.png", "x": 50, "y": 300, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_3.png", "x": 50, "y": 500, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320.png", "x": 1000, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_9.png", "x": 1000, "y": 380, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_forest_202603281320_10.png", "x": 1000, "y": 550, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_2.png", "x": 280, "y": 120, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_3.png", "x": 850, "y": 100, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 350, "y": 320, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 850, "y": 320, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 200,
+    "finish_x2": 950,
+    "mechanics": {"narrow_passages": True, "difficulty": 5},
+}
 
-# (A) Any non-empty tile on blocking layers -> solid
-for layer in tmx.visible_layers:
-    if isinstance(layer, pytmx.TiledTileLayer) and layer.name in BLOCKING_LAYER_NAMES:
-        for x, y, gid in layer:
-            if gid != 0:
-                collision_rects.append(pygame.Rect(x * tile_w, y * tile_h, tile_w, tile_h))
+# ============================================================================
+# SNOW THEME - Frozen rivers with slippery ice
+# ============================================================================
 
-# (B) Any tile with tile property collide=true -> solid (optional / future-proof)
-for layer in tmx.visible_layers:
-    if isinstance(layer, pytmx.TiledTileLayer):
-        for x, y, gid in layer:
-            if gid == 0:
-                continue
-            props = tmx.get_tile_properties_by_gid(gid)
-            if props and props.get("collide") is True:
-                collision_rects.append(pygame.Rect(x * tile_w, y * tile_h, tile_w, tile_h))
+SNOW_THE_FREEZE = {
+    "name": "Snow - The Freeze",
+    "theme": "snow",
+    "level": 1,
+    "season": "snow",
+    "time_limit": 55,
+    "description": "S-curve frozen river. Icy water means zero friction - slide carefully!",
 
-# =========
-# Spawn logic
-# =========
-def find_bottom_water_spawn(tmx_map) -> Optional[Tuple[float, float]]:
-    """
-    Find the bottom-most water tile center in the 'River' layer and return (px_x, px_y).
-    Uses WATERS_GIDS if those appear in the layer; otherwise falls back to any non-zero GID.
-    """
-    # If your River layer uses different GIDs for water, update this set:
-    WATER_GIDS = {41, 42}
+    # Traced: S-curve from bottom-left to top
+    "obstacles": [
+        # Bottom left wall
+        (0, 450, 280, 200),
+        # First curve - right wall
+        (800, 350, 450, 200),
+        # Second curve - left wall
+        (150, 100, 350, 250),
+        # Top right wall
+        (950, 0, 300, 150),
+        # Center obstacles
+        (300, 200, 130, 110),
+        (650, 350, 140, 120),
+        (450, 500, 130, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 50, "y": 480, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_2.png", "x": 50, "y": 520, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 950, "y": 50, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_1.png", "x": 850, "y": 400, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 200, "y": 120, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 50, "y": 100, "scale": 0.08, "z_order": 2},
+        {"file": "decor/Pixel_art_frost_202603281320.png", "x": 950, "y": 200, "scale": 0.08, "z_order": 2},
+        {"file": "decor/Pixel_art_snowflake_202603281320.png", "x": 400, "y": 250, "scale": 0.08, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 150,
+    "finish_x2": 950,
+    "mechanics": {"ice_friction": True, "zero_friction": True, "difficulty": 1},
+}
 
-    river_layer: Optional[pytmx.TiledTileLayer] = None
-    for lyr in tmx_map.visible_layers:
-        if isinstance(lyr, pytmx.TiledTileLayer) and lyr.name == "River":
-            river_layer = lyr
-            break
+SNOW_ICE_BLOCK_ALLEY = {
+    "name": "Snow - Ice Block Alley",
+    "theme": "snow",
+    "level": 2,
+    "season": "snow",
+    "time_limit": 50,
+    "description": "S-curve with ice block obstacles. Navigate between frozen formations!",
 
-    if river_layer is None:
-        return None
+    # Traced: S-curve with scattered ice blocks (pentagons as rectangles)
+    "obstacles": [
+        # Side walls narrower
+        (0, 0, 110, 650),
+        (1140, 0, 110, 650),
+        # First curve jut left
+        (110, 100, 200, 150),
+        # First curve jut right
+        (800, 100, 340, 150),
+        # Second curve jut left
+        (200, 350, 220, 150),
+        # Second curve jut right
+        (850, 300, 290, 150),
+        # Ice blocks scattered
+        (250, 50, 110, 100),
+        (600, 80, 120, 110),
+        (400, 200, 115, 100),
+        (750, 240, 130, 110),
+        (300, 380, 120, 100),
+        (700, 420, 125, 120),
+        (450, 530, 120, 70),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 50, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 50, "y": 350, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_2.png", "x": 50, "y": 550, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 1180, "y": 200, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 1180, "y": 450, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 280, "y": 80, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 650, "y": 120, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 380, "y": 250, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 750, "y": 290, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 110,
+    "finish_x2": 1140,
+    "mechanics": {"ice_friction": True, "difficulty": 2},
+}
 
-    # Check whether these GIDs actually appear; if not, we'll treat any non-zero gid as water
-    has_listed_water = False
-    for _, _, gid in river_layer:
-        if gid in WATER_GIDS:
-            has_listed_water = True
-            break
+SNOW_ICE_FIELD = {
+    "name": "Snow - Ice Field",
+    "theme": "snow",
+    "level": 3,
+    "season": "snow",
+    "time_limit": 48,
+    "description": "Wide open frozen area. Large ice blocks scattered everywhere!",
 
-    bottom_y = -1
-    candidates = []
+    # Traced: Open frozen water with scattered hexagon/pentagon obstacles
+    "obstacles": [
+        # Minimal side walls
+        (0, 0, 80, 650),
+        (1170, 0, 80, 650),
+        # Large ice blocks scattered throughout
+        (200, 50, 150, 140),
+        (600, 80, 160, 150),
+        (900, 100, 140, 130),
+        (300, 250, 170, 160),
+        (750, 220, 180, 170),
+        (450, 350, 160, 150),
+        (850, 380, 150, 140),
+        (200, 450, 140, 150),
+        (650, 500, 170, 160),
+        (350, 550, 150, 90),
+        (1000, 550, 140, 90),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 50, "y": 100, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 50, "y": 350, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_2.png", "x": 50, "y": 550, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 1190, "y": 250, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 230, "y": 90, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 650, "y": 120, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 950, "y": 140, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 350, "y": 290, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 800, "y": 270, "scale": 0.12, "z_order": 1},
+        {"file": "decor/Pixel_art_frosted_202603281320.png", "x": 450, "y": 380, "scale": 0.09, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 80,
+    "finish_x2": 1170,
+    "mechanics": {"ice_friction": True, "open_field": True, "difficulty": 3},
+}
 
-    for x, y, gid in river_layer:
-        if gid == 0:
-            continue
-        is_water = (gid in WATER_GIDS) if has_listed_water else True
-        if not is_water:
-            continue
+SNOW_FROZEN_S_CURVE = {
+    "name": "Snow - Frozen S-Curve",
+    "theme": "snow",
+    "level": 4,
+    "season": "snow",
+    "time_limit": 45,
+    "description": "Tight S-curve with wind gusts and frozen water. Hardest ice challenge!",
 
-        if y > bottom_y:
-            bottom_y = y
-            candidates = [(x, y)]
-        elif y == bottom_y:
-            candidates.append((x, y))
+    # Traced: Tighter S-curve with central island and wind effects
+    "obstacles": [
+        # Side walls
+        (0, 0, 130, 650),
+        (1120, 0, 130, 650),
+        # Top jut right
+        (800, 0, 320, 180),
+        # Middle island (central channel divider)
+        (350, 250, 500, 180),
+        # Bottom jut left
+        (130, 470, 280, 180),
+        # Scattered obstacles
+        (200, 80, 120, 100),
+        (650, 150, 130, 110),
+        (400, 300, 140, 100),
+        (750, 380, 150, 120),
+        (300, 500, 130, 100),
+        (950, 500, 120, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 80, "y": 100, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_2.png", "x": 80, "y": 350, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 80, "y": 550, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 1160, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 1160, "y": 450, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_1.png", "x": 400, "y": 300, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/snow_asset_2.png", "x": 550, "y": 320, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 800, "y": 80, "scale": 0.09, "z_order": 2},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 200, "y": 450, "scale": 0.08, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 130,
+    "finish_x2": 1120,
+    "mechanics": {"ice_friction": True, "wind": True, "difficulty": 4},
+}
 
-    if bottom_y == -1 or not candidates:
-        return None
+SNOW_WIND_CORRIDOR = {
+    "name": "Snow - Wind Corridor",
+    "theme": "snow",
+    "level": 5,
+    "season": "snow",
+    "time_limit": 40,
+    "description": "Extreme conditions! Narrow zigzag with random wind gusts!",
 
-    # Choose the middle water tile in the bottom-most row for a nice centered start
-    candidates.sort(key=lambda t: t[0])
-    spawn_tx, spawn_ty = candidates[len(candidates) // 2]
+    # Traced: Very narrow zigzag with strong lateral wind effects
+    "obstacles": [
+        # Left wall narrow
+        (0, 0, 180, 650),
+        # Right wall narrow
+        (1070, 0, 180, 650),
+        # First zigzag left
+        (180, 100, 280, 160),
+        # First zigzag right
+        (850, 100, 220, 160),
+        # Second zigzag left
+        (250, 300, 250, 150),
+        # Second zigzag right
+        (900, 280, 170, 170),
+        # Third zigzag left
+        (200, 480, 270, 150),
+        # Third zigzag right
+        (950, 480, 120, 170),
+        # Scattered obstacles
+        (500, 150, 120, 100),
+        (550, 350, 130, 110),
+        (450, 550, 140, 90),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 80, "y": 150, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 80, "y": 400, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_2.png", "x": 80, "y": 550, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320.png", "x": 1110, "y": 250, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_snow_202603281320_3.png", "x": 1110, "y": 550, "scale": 0.12, "z_order": 1},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 300, "y": 120, "scale": 0.08, "z_order": 2},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 900, "y": 320, "scale": 0.08, "z_order": 2},
+        {"file": "decor/Pixel_art_icicle_202603281320.png", "x": 350, "y": 500, "scale": 0.08, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 180,
+    "finish_x2": 1070,
+    "mechanics": {"ice_friction": True, "wind": True, "narrow_passages": True, "difficulty": 5},
+}
 
-    # Convert tile coords to pixel center
-    px_x = spawn_tx * tile_w + tile_w / 2
-    px_y = spawn_ty * tile_h + tile_h / 2
+# ============================================================================
+# DESERT THEME - Sandy dunes with quicksand
+# ============================================================================
 
-    # Slightly nudge up so we don’t immediately hit the bottom bank
-    px_y -= 2
-    return (px_x, px_y)
+DESERT_SANDY_S_CURVE = {
+    "name": "Desert - Sandy S-Curve",
+    "theme": "desert",
+    "level": 1,
+    "season": "desert",
+    "time_limit": 60,
+    "description": "Navigate sand dunes forming an S-curve. Quicksand slows you down!",
 
-spawn = find_bottom_water_spawn(tmx)
-if spawn is not None:
-    spawn_x, spawn_y = spawn
-    spawn_x -=210
-else:
-    # Fallback if 'River' layer not found or has no water
-    spawn_x, spawn_y = map_px_width // 2, min(map_px_height - 50, 600)
+    # Traced: S-curve between sand dunes with quicksand patches
+    "obstacles": [
+        # Top left dune
+        (0, 0, 300, 200),
+        # Top right dune
+        (850, 0, 400, 220),
+        # Middle left dune
+        (50, 250, 350, 200),
+        # Middle right dune
+        (700, 200, 550, 200),
+        # Bottom left dune
+        (0, 450, 250, 200),
+        # Bottom right dune
+        (950, 400, 300, 250),
+        # Quicksand obstacles
+        (350, 80, 130, 120),
+        (600, 250, 140, 130),
+        (250, 350, 120, 110),
+        (800, 500, 130, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 100, "y": 50, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 900, "y": 50, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 150, "y": 320, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 800, "y": 280, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 50, "y": 480, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 1000, "y": 450, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 400, "y": 120, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 650, "y": 280, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_dirt_202603281320.png", "x": 250, "y": 370, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 300,
+    "finish_x2": 850,
+    "mechanics": {"quicksand": True, "difficulty": 1},
+}
 
+DESERT_CACTUS_ZIGZAG = {
+    "name": "Desert - Cactus Zigzag",
+    "theme": "desert",
+    "level": 2,
+    "season": "desert",
+    "time_limit": 55,
+    "description": "Right-angle zigzag path. Cactus obstacles at each turn!",
 
+    # Traced: Right-angle zigzag with cactus obstacles
+    "obstacles": [
+        # Side walls minimal
+        (0, 0, 100, 650),
+        (1150, 0, 100, 650),
+        # First zigzag left
+        (100, 100, 300, 180),
+        # First zigzag right
+        (750, 100, 400, 180),
+        # Second zigzag left
+        (200, 320, 280, 160),
+        # Second zigzag right
+        (800, 300, 350, 170),
+        # Third zigzag left
+        (150, 510, 300, 140),
+        # Cactus obstacles at turns
+        (250, 120, 110, 130),
+        (900, 140, 120, 140),
+        (350, 350, 130, 120),
+        (850, 360, 120, 130),
+        (300, 530, 120, 110),
+        (1000, 520, 130, 130),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 50, "y": 120, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 50, "y": 300, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 50, "y": 530, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 1180, "y": 150, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 1180, "y": 380, "scale": 0.11, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 1180, "y": 560, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 280, "y": 150, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 900, "y": 180, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 380, "y": 370, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 100,
+    "finish_x2": 1150,
+    "mechanics": {"quicksand": True, "difficulty": 2},
+}
 
+DESERT_ROCK_HAIRPIN = {
+    "name": "Desert - Rock Hairpin",
+    "theme": "desert",
+    "level": 3,
+    "season": "desert",
+    "time_limit": 50,
+    "description": "Tight hairpin turn through canyon. Boulders block narrow passages!",
 
-# =========
-# Boat setup (uses the spawn found above)
-# =========
-WIDTH, HEIGHT = map_px_width, map_px_height  # keep these aliases for later parts of your code
+    # Traced: Hairpin turn canyon with boulder obstacles
+    "obstacles": [
+        # Left canyon wall
+        (0, 0, 300, 250),
+        # Right canyon wall (top)
+        (800, 0, 450, 200),
+        # Hairpin curve left wall
+        (0, 300, 400, 150),
+        # Hairpin curve right wall
+        (600, 280, 650, 150),
+        # Bottom walls (leave center open for spawn)
+        (0, 520, 250, 130),
+        (900, 520, 350, 130),
+        # Boulder obstacles throughout
+        (200, 80, 120, 100),
+        (850, 60, 120, 100),
+        (250, 310, 120, 100),
+        (500, 460, 100, 80),
+    ],
+    "assets": [
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 100, "y": 100, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_2.png", "x": 850, "y": 80, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_3.png", "x": 0, "y": 340, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/Pixel_art_rock_202603281320_3.png", "x": 600, "y": 320, "scale": 0.1, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 100, "y": 330, "scale": 0.1, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 900, "y": 350, "scale": 0.09, "z_order": 1},
+        {"file": "decor/Pixel_art_dirt_202603281320.png", "x": 450, "y": 500, "scale": 0.1, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 320,
+    "finish_x2": 800,
+    "mechanics": {"difficulty": 3},
+}
 
-INITIAL_BOAT_POS = pygame.Vector2(spawn_x, spawn_y)
-boat_pos = INITIAL_BOAT_POS.copy()
-boat_velocity = pygame.Vector2(0, 0)
-boat_angle = 0  # face up (forward vector is (0, -1))
+DESERT_SANDSTORM_RUN = {
+    "name": "Desert - Sandstorm Run",
+    "theme": "desert",
+    "level": 4,
+    "season": "desert",
+    "time_limit": 45,
+    "description": "Raging sandstorm reduces visibility. Navigate the L-shaped river!",
 
-# Input tracking for momentum
-left_pressed = False
-right_pressed = False
-input_buffer = 0
-input_decay_time = 0.25  # seconds
+    # Traced: L-shaped river with large dune walls and fog
+    "obstacles": [
+        # Top wall (wide dune)
+        (0, 0, 420, 200),
+        # Right wall (wide dune)
+        (780, 200, 470, 450),
+        # Left wall (bottom)
+        (0, 400, 280, 250),
+        # Interior obstacles
+        (300, 50, 130, 120),
+        (620, 100, 130, 110),
+        (350, 250, 140, 120),
+        (400, 420, 120, 100),
+        (600, 500, 120, 90),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_desert_202603281320_3.png", "x": 150, "y": 50, "scale": 0.25, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_3.png", "x": 800, "y": 300, "scale": 0.25, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 100, "y": 420, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 200, "y": 500, "scale": 0.11, "z_order": 1},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 400, "y": 80, "scale": 0.2, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 700, "y": 140, "scale": 0.2, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 450,
+    "finish_x2": 750,
+    "mechanics": {"fog": True, "reduced_visibility": True, "difficulty": 4},
+}
 
-# Movement/physics tuning (from your original code)
-MAX_SPEED = 10
-ROTATION_SPEED = 450
-ROTATION_STEP = 25
-BASE_ACCEL = 0.6
-ACCEL_PER_PRESS = 0.35
-BASE_FRICTION = 0.99
-SIDEWAYS_FRICTION = 0.985
+DESERT_SCORPION_SLALOM = {
+    "name": "Desert - Scorpion Slalom",
+    "theme": "desert",
+    "level": 5,
+    "season": "desert",
+    "time_limit": 40,
+    "description": "Extreme slalom course. Tight alternating turns through scorpion-infested canyon!",
 
-SIDEWAYS_DRIFT_MULT = 0.75
-SINGLE_KEY_ACCEL_MULT = 0.8
-SINGLE_KEY_SIDEWAYS_MULT = 0.55
+    # Traced: Tight zigzag slalom with minimal river width
+    "obstacles": [
+        # Left wall
+        (0, 0, 180, 650),
+        # Right wall
+        (1070, 0, 180, 650),
+        # Zigzag pattern - tight alternating turns
+        (180, 80, 250, 140),
+        (800, 80, 270, 140),
+        (220, 240, 280, 130),
+        (850, 240, 220, 140),
+        (200, 390, 270, 140),
+        (900, 380, 170, 150),
+        (240, 540, 260, 110),
+        (950, 520, 120, 130),
+        # Hazard obstacles (scorpion-themed)
+        (450, 120, 100, 90),
+        (500, 280, 110, 100),
+        (480, 430, 100, 100),
+        (700, 570, 90, 60),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 80, "y": 150, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 80, "y": 400, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_2.png", "x": 80, "y": 560, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_6.png", "x": 1100, "y": 250, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_desert_202603281320_5.png", "x": 1100, "y": 520, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 320, "y": 100, "scale": 0.09, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 900, "y": 110, "scale": 0.09, "z_order": 1},
+        {"file": "obstacles/Pixel_art_boulder_202603281320_2.png", "x": 350, "y": 270, "scale": 0.09, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 180,
+    "finish_x2": 1070,
+    "mechanics": {"narrow_passages": True, "difficulty": 5},
+}
 
-boat_image = pygame.image.load("boat.png").convert_alpha() 
-boat_image = pygame.transform.scale(boat_image, (30, 54))  # adjust size as needed
+# ============================================================================
+# TROPICS THEME - Dense jungle with narrow corridors
+# ============================================================================
 
-def draw_boat(surface, position, angle):
-    """Draw the original brown rectangle boat (swap to a canoe sprite later if you want)."""
-    boat_shape = [
-        pygame.Vector2(5, -9),   # front right
-        pygame.Vector2(5, 9),    # back right
-        pygame.Vector2(-5, 9),   # back left
-        pygame.Vector2(-5, -9)   # front left
-    ]
-    rotated_shape = [position + p.rotate(angle) for p in boat_shape]
-    pygame.draw.polygon(surface, (139, 69, 19), rotated_shape)
-    surface.blit(pygame.transform.rotate(boat_image, -angle), boat_image.get_rect(center = position))
+TROPICS_FOGGY_RIVER = {
+    "name": "Tropics - Foggy River",
+    "theme": "tropics",
+    "level": 1,
+    "season": "tropics",
+    "time_limit": 65,
+    "description": "Wide winding river. Heavy fog makes navigation challenging!",
 
+    # Traced: Wide horizontal winding path with fog
+    "obstacles": [
+        # Left wall
+        (0, 0, 200, 650),
+        # Right wall
+        (1050, 0, 200, 650),
+        # Gentle curves
+        (250, 100, 280, 180),
+        (850, 200, 300, 180),
+        (200, 350, 300, 150),
+        (900, 400, 250, 150),
+        (300, 550, 280, 100),
+        # Interior obstacles
+        (450, 120, 130, 110),
+        (700, 300, 140, 120),
+        (500, 450, 150, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 80, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 80, "y": 400, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1070, "y": 200, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1070, "y": 500, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/tropics_asset_1.png", "x": 350, "y": 150, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 850, "y": 250, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_tropical_202603281320.png", "x": 200, "y": 80, "scale": 0.1, "z_order": 2},
+        {"file": "decor/Pixel_art_flowering_202603281320.png", "x": 1000, "y": 450, "scale": 0.1, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 200,
+    "finish_x2": 1050,
+    "mechanics": {"fog": True, "reduced_visibility": True, "difficulty": 1},
+}
 
-# Rotation state for discrete click-based rotations
-running = True
-last_input_time = pygame.time.get_ticks() / 1000.0
-input_this_frame = False
-rotating = False
-rotation_start_angle = boat_angle
-rotation_direction = 0
-target_angle = boat_angle
-down_pressed = False
+TROPICS_VINE_CORRIDOR = {
+    "name": "Tropics - Vine Corridor",
+    "theme": "tropics",
+    "level": 2,
+    "season": "tropics",
+    "time_limit": 60,
+    "description": "Narrow vertical river. Hanging vines and branch obstacles!",
 
-boat_collision_radius = 15  # adjust if you later switch to a bigger canoe sprite
+    # Traced: Narrow vertical path with slight curves and vine obstacles
+    "obstacles": [
+        # Side walls narrow
+        (0, 0, 220, 650),
+        (1030, 0, 220, 650),
+        # Slight curves
+        (220, 100, 200, 150),
+        (800, 100, 230, 150),
+        (270, 300, 220, 160),
+        (850, 280, 180, 170),
+        (200, 480, 250, 170),
+        (900, 460, 130, 170),
+        # Interior obstacles
+        (450, 150, 140, 120),
+        (500, 320, 130, 110),
+        (450, 520, 150, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 100, "y": 150, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 100, "y": 400, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1050, "y": 250, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 350, "y": 150, "scale": 0.11, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 850, "y": 350, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_hanging_202603281320.png", "x": 250, "y": 120, "scale": 0.15, "z_order": 3},
+        {"file": "decor/Pixel_art_hanging_202603281320.png", "x": 900, "y": 330, "scale": 0.15, "z_order": 3},
+        {"file": "decor/Pixel_art_tropical_202603281320.png", "x": 500, "y": 200, "scale": 0.09, "z_order": 1},
+    ],
+    "finish_y": 50,
+    "finish_x1": 220,
+    "finish_x2": 1030,
+    "mechanics": {"narrow_passages": True, "difficulty": 2},
+}
 
-def circle_rect_collision(cx, cy, r, rect: pygame.Rect) -> bool:
-    closest_x = max(rect.left, min(cx, rect.right))
-    closest_y = max(rect.top,  min(cy, rect.bottom))
-    dx = cx - closest_x
-    dy = cy - closest_y
-    return (dx * dx + dy * dy) <= (r * r)
+TROPICS_MUD_BEND = {
+    "name": "Tropics - Mud Bend",
+    "theme": "tropics",
+    "level": 3,
+    "season": "tropics",
+    "time_limit": 55,
+    "description": "Large U-curve river. Heavy fog and muddy patches slow progress!",
 
-timer_seconds = 60.0
-font = pygame.font.SysFont(None, 72)
+    # Traced: U-curve bend with mud patches and low visibility
+    "obstacles": [
+        # Left wall
+        (0, 0, 250, 650),
+        # Right wall
+        (950, 0, 300, 650),
+        # Curve left
+        (250, 100, 280, 200),
+        # Curve right
+        (750, 100, 200, 250),
+        # Bottom curves
+        (150, 450, 320, 200),
+        (900, 400, 50, 250),
+        # Mud patches
+        (350, 150, 140, 120),
+        (700, 200, 130, 110),
+        (300, 350, 150, 130),
+        (800, 350, 140, 120),
+        (400, 500, 130, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 100, "y": 200, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 100, "y": 480, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1000, "y": 250, "scale": 0.13, "z_order": 1},
+        {"file": "obstacles/tropics_asset_1.png", "x": 350, "y": 200, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 700, "y": 250, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 400, "y": 180, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 350, "y": 380, "scale": 0.18, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 700, "y": 450, "scale": 0.18, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 250,
+    "finish_x2": 950,
+    "mechanics": {"mud_patches": True, "fog": True, "difficulty": 3},
+}
 
-# =========
-# Game loop
-# =========
-while running:
-    dt = clock.tick(60) / 1000.0
-    current_time = pygame.time.get_ticks() / 1000.0
-    input_this_frame = False
+TROPICS_JUNGLE_S = {
+    "name": "Tropics - Jungle S",
+    "theme": "tropics",
+    "level": 4,
+    "season": "tropics",
+    "time_limit": 50,
+    "description": "S-curve through dense jungle. Light fog with mud and branches!",
 
-    # --- INPUT ---
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    # Traced: S-curve with jungle obstacles
+    "obstacles": [
+        # Side walls
+        (0, 0, 140, 650),
+        (1110, 0, 140, 650),
+        # Top curve jut right
+        (750, 0, 360, 200),
+        # Middle curve jut left
+        (140, 250, 350, 150),
+        # Bottom curve jut right
+        (900, 450, 210, 200),
+        # Interior obstacles
+        (200, 100, 140, 130),
+        (850, 120, 140, 120),
+        (300, 280, 150, 140),
+        (700, 320, 160, 120),
+        (450, 480, 140, 130),
+        (850, 520, 130, 100),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 70, "y": 150, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 70, "y": 420, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1140, "y": 300, "scale": 0.12, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 250, "y": 140, "scale": 0.1, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 750, "y": 360, "scale": 0.1, "z_order": 1},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 300, "y": 130, "scale": 0.16, "z_order": 2},
+        {"file": "decor/Pixel_art_mud_202603281320.png", "x": 700, "y": 360, "scale": 0.16, "z_order": 2},
+    ],
+    "finish_y": 50,
+    "finish_x1": 140,
+    "finish_x2": 1110,
+    "mechanics": {"mud_patches": True, "difficulty": 4},
+}
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                if not left_pressed:
-                    left_pressed = True
-                    if not rotating:
-                        rotation_start_angle = boat_angle
-                        rotation_direction = 1
-                        target_angle = (rotation_start_angle + ROTATION_STEP) % 360
-                        rotating = True
-                    elif rotation_direction == -1:
-                        target_angle = rotation_start_angle % 360
-                        rotation_direction = 0
-                input_buffer += 1
-                last_input_time = current_time
-                input_this_frame = True
+TROPICS_DARK_SWAMP = {
+    "name": "Tropics - Dark Swamp",
+    "theme": "tropics",
+    "level": 5,
+    "season": "tropics",
+    "time_limit": 40,
+    "description": "Nearly zero visibility! Fireflies light the way through pitch-black swamp!",
 
-            if event.key == pygame.K_RIGHT:
-                if not right_pressed:
-                    right_pressed = True
-                    if not rotating:
-                        rotation_start_angle = boat_angle
-                        rotation_direction = -1
-                        target_angle = (rotation_start_angle - ROTATION_STEP) % 360
-                        rotating = True
-                    elif rotation_direction == 1:
-                        target_angle = rotation_start_angle % 360
-                        rotation_direction = 0
-                input_buffer += 1
-                last_input_time = current_time
-                input_this_frame = True
+    # Traced: Very narrow winding through dark swamp - hardest level
+    "obstacles": [
+        # Narrow walls
+        (0, 0, 200, 650),
+        (1050, 0, 200, 650),
+        # Tight winding turns
+        (200, 80, 300, 180),
+        (900, 80, 150, 180),
+        (250, 280, 280, 170),
+        (850, 260, 200, 190),
+        (200, 470, 320, 180),
+        (950, 450, 100, 200),
+        # Dense interior obstacles
+        (500, 120, 130, 110),
+        (450, 310, 140, 130),
+        (550, 480, 120, 120),
+        (450, 600, 140, 50),
+    ],
+    "assets": [
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 80, "y": 150, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 80, "y": 400, "scale": 0.13, "z_order": 1},
+        {"file": "props/Pixel_art_jungle_202603281320.png", "x": 80, "y": 550, "scale": 0.12, "z_order": 1},
+        {"file": "props/Pixel_art_palm_202603281320.png", "x": 1080, "y": 250, "scale": 0.13, "z_order": 1},
+        {"file": "obstacles/tropics_asset_1.png", "x": 300, "y": 150, "scale": 0.09, "z_order": 1},
+        {"file": "obstacles/tropics_asset_2.png", "x": 900, "y": 320, "scale": 0.09, "z_order": 1},
+        {"file": "obstacles/tropics_asset_1.png", "x": 350, "y": 480, "scale": 0.08, "z_order": 1},
+        {"file": "lighting/Pixel_art_glow_202603281320.png", "x": 500, "y": 150, "scale": 0.08, "z_order": 4},
+        {"file": "lighting/Pixel_art_glow_202603281320.png", "x": 550, "y": 340, "scale": 0.08, "z_order": 4},
+        {"file": "lighting/Pixel_art_glow_202603281320.png", "x": 480, "y": 550, "scale": 0.08, "z_order": 4},
+    ],
+    "finish_y": 50,
+    "finish_x1": 200,
+    "finish_x2": 1050,
+    "mechanics": {"fog": True, "near_zero_visibility": True, "narrow_passages": True, "difficulty": 5},
+}
 
-            if event.key == pygame.K_DOWN:
-                if not down_pressed:
-                    down_pressed = True
-                    if not rotating:
-                        rotation_start_angle = boat_angle
-                        rotation_direction = 1
-                        target_angle = (rotation_start_angle + ROTATION_STEP) % 360
-                        rotating = True
-                    elif rotation_direction == -1:
-                        target_angle = rotation_start_angle % 360
-                        rotation_direction = 0
-                last_input_time = current_time
-                input_this_frame = True
+# ============================================================================
+# Collections and helper functions
+# ============================================================================
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                left_pressed = False
-            if event.key == pygame.K_RIGHT:
-                right_pressed = False
-            if event.key == pygame.K_DOWN:
-                down_pressed = False
+ALL_MAPS = [
+    # Forest
+    FOREST_CLOSING_DOOR,
+    FOREST_MUDDY_ZIGZAG,
+    FOREST_ROCK_HORSESHOE,
+    FOREST_CLOUD_COVER,
+    FOREST_DENSE_FOREST,
+    # Snow
+    SNOW_THE_FREEZE,
+    SNOW_ICE_BLOCK_ALLEY,
+    SNOW_ICE_FIELD,
+    SNOW_FROZEN_S_CURVE,
+    SNOW_WIND_CORRIDOR,
+    # Desert
+    DESERT_SANDY_S_CURVE,
+    DESERT_CACTUS_ZIGZAG,
+    DESERT_ROCK_HAIRPIN,
+    DESERT_SANDSTORM_RUN,
+    DESERT_SCORPION_SLALOM,
+    # Tropics
+    TROPICS_FOGGY_RIVER,
+    TROPICS_VINE_CORRIDOR,
+    TROPICS_MUD_BEND,
+    TROPICS_JUNGLE_S,
+    TROPICS_DARK_SWAMP,
+]
 
-    # Decay input buffer
-    if not input_this_frame:
-        if current_time - last_input_time > input_decay_time:
-            input_buffer = 0
-        else:
-            input_buffer *= math.exp(-dt / input_decay_time)
+MAPS_BY_SEASON = {
+    "forest": [FOREST_CLOSING_DOOR, FOREST_MUDDY_ZIGZAG, FOREST_ROCK_HORSESHOE, FOREST_CLOUD_COVER, FOREST_DENSE_FOREST],
+    "snow": [SNOW_THE_FREEZE, SNOW_ICE_BLOCK_ALLEY, SNOW_ICE_FIELD, SNOW_FROZEN_S_CURVE, SNOW_WIND_CORRIDOR],
+    "desert": [DESERT_SANDY_S_CURVE, DESERT_CACTUS_ZIGZAG, DESERT_ROCK_HAIRPIN, DESERT_SANDSTORM_RUN, DESERT_SCORPION_SLALOM],
+    "tropics": [TROPICS_FOGGY_RIVER, TROPICS_VINE_CORRIDOR, TROPICS_MUD_BEND, TROPICS_JUNGLE_S, TROPICS_DARK_SWAMP],
+}
 
-    # Smooth rotations
-    if rotating:
-        diff = (target_angle - boat_angle + 180) % 360 - 180
-        max_step = ROTATION_SPEED * dt
-        step = math.copysign(min(abs(diff), max_step), diff)
-        boat_angle += step
-        remaining = (target_angle - boat_angle + 180) % 360 - 180
-        if abs(remaining) < 0.01:
-            boat_angle = target_angle % 360
-            rotating = False
-            rotation_direction = 0
-    boat_angle %= 360
+# Backward compatibility: MAPS dict for week2.py (by theme -> level -> map)
+MAPS = {
+    "forest": {
+        1: FOREST_CLOSING_DOOR,
+        2: FOREST_MUDDY_ZIGZAG,
+        3: FOREST_ROCK_HORSESHOE,
+    },
+    "snow": {
+        1: SNOW_THE_FREEZE,
+        2: SNOW_ICE_BLOCK_ALLEY,
+        3: SNOW_ICE_FIELD,
+    },
+    "desert": {
+        1: DESERT_SANDY_S_CURVE,
+        2: DESERT_CACTUS_ZIGZAG,
+        3: DESERT_ROCK_HAIRPIN,
+    },
+    "tropics": {
+        1: TROPICS_FOGGY_RIVER,
+        2: TROPICS_VINE_CORRIDOR,
+        3: TROPICS_MUD_BEND,
+    },
+}
 
-    # --- PHYSICS ---
-    forward_direction = pygame.Vector2(0, -1).rotate(boat_angle)
+def get_map_by_index(index):
+    """Get map by 0-based index (0-19)."""
+    if 0 <= index < len(ALL_MAPS):
+        return ALL_MAPS[index]
+    return None
 
-    if input_buffer > 0.01:
-        total_accel = BASE_ACCEL + ACCEL_PER_PRESS * input_buffer
-        if left_pressed != right_pressed:
-            total_accel *= SINGLE_KEY_ACCEL_MULT
-        boat_velocity += forward_direction * total_accel * dt
+def get_maps_by_season(season):
+    """Get all maps for a season."""
+    return MAPS_BY_SEASON.get(season, [])
 
-    speed = boat_velocity.length()
-    if speed > MAX_SPEED:
-        boat_velocity = (boat_velocity / speed) * MAX_SPEED
+def get_all_maps():
+    """Get all 20 maps."""
+    return ALL_MAPS
 
-    if speed > 0.01:
-        velocity_direction = boat_velocity.normalize()
-        alignment = velocity_direction.dot(forward_direction)
-        sideways_factor = abs(alignment)
-        sideways_effect_multiplier = SIDEWAYS_DRIFT_MULT
-        if left_pressed != right_pressed:
-            sideways_effect_multiplier *= SINGLE_KEY_SIDEWAYS_MULT
-        friction_multiplier = BASE_FRICTION + (1 - sideways_factor) * (SIDEWAYS_FRICTION - BASE_FRICTION) * sideways_effect_multiplier
-        boat_velocity *= friction_multiplier
-    else:
-        boat_velocity = pygame.Vector2(0, 0)
+def get_map_count():
+    """Get total map count."""
+    return len(ALL_MAPS)
 
-    # Update position
-    boat_pos += boat_velocity
-
-    # --- COLLISION WITH TMX RECTS ---
-    collided = False
-    for rect in collision_rects:
-        if circle_rect_collision(boat_pos.x, boat_pos.y, boat_collision_radius, rect):
-            collided = True
-            break
-
-    if collided:
-        # Reset on collision
-        boat_pos = INITIAL_BOAT_POS.copy()
-        boat_velocity = pygame.Vector2(0, 0)
-        boat_angle = 0
-        rotating = False
-
-    # --- DRAW ---
-    screen.blit(map_surface, (0, 0))
-    draw_boat(screen, boat_pos, boat_angle)
-
-    #Timer
-    timer_color = (255, 0, 0) if timer_seconds <= 10 else (255, 255, 255)  # red if <= 10 seconds, white otherwise
-    timer_text = font.render(f"{timer_seconds:.1f}", True, timer_color)
-    timer_rect = timer_text.get_rect(midtop=(WIDTH // 2, 20))
-
-    #Shake effect for timer
-    if timer_seconds <= 10:
-        shake_x = random.randint(-2, 2)
-        shake_y = random.randint(-2, 2)
-        timer_rect.x += shake_x
-        timer_rect.y += shake_y
-
-    screen.blit(timer_text, timer_rect)
-
-    pygame.display.flip()
-
-pygame.quit()
-sys.exit()
+def get_map(theme, level):
+    """Get map by theme and level (1-based level index).
+    For compatibility with week2.py and editor_maps."""
+    maps_for_theme = get_maps_by_season(theme)
+    if maps_for_theme and level > 0 and level <= len(maps_for_theme):
+        return maps_for_theme[level - 1]
+    return None

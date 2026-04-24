@@ -6,8 +6,22 @@ import os
 import threading
 import json
 import cv2
+from pathlib import Path
+from maps import MAPS, get_map
+from editor_maps import get_editor_map
 
 pygame.init()
+
+# ================================================================
+# MAP LOADING - Check editor maps first, fall back to standard maps
+# ================================================================
+def load_map(theme, level):
+    """Load a map, checking editor_maps first, then falling back to maps.py"""
+    editor_map = get_editor_map(theme, level)
+    if editor_map:
+        print(f"  📍 Loaded editor map: {editor_map['name']}")
+        return editor_map
+    return get_map(theme, level)
 
 # ================================================================
 # AUDIO SETUP
@@ -348,6 +362,95 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cross River")
 clock = pygame.time.Clock()
 
+def calculate_spawn_pos(map_data, default_x=None, default_y=600):
+    """Get exact spawn position. Prioritizes spawn_point if set in editor."""
+    if default_x is None:
+        default_x = WIDTH // 2
+    if not map_data:
+        return pygame.Vector2(default_x, default_y)
+
+    # Priority 1: explicit spawn_point from map editor
+    sp = map_data.get("spawn_point")
+    if sp and "x" in sp and "y" in sp:
+        return pygame.Vector2(sp["x"], sp["y"])
+
+    # Priority 2: calculate from start line
+    start_pos = map_data.get("start", {})
+    axis = start_pos.get("axis", "y")
+
+    if axis == "y":
+        spawn_x = start_pos.get("x1", default_x)
+        spawn_y = start_pos.get("pos", default_y)
+    else:
+        spawn_x = start_pos.get("x1", start_pos.get("pos", default_x))
+        y1 = start_pos.get("y1", 300)
+        y2 = start_pos.get("y2", 400)
+        spawn_y = (y1 + y2) // 2
+
+    return pygame.Vector2(spawn_x, spawn_y)
+
+def get_spawn_angle(map_data):
+    """Get boat facing angle from spawn_point or start line."""
+    if not map_data:
+        return 0
+    sp = map_data.get("spawn_point")
+    if sp and "angle" in sp:
+        return sp["angle"]
+    start = map_data.get("start", {})
+    return start.get("angle", 0)
+
+def point_in_polygon(px, py, polygon_points):
+    """Ray casting algorithm to check if point is inside polygon."""
+    n = len(polygon_points)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        xi, yi = polygon_points[i].get("x", 0), polygon_points[i].get("y", 0)
+        xj, yj = polygon_points[j].get("x", 0), polygon_points[j].get("y", 0)
+        if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+def point_in_any_slow_zone(px, py, slow_zones):
+    """Check if point is inside any slow zone polygon."""
+    for zone in slow_zones:
+        points = zone.get("points", [])
+        if len(points) >= 3 and point_in_polygon(px, py, points):
+            return True
+    return False
+
+
+def circle_vs_polygon(cx, cy, r, pts):
+    """Returns True if circle (cx,cy,r) overlaps polygon defined by pts list of (x,y)."""
+    n = len(pts)
+    if n < 2:
+        return False
+    r2 = r * r
+    for i in range(n):
+        ax, ay = pts[i]
+        bx, by = pts[(i + 1) % n]
+        dx, dy = bx - ax, by - ay
+        len2 = dx * dx + dy * dy
+        if len2 == 0:
+            dist2 = (cx - ax) ** 2 + (cy - ay) ** 2
+        else:
+            t = max(0.0, min(1.0, ((cx - ax) * dx + (cy - ay) * dy) / len2))
+            px, py2 = ax + t * dx, ay + t * dy
+            dist2 = (cx - px) ** 2 + (cy - py2) ** 2
+        if dist2 < r2:
+            return True
+    # Point-in-polygon (handles boat center fully inside a large polygon)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        xi, yi = pts[i]
+        xj, yj = pts[j]
+        if ((yi > cy) != (yj > cy)) and (cx < (xj - xi) * (cy - yi) / (yj - yi) + xi):
+            inside = not inside
+        j = i
+    return inside
+
 FONT_PATH = os.path.join(os.path.dirname(__file__), "assets", "fonts")
 
 
@@ -392,6 +495,14 @@ def load_image(subdir, filename, size=None):
 tree_canopy1 = load_image("obstacles", "forest1-removebg-preview.png")
 tree_canopy2 = load_image("obstacles", "forest2-removebg-preview.png")
 forest_floor = load_image("obstacles", "forest_tile.png")
+
+# Load seasonal assets
+seasonal_assets = {
+    "forest": [load_image("obstacles", "forest_asset_2.png")],
+    "snow": [load_image("obstacles", "snow_asset_1.png"), load_image("obstacles", "snow_asset_2.png")],
+    "desert": [load_image("obstacles", "desert_asset_1.png"), load_image("obstacles", "desert_asset_2.png")],
+    "tropics": [load_image("obstacles", "tropics_asset_1.png"), load_image("obstacles", "tropics_asset_2.png")],
+}
 
 # ================================================================
 # VIDEO BACKGROUND SYSTEM
@@ -491,9 +602,23 @@ class WaterRenderer:
                 "phase": rng2.uniform(0, 6.28),
             })
 
-    def draw(self, screen, dt, time, camera_y=0):
+    def draw(self, screen, dt, time, camera_y=0, palette=None):
+        # Use theme-specific colors if palette provided, otherwise use defaults
+        if palette is None:
+            color_deep = (22, 52, 138)
+            color_wave1 = (35, 72, 175)
+            color_wave2 = (48, 92, 198)
+            color_wave3 = (60, 112, 215)
+            color_wave4 = (72, 130, 230)
+        else:
+            color_deep = palette.get("deep", (22, 52, 138))
+            color_wave1 = palette.get("wave1", (35, 72, 175))
+            color_wave2 = palette.get("wave2", (48, 92, 198))
+            color_wave3 = palette.get("wave3", (60, 112, 215))
+            color_wave4 = palette.get("wave4", (72, 130, 230))
+
         # Deep water base
-        screen.fill((22, 52, 138))
+        screen.fill(color_deep)
 
         # Wave layer 1: Broad gentle swells
         phase1 = time * 0.7
@@ -504,7 +629,7 @@ class WaterRenderer:
                 wy = y + math.sin(x * 0.009 + phase1 + y_world * 0.003) * 5
                 pts.append((x, int(wy)))
             if len(pts) > 1:
-                pygame.draw.lines(screen, (35, 72, 175), False, pts, 3)
+                pygame.draw.lines(screen, color_wave1, False, pts, 3)
 
         # Wave layer 2: Medium ripples flowing in the opposite direction
         phase2 = time * -0.45
@@ -515,7 +640,7 @@ class WaterRenderer:
                 wy = y + math.sin(x * 0.014 + phase2 + y_world * 0.005) * 3.5
                 pts.append((x, int(wy)))
             if len(pts) > 1:
-                pygame.draw.lines(screen, (48, 92, 198), False, pts, 2)
+                pygame.draw.lines(screen, color_wave2, False, pts, 2)
 
         # Wave layer 3: Fine shimmering detail
         phase3 = time * 0.9
@@ -530,7 +655,7 @@ class WaterRenderer:
                 )
                 pts.append((x, int(wy)))
             if len(pts) > 1:
-                pygame.draw.lines(screen, (60, 112, 215), False, pts, 2)
+                pygame.draw.lines(screen, color_wave3, False, pts, 2)
 
         # Wave layer 4: Highlight accent waves
         phase4 = time * 0.35
@@ -541,7 +666,7 @@ class WaterRenderer:
                 wy = y + math.sin(x * 0.011 + phase4 + y_world * 0.002) * 4
                 pts.append((x, int(wy)))
             if len(pts) > 1:
-                pygame.draw.lines(screen, (72, 130, 230), False, pts, 1)
+                pygame.draw.lines(screen, color_wave4, False, pts, 1)
 
         # Flow particles (vertical current streaks)
         for p in self.flow_particles:
@@ -743,6 +868,113 @@ def create_rock_surface(cubes, w, h):
 
         # Dark border
         pygame.draw.rect(surface, (40, 35, 30), (cx, cy, cw, ch), 2)
+
+    return surface
+
+
+def create_snow_surface(cubes, w, h):
+    """Create an icy/snowy-themed obstacle surface."""
+    surface = pygame.Surface((w, h), pygame.SRCALPHA)
+    surface.fill((200, 220, 245))  # Pale ice blue base
+
+    for cx, cy, cw, ch in cubes:
+        # Ice/snow base with white accent
+        pygame.draw.rect(surface, (180, 210, 235), (cx, cy, cw, ch))
+
+        # Scattered white snow circles
+        rng = random.Random(hash((cx, cy, cw, ch)) % (2**32))
+        for _ in range(rng.randint(3, 6)):
+            sx = cx + rng.randint(5, cw - 5)
+            sy = cy + rng.randint(5, ch - 5)
+            sr = rng.randint(3, 12)
+            pygame.draw.circle(surface, (245, 248, 255), (sx, sy), sr)
+
+        # Icicle strokes (white/light blue)
+        for _ in range(rng.randint(2, 4)):
+            ix = cx + rng.randint(10, cw - 10)
+            iy = cy + rng.randint(5, 15)
+            pygame.draw.line(surface, (200, 230, 255), (ix, iy), (ix + rng.randint(-3, 3), iy + rng.randint(8, 20)), 2)
+
+        # Ice cracks (darker blue-gray)
+        for _ in range(rng.randint(1, 3)):
+            crx1 = cx + rng.randint(0, cw)
+            cry1 = cy + rng.randint(0, ch)
+            crx2 = crx1 + rng.randint(-20, 20)
+            cry2 = cry1 + rng.randint(-20, 20)
+            pygame.draw.line(surface, (140, 170, 200), (crx1, cry1), (crx2, cry2), 1)
+
+        # Border
+        pygame.draw.rect(surface, (150, 180, 210), (cx, cy, cw, ch), 2)
+
+    return surface
+
+
+def create_desert_surface(cubes, w, h):
+    """Create a sandy/desert-themed obstacle surface."""
+    surface = pygame.Surface((w, h), pygame.SRCALPHA)
+    # Don't fill entire surface - only fill obstacle areas
+
+    for cx, cy, cw, ch in cubes:
+        # Sand dune base
+        pygame.draw.rect(surface, (190, 160, 90), (cx, cy, cw, ch))
+
+        # Irregular rock polygons (darker stones)
+        rng = random.Random(hash((cx, cy, cw, ch)) % (2**32))
+        for _ in range(rng.randint(4, 7)):
+            rock_x = cx + rng.randint(5, cw - 5)
+            rock_y = cy + rng.randint(5, ch - 5)
+            rock_w = rng.randint(20, 45)
+            rock_h = rng.randint(15, 35)
+            points = [
+                (rock_x, rock_y),
+                (rock_x + rock_w, rock_y + rng.randint(-5, 5)),
+                (rock_x + rock_w + rng.randint(-10, 10), rock_y + rock_h),
+                (rock_x + rng.randint(-5, 5), rock_y + rock_h),
+            ]
+            pygame.draw.polygon(surface, (100, 85, 60), points)
+            pygame.draw.polygon(surface, (70, 60, 45), points, 2)
+
+        # Sand grain dots
+        for _ in range(rng.randint(8, 15)):
+            gx = cx + rng.randint(0, cw)
+            gy = cy + rng.randint(0, ch)
+            gr = rng.randint(1, 2)
+            pygame.draw.circle(surface, (160, 135, 75), (gx, gy), gr)
+
+        # Border
+        pygame.draw.rect(surface, (160, 125, 65), (cx, cy, cw, ch), 2)
+
+    return surface
+
+
+def create_tropics_surface(cubes, w, h):
+    """Create a jungle/tropics-themed obstacle surface."""
+    surface = pygame.Surface((w, h), pygame.SRCALPHA)
+    surface.fill((30, 90, 35))  # Deep jungle green base
+
+    for cx, cy, cw, ch in cubes:
+        # Dense vegetation base
+        pygame.draw.rect(surface, (25, 75, 30), (cx, cy, cw, ch))
+
+        # Foliage circles (3 shades of green)
+        rng = random.Random(hash((cx, cy, cw, ch)) % (2**32))
+        for _ in range(rng.randint(6, 10)):
+            fx = cx + rng.randint(5, cw - 5)
+            fy = cy + rng.randint(5, ch - 5)
+            fr = rng.randint(8, 20)
+            shade = rng.choice([(45, 120, 50), (35, 100, 40), (50, 140, 55)])
+            pygame.draw.circle(surface, shade, (fx, fy), fr)
+
+        # Vine strokes (darker green)
+        for _ in range(rng.randint(2, 4)):
+            vx = cx + rng.randint(10, cw - 10)
+            vy = cy + rng.randint(10, ch - 10)
+            vx2 = vx + rng.randint(-30, 30)
+            vy2 = vy + rng.randint(-30, 30)
+            pygame.draw.line(surface, (15, 50, 20), (vx, vy), (vx2, vy2), 2)
+
+        # Border
+        pygame.draw.rect(surface, (15, 55, 20), (cx, cy, cw, ch), 2)
 
     return surface
 
@@ -1485,7 +1717,7 @@ class Slider:
     def draw(self, surface, font):
         # Label
         label_surf = font.render(self.label, True, (200, 215, 235))
-        surface.blit(label_surf, (self.x - 10 - label_surf.get_width(), self.y - 10))
+        surface.blit(label_surf, (self.x - 25 - label_surf.get_width(), self.y - 10))
 
         # Track background
         track_rect = pygame.Rect(self.x, self.y - self.track_height // 2,
@@ -1686,7 +1918,7 @@ def draw_menu(screen, water, game_time, dt, buttons, menu_boat_angle):
     """Draw the start menu screen with polished typography and layout."""
 
     # Animated water background
-    water.draw(screen, dt, game_time)
+    water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     # Dark overlay with subtle vignette
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -1744,22 +1976,13 @@ def draw_menu(screen, water, game_time, dt, buttons, menu_boat_angle):
 
 def draw_settings(screen, water, game_time, dt, sliders, back_btn):
     """Draw the settings menu screen."""
-    water.draw(screen, dt, game_time)
+    water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     overlay.fill((0, 0, 0, 130))
     screen.blit(overlay, (0, 0))
 
-    # Panel behind sliders — centered on the slider group
-    panel_w, panel_h = 450, 240
-    panel_x = WIDTH // 2 - panel_w // 2
-    panel_y = HEIGHT // 2 - 130
-    panel = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
-    pygame.draw.rect(panel, (15, 20, 35, 180),
-                     pygame.Rect(0, 0, panel_w, panel_h), border_radius=20)
-    pygame.draw.rect(panel, (60, 90, 140, 40),
-                     pygame.Rect(0, 0, panel_w, panel_h), width=1, border_radius=20)
-    screen.blit(panel, (panel_x, panel_y))
+    # No panel - sliders float on overlay
 
     # Title
     title_str = "SETTINGS"
@@ -1775,7 +1998,7 @@ def draw_settings(screen, water, game_time, dt, sliders, back_btn):
 
 def draw_mode_select(screen, water, game_time, dt, cards, back_btn):
     """Draw the mode selection screen."""
-    water.draw(screen, dt, game_time)
+    water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     overlay.fill((0, 0, 0, 80))
@@ -1925,7 +2148,7 @@ def draw_seasons_menu(screen, water, game_time, dt, seasons, scroll_idx, scroll_
 def draw_tutorial(screen, water, game_time, dt, boat_pos, boat_angle, oar_anim,
                   wake, step, prompt_text, prompt_alpha):
     """Draw the tutorial screen."""
-    water.draw(screen, dt, game_time)
+    water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     # Boat
     wake.draw(screen)
@@ -1985,7 +2208,7 @@ def _draw_key_indicator(screen, x, y, direction, alpha, game_time):
 
 # Game state
 game_state = "menu"  # "menu", "playing", "level1_complete", "level2", "level2_win",
-#                       "settings", "mode_select", "tutorial", "seasons"
+#                       "settings", "mode_select", "tutorial", "seasons", "level3"
 
 # Menu buttons (Play, Settings, Quit)
 btn_play = Button(WIDTH // 2, HEIGHT // 2 + 50, 220, 55, "PLAY", (30, 100, 200), (50, 140, 255))
@@ -1998,9 +2221,9 @@ menu_boat_angle = 0
 _slider_x = WIDTH // 2 - 100
 _slider_w = 220
 settings_sliders = [
-    Slider(_slider_x, HEIGHT // 2 - 100, _slider_w, "Music", volume_music, (50, 120, 200)),
-    Slider(_slider_x, HEIGHT // 2 - 30, _slider_w, "SFX", volume_sfx, (200, 100, 50)),
-    Slider(_slider_x, HEIGHT // 2 + 40, _slider_w, "Ambience", volume_ambience, (50, 160, 80)),
+    Slider(_slider_x, HEIGHT // 2 - 110, _slider_w, "Music", volume_music, (50, 120, 200)),
+    Slider(_slider_x, HEIGHT // 2 - 20, _slider_w, "SFX", volume_sfx, (200, 100, 50)),
+    Slider(_slider_x, HEIGHT // 2 + 70, _slider_w, "Ambience", volume_ambience, (50, 160, 80)),
 ]
 settings_back_btn = Button(WIDTH // 2, HEIGHT // 2 + 200, 180, 50, "BACK", (60, 60, 75), (90, 90, 110))
 
@@ -2018,9 +2241,25 @@ mode_cards = [
     ModeCard(card_start_x + card_w + card_gap, card_y, card_w, card_h,
              "Seasons", (34, 120, 50), "", icon_image=os.path.join(_assets, "seasons.png")),
     ModeCard(card_start_x + (card_w + card_gap) * 2, card_y, card_w, card_h,
-             "Speed Run", (180, 100, 30), "", locked=True, icon_image=os.path.join(_assets, "speedrun.png")),
+             "Speed Run", (180, 100, 30), "", locked=False, icon_image=os.path.join(_assets, "speedrun.png")),
 ]
 mode_selected_idx = None
+current_mode = "seasons"  # "tutorial", "seasons", "speedrun"
+
+# Speed Run state
+speedrun_active = False
+speedrun_season_order = ["forest", "snow", "desert"]
+speedrun_season_idx = 0
+speedrun_level = 1
+speedrun_chrono = 0.0
+speedrun_num_players = 1
+speedrun_current_player = 1
+speedrun_player_names = ["", ""]
+speedrun_player_times = [0.0, 0.0]
+speedrun_name_input = ""
+speedrun_name_phase = 1
+speedrun_choosing_players = True
+
 mode_play_btn = Button(WIDTH // 2, HEIGHT - 80, 200, 50, "PLAY", (30, 140, 60), (50, 200, 80))
 mode_back_btn = Button(80, HEIGHT - 40, 140, 45, "BACK", (60, 60, 75), (90, 90, 110))
 
@@ -2037,13 +2276,14 @@ tutorial_prompt_alpha = 0.0
 tutorial_step_timer = 0.0
 tutorial_vo_triggered = False
 tutorial_back_btn = Button(80, HEIGHT - 40, 140, 45, "BACK", (60, 60, 75), (90, 90, 110))
+tutorial_skip_btn = Button(WIDTH - 220, HEIGHT - 60, 160, 42, "SKIP  >>", (60, 75, 60), (80, 110, 80))
 
 # ---- Seasons state ----
 seasons_list = [
     SeasonItem("Forest", "Navigate through the woodland river", (34, 80, 34), (40, 100, 50), playable=True),
-    SeasonItem("Snow", "Brave the frozen waters", (180, 200, 230), (100, 140, 180), playable=False),
-    SeasonItem("Desert", "Cross the oasis canyon", (210, 170, 100), (160, 120, 60), playable=False),
-    SeasonItem("Tropics", "Sail through the jungle", (30, 140, 80), (40, 120, 70), playable=False),
+    SeasonItem("Snow", "Brave the frozen waters", (180, 200, 230), (100, 140, 180), playable=True),
+    SeasonItem("Desert", "Cross the oasis canyon", (210, 170, 100), (160, 120, 60), playable=True),
+    SeasonItem("Tropics", "Coming Soon", (30, 140, 80), (40, 120, 70), playable=False),
 ]
 seasons_scroll_idx = 0
 seasons_prev_idx = 0
@@ -2051,6 +2291,127 @@ seasons_scroll_offset = 0.0
 seasons_bg_color = list(seasons_list[0].bg_color)
 seasons_play_btn = Button(WIDTH // 2, HEIGHT - 80, 200, 50, "PLAY", (30, 140, 60), (50, 200, 80))
 seasons_back_btn = Button(80, HEIGHT - 40, 140, 45, "BACK", (60, 60, 75), (90, 90, 110))
+
+# ---- Current season and theme data ----
+current_season = "forest"
+
+# Build SEASON_DATA from maps.py or editor_maps
+def build_season_data():
+    """Convert maps data into SEASON_DATA format for game logic.
+    Checks editor_maps first, falls back to maps.py."""
+    season_data = {}
+    print("\n📋 Checking for editor maps...")
+    for season_name in MAPS.keys():
+        season_data[season_name] = {}
+
+        # Level 1 - check editor_maps first
+        editor_l1 = get_editor_map(season_name, 1)
+        l1_map = editor_l1 or MAPS.get(season_name, {}).get(1)
+        if l1_map:
+            if "obstacles" in l1_map:
+                season_data[season_name]["l1_cubes"] = l1_map.get("obstacles", [])
+                n_obs = len(season_data[season_name]["l1_cubes"])
+                if editor_l1:
+                    print(f"  ✅ EDITOR {season_name.upper()} L1: {n_obs} obstacles")
+                else:
+                    print(f"  📦 FALLBACK {season_name.upper()} L1: {n_obs} obstacles")
+            season_data[season_name]["l1_timer"] = l1_map.get("time_limit", 60)
+            # Finish line - check if from editor map with axis info
+            finish_data = l1_map.get("finish", l1_map)  # editor maps have "finish" dict
+            if isinstance(finish_data, dict) and "axis" in finish_data:
+                season_data[season_name]["l1_finish_axis"] = finish_data.get("axis", "y")
+                season_data[season_name]["l1_finish_pos"] = finish_data.get("pos", 40)
+                season_data[season_name]["l1_finish_y"] = finish_data.get("pos", 40)
+                season_data[season_name]["l1_finish_x1"] = finish_data.get("x1", 100)
+                season_data[season_name]["l1_finish_x2"] = finish_data.get("x2", 1150)
+                season_data[season_name]["l1_finish_y1"] = finish_data.get("y1", 0)
+                season_data[season_name]["l1_finish_y2"] = finish_data.get("y2", HEIGHT)
+            else:
+                season_data[season_name]["l1_finish_axis"] = "y"
+                season_data[season_name]["l1_finish_y"] = l1_map.get("finish_y", 40)
+                season_data[season_name]["l1_finish_pos"] = l1_map.get("finish_y", 40)
+                season_data[season_name]["l1_finish_x1"] = l1_map.get("finish_x1", 100)
+                season_data[season_name]["l1_finish_x2"] = l1_map.get("finish_x2", 1150)
+            season_data[season_name]["l1_slow_zones"] = l1_map.get("slow_zones", [])
+
+        # Level 2 - check editor_maps first
+        editor_l2 = get_editor_map(season_name, 2)
+        l2_map = editor_l2 or MAPS.get(season_name, {}).get(2)
+        if l2_map:
+            season_data[season_name]["l2_cubes"] = l2_map.get("obstacles", [])
+            season_data[season_name]["l2_timer"] = l2_map.get("time_limit", 45)
+            season_data[season_name]["l2_wall_width"] = l2_map.get("l2_wall_width", 100)
+            season_data[season_name]["l2_slow_zones"] = l2_map.get("slow_zones", [])
+            # L2 finish data
+            l2_finish = l2_map.get("finish", l2_map)
+            if isinstance(l2_finish, dict) and "axis" in l2_finish:
+                season_data[season_name]["l2_finish_axis"] = l2_finish.get("axis", "y")
+                season_data[season_name]["l2_finish_pos"] = l2_finish.get("pos", 40)
+                season_data[season_name]["l2_finish_y"] = l2_finish.get("pos", 40)
+                season_data[season_name]["l2_finish_x1"] = l2_finish.get("x1", 150)
+                season_data[season_name]["l2_finish_x2"] = l2_finish.get("x2", WIDTH - 150)
+                season_data[season_name]["l2_finish_y1"] = l2_finish.get("y1", 0)
+                season_data[season_name]["l2_finish_y2"] = l2_finish.get("y2", HEIGHT)
+            else:
+                season_data[season_name]["l2_finish_axis"] = "y"
+                season_data[season_name]["l2_finish_y"] = 40
+                season_data[season_name]["l2_finish_pos"] = 40
+                season_data[season_name]["l2_finish_x1"] = 150
+                season_data[season_name]["l2_finish_x2"] = WIDTH - 150
+            n_obs = len(season_data[season_name].get("l2_cubes", []))
+            if editor_l2:
+                print(f"  ✅ EDITOR {season_name.upper()} L2: {n_obs} obstacles")
+            else:
+                print(f"  📦 FALLBACK {season_name.upper()} L2: {n_obs} obstacles")
+
+        # Level 3 - check editor_maps first
+        editor_l3 = get_editor_map(season_name, 3)
+        l3_map = editor_l3 or MAPS.get(season_name, {}).get(3)
+        if l3_map:
+            season_data[season_name]["l3_cubes"] = l3_map.get("obstacles", [])
+            season_data[season_name]["l3_timer"] = l3_map.get("time_limit", 40)
+            season_data[season_name]["l3_slow_zones"] = l3_map.get("slow_zones", [])
+            season_data[season_name]["l3_poly_obstacles"] = l3_map.get("poly_obstacles", [])
+            finish_data = l3_map.get("finish", l3_map)
+            if isinstance(finish_data, dict) and "axis" in finish_data:
+                season_data[season_name]["l3_finish_axis"] = finish_data.get("axis", "y")
+                season_data[season_name]["l3_finish_pos"] = finish_data.get("pos", 40)
+                season_data[season_name]["l3_finish_y"] = finish_data.get("pos", 40)
+                season_data[season_name]["l3_finish_x1"] = finish_data.get("x1", 100)
+                season_data[season_name]["l3_finish_x2"] = finish_data.get("x2", 1150)
+                season_data[season_name]["l3_finish_y1"] = finish_data.get("y1", 0)
+                season_data[season_name]["l3_finish_y2"] = finish_data.get("y2", HEIGHT)
+            else:
+                season_data[season_name]["l3_finish_axis"] = "y"
+                season_data[season_name]["l3_finish_y"] = l3_map.get("finish_y", 40)
+                season_data[season_name]["l3_finish_pos"] = l3_map.get("finish_y", 40)
+                season_data[season_name]["l3_finish_x1"] = l3_map.get("finish_x1", 100)
+                season_data[season_name]["l3_finish_x2"] = l3_map.get("finish_x2", 1150)
+            n_obs = len(season_data[season_name].get("l3_cubes", []))
+            if editor_l3:
+                print(f"  ✅ EDITOR {season_name.upper()} L3: {n_obs} obstacles")
+            else:
+                print(f"  📦 FALLBACK {season_name.upper()} L3: {n_obs} obstacles")
+
+    return season_data
+
+print("\n" + "="*60)
+print("Building SEASON_DATA...")
+SEASON_DATA = build_season_data()
+print("="*60)
+for season in SEASON_DATA:
+    l1_obs = len(SEASON_DATA[season].get('l1_cubes', []))
+    l3_obs = len(SEASON_DATA[season].get('l3_cubes', []))
+    print(f"{season.upper()}: L1={l1_obs} obs, L3={l3_obs} obs")
+print("="*60 + "\n")
+
+# Theme-specific water color palettes
+WATER_PALETTES = {
+    "forest": None,  # Use existing deep ocean blues
+    "snow": {"deep": (190, 215, 240), "wave1": (200, 225, 248), "wave2": (210, 232, 252), "wave3": (220, 238, 255), "wave4": (230, 243, 255)},
+    "desert": {"deep": (80, 160, 180), "wave1": (90, 175, 195), "wave2": (100, 185, 205), "wave3": (110, 195, 215), "wave4": (120, 205, 225)},
+    "tropics": {"deep": (20, 80, 130), "wave1": (30, 100, 150), "wave2": (40, 115, 165), "wave3": (50, 130, 180), "wave4": (60, 145, 195)},
+}
 
 # ---- Dialog box ----
 dialog = DialogBox(subtitle_font)
@@ -2066,6 +2427,10 @@ wake = WakeSystem()
 
 # Timer
 timer_seconds = 60
+
+# Level 1 finish line positions (vary by theme, set in reset_game)
+l1_finish_x1 = 200
+l1_finish_x2 = 330
 
 # Boat state
 INITIAL_BOAT_POS = pygame.Vector2(WIDTH // 2, 600)
@@ -2133,6 +2498,13 @@ l1_complete_timer = 0
 # LEVEL 2 SETUP (single-screen, rocks, wind, 45s timer)
 # ================================================================
 LEVEL2_FINISH_Y = 40
+l2_finish_axis = "y"
+l2_finish_pos = 40
+l2_finish_y = 40
+l2_finish_x1 = 150
+l2_finish_x2 = WIDTH - 150
+l2_finish_y1 = 0
+l2_finish_y2 = HEIGHT
 LEVEL2_INITIAL_POS = pygame.Vector2(WIDTH // 2, 600)
 
 # Level 2 walls are narrower (150px vs L1's 200px) for wider river
@@ -2186,9 +2558,45 @@ l2_shake = ScreenShake()
 l2_wind = WindSystem()
 l2_crash = CrashAnimation()
 l2_frame = pygame.Surface((WIDTH, HEIGHT))
+l2_wall_width = 150  # Default, set in reset_level2
 
 # Win screen
 l2_win_blink_timer = 0
+l2_complete_timer = 0
+
+# Level 3 state
+l3_boat_pos = pygame.Vector2(WIDTH // 2, 600)
+l3_boat_vel = pygame.Vector2(0, 0)
+l3_boat_angle = 0
+l3_rotating = False
+l3_rotation_start_angle = 0
+l3_rotation_direction = 0
+l3_target_angle = 0
+l3_input_buffer = 0
+l3_left_pressed = False
+l3_right_pressed = False
+l3_down_pressed = False
+l3_timer = 40
+l3_oar = OarAnimator()
+l3_wake = WakeSystem()
+l3_shake = ScreenShake()
+l3_crash = CrashAnimation()
+l3_frame = pygame.Surface((WIDTH, HEIGHT))
+l3_cubes = []
+l3_poly_obstacles = []
+l3_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+l3_canopy = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+l3_foam_points = []
+l3_slow_zones = []
+l3_finish_axis = "y"
+l3_finish_pos = 40
+l3_finish_y = 40
+l3_finish_x1 = 100
+l3_finish_x2 = 1150
+l3_finish_y1 = 0
+l3_finish_y2 = HEIGHT
+l3_win_blink_timer = 0
+l3_spawn_pos = pygame.Vector2(WIDTH // 2, 600)
 
 
 def reset_level2():
@@ -2196,10 +2604,89 @@ def reset_level2():
     global l2_rotating, l2_rotation_start_angle, l2_rotation_direction, l2_target_angle
     global l2_input_buffer, l2_left_pressed, l2_right_pressed, l2_down_pressed
     global l2_oar, l2_wake, l2_particles, l2_shake, l2_wind, l2_crash
-    l2_boat_pos = LEVEL2_INITIAL_POS.copy()
+    global level2_cubes, level2_wall_cubes, level2_rock_cubes, l2_forest, l2_rock_surface, l2_foam_points, l2_wall_width
+    global l2_finish_axis, l2_finish_pos, l2_finish_y, l2_finish_x1, l2_finish_x2, l2_finish_y1, l2_finish_y2
+
+    # Load theme-specific Level 2 data
+    theme = SEASON_DATA[current_season]
+    level2_cubes = theme["l2_cubes"]
+    l2_finish_axis = theme.get("l2_finish_axis", "y")
+    l2_finish_pos = theme.get("l2_finish_pos", 40)
+    l2_finish_y = theme.get("l2_finish_y", 40)
+    l2_finish_x1 = theme.get("l2_finish_x1", 150)
+    l2_finish_x2 = theme.get("l2_finish_x2", WIDTH - 150)
+    l2_finish_y1 = theme.get("l2_finish_y1", 0)
+    l2_finish_y2 = theme.get("l2_finish_y2", HEIGHT)
+    l2_timer = theme["l2_timer"]
+    l2_wall_width = theme["l2_wall_width"]
+
+    # Split cubes into walls and obstacles
+    level2_wall_cubes = [(0, 0, l2_wall_width, HEIGHT), (WIDTH - l2_wall_width, 0, l2_wall_width, HEIGHT)]
+    level2_rock_cubes = [c for c in level2_cubes if c not in level2_wall_cubes]
+
+    # Generate theme-specific surfaces
+    if current_season == "forest":
+        l2_forest = create_forest_surface(level2_wall_cubes, WIDTH, HEIGHT, forest_floor, tree_canopy1, tree_canopy2)
+        l2_rock_surface = create_rock_surface(level2_rock_cubes, WIDTH, HEIGHT)
+    elif current_season == "snow":
+        l2_forest = create_snow_surface(level2_wall_cubes, WIDTH, HEIGHT)
+        l2_rock_surface = create_snow_surface(level2_rock_cubes, WIDTH, HEIGHT)
+    elif current_season == "desert":
+        l2_forest = create_desert_surface(level2_wall_cubes, WIDTH, HEIGHT)
+        l2_rock_surface = create_desert_surface(level2_rock_cubes, WIDTH, HEIGHT)
+    elif current_season == "tropics":
+        l2_forest = create_tropics_surface(level2_wall_cubes, WIDTH, HEIGHT)
+        l2_rock_surface = create_tropics_surface(level2_rock_cubes, WIDTH, HEIGHT)
+
+    # Precompute foam points for all cubes
+    l2_foam_points = precompute_foam(level2_cubes, WIDTH, HEIGHT)
+
+    # Render assets on Level 2 surfaces - load EXACT assets from map JSON
+    map_data = load_map(current_season, 2)
+    if map_data and "assets" in map_data:
+        for asset_info in map_data["assets"]:
+            # Load the exact asset file referenced in the JSON
+            asset_src = asset_info.get("src", "")
+            if asset_src:
+                asset_path = Path(asset_src)
+                if asset_path.exists():
+                    try:
+                        asset_img = pygame.image.load(asset_path)
+                        # Use exact dimensions from JSON if provided
+                        json_w = asset_info.get("w")
+                        json_h = asset_info.get("h")
+
+                        if json_w and json_h:
+                            scaled_asset = pygame.transform.scale(asset_img, (int(json_w), int(json_h)))
+                        else:
+                            scaled_asset = asset_img
+
+                        x = int(asset_info.get("x", 0))
+                        y = int(asset_info.get("y", 0))
+                        w = int(json_w or scaled_asset.get_width())
+                        h = int(json_h or scaled_asset.get_height())
+
+                        # Apply rotation around center to match editor
+                        rotation = asset_info.get("rotation", 0)
+                        if rotation != 0:
+                            cx, cy = x + w // 2, y + h // 2
+                            scaled_asset = pygame.transform.rotate(scaled_asset, rotation)
+                            new_rect = scaled_asset.get_rect(center=(cx, cy))
+                            blit_x, blit_y = new_rect.topleft
+                        else:
+                            blit_x, blit_y = x, y
+
+                        # Blit to both wall and obstacle surfaces for visual distribution
+                        l2_forest.blit(scaled_asset, (blit_x, blit_y))
+                        l2_rock_surface.blit(scaled_asset, (blit_x, blit_y))
+                    except Exception as e:
+                        print(f"  ⚠️ Could not load L2 asset {asset_src}: {e}")
+
+    # Reset physics state - use calculate_spawn_pos for correct axis handling
+    l2_boat_pos = calculate_spawn_pos(map_data)
+
     l2_boat_vel = pygame.Vector2(0, 0)
     l2_boat_angle = 0
-    l2_timer = 45
     l2_rotating = False
     l2_rotation_start_angle = 0
     l2_rotation_direction = 0
@@ -2217,6 +2704,100 @@ def reset_level2():
 
 
 # ================================================================
+def reset_level3():
+    global l3_boat_pos, l3_boat_vel, l3_boat_angle, l3_timer
+    global l3_rotating, l3_rotation_start_angle, l3_rotation_direction, l3_target_angle
+    global l3_input_buffer, l3_left_pressed, l3_right_pressed, l3_down_pressed
+    global l3_oar, l3_wake, l3_shake, l3_crash
+    global l3_cubes, l3_poly_obstacles, l3_surface, l3_canopy, l3_foam_points, l3_slow_zones, l3_spawn_pos
+    global l3_finish_axis, l3_finish_pos, l3_finish_y, l3_finish_x1, l3_finish_x2, l3_finish_y1, l3_finish_y2
+
+    theme = SEASON_DATA[current_season]
+    l3_cubes = theme.get("l3_cubes", [])
+    l3_poly_obstacles = theme.get("l3_poly_obstacles", [])
+    l3_timer = theme.get("l3_timer", 40)
+    l3_slow_zones = theme.get("l3_slow_zones", [])
+
+    l3_finish_axis = theme.get("l3_finish_axis", "y")
+    l3_finish_pos = theme.get("l3_finish_pos", 40)
+    l3_finish_y = theme.get("l3_finish_y", 40)
+    l3_finish_x1 = theme.get("l3_finish_x1", 100)
+    l3_finish_x2 = theme.get("l3_finish_x2", 1150)
+    l3_finish_y1 = theme.get("l3_finish_y1", 0)
+    l3_finish_y2 = theme.get("l3_finish_y2", HEIGHT)
+
+    # Generate surface
+    if current_season == "forest":
+        l3_surface = create_forest_surface(l3_cubes, WIDTH, HEIGHT, forest_floor, tree_canopy1, tree_canopy2)
+    elif current_season == "snow":
+        l3_surface = create_snow_surface(l3_cubes, WIDTH, HEIGHT)
+    elif current_season == "desert":
+        l3_surface = create_desert_surface(l3_cubes, WIDTH, HEIGHT)
+    elif current_season == "tropics":
+        l3_surface = create_tropics_surface(l3_cubes, WIDTH, HEIGHT)
+
+    l3_foam_points = precompute_foam(l3_cubes, WIDTH, HEIGHT)
+
+    # Render assets
+    map_data = load_map(current_season, 3)
+    l3_canopy = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    TREE_NAMES = {'forest1', 'forest2', 'forest', 'tree', 'canopy', 'forest1-removebg-preview', 'forest2-removebg-preview'}
+
+    if map_data and "assets" in map_data:
+        for asset_info in map_data["assets"]:
+            asset_src = asset_info.get("src", "")
+            if asset_src:
+                asset_path = Path(asset_src)
+                if asset_path.exists():
+                    try:
+                        asset_img = pygame.image.load(asset_path).convert_alpha()
+                        json_w = asset_info.get("w")
+                        json_h = asset_info.get("h")
+                        if json_w and json_h:
+                            scaled_asset = pygame.transform.scale(asset_img, (int(json_w), int(json_h)))
+                        else:
+                            scaled_asset = asset_img
+                        x = int(asset_info.get("x", 0))
+                        y = int(asset_info.get("y", 0))
+                        w = int(json_w or scaled_asset.get_width())
+                        h = int(json_h or scaled_asset.get_height())
+                        rotation = asset_info.get("rotation", 0)
+                        if rotation != 0:
+                            cx, cy = x + w // 2, y + h // 2
+                            scaled_asset = pygame.transform.rotate(scaled_asset, rotation)
+                            new_rect = scaled_asset.get_rect(center=(cx, cy))
+                            blit_x, blit_y = new_rect.topleft
+                        else:
+                            blit_x, blit_y = x, y
+                        asset_name = asset_info.get("name", "")
+                        if asset_name in TREE_NAMES or "forest" in asset_name.lower() or "tree" in asset_name.lower() or "canopy" in asset_name.lower():
+                            l3_canopy.blit(scaled_asset, (blit_x, blit_y))
+                        else:
+                            l3_surface.blit(scaled_asset, (blit_x, blit_y))
+                    except Exception as e:
+                        print(f"  ⚠️ Could not load L3 asset {asset_src}: {e}")
+
+    # Spawn position
+    l3_boat_pos = calculate_spawn_pos(map_data)
+    l3_spawn_pos = pygame.Vector2(l3_boat_pos.x, l3_boat_pos.y)  # save for win direction check
+    spawn_angle = get_spawn_angle(map_data)
+
+    l3_boat_vel = pygame.Vector2(0, 0)
+    l3_boat_angle = spawn_angle
+    l3_rotating = False
+    l3_rotation_start_angle = 0
+    l3_rotation_direction = 0
+    l3_target_angle = spawn_angle
+    l3_input_buffer = 0
+    l3_left_pressed = False
+    l3_right_pressed = False
+    l3_down_pressed = False
+    l3_oar = OarAnimator()
+    l3_wake = WakeSystem()
+    l3_shake = ScreenShake()
+    l3_crash = CrashAnimation()
+
+
 # MAIN GAME LOOP
 # ================================================================
 running = True
@@ -2225,19 +2806,96 @@ input_this_frame = False
 game_time = 0
 
 
+
 def reset_game():
     """Reset all game state for a fresh start (Level 1)."""
     global boat_pos, boat_velocity, boat_angle, rotating, input_buffer
     global rotation_direction, target_angle, rotation_start_angle
     global left_pressed, right_pressed, down_pressed, timer_seconds
     global l1_crash, l1_shake
-    timer_seconds = 60
-    boat_pos = INITIAL_BOAT_POS.copy()
+    global cubes, forest_surface, canopy_surface, l1_finish_axis, l1_finish_pos, l1_finish_y, l1_finish_x1, l1_finish_x2, l1_finish_y1, l1_finish_y2, l1_slow_zones, l1_spawn_pos
+
+    # Load theme-specific data
+    theme = SEASON_DATA[current_season]
+    cubes = theme["l1_cubes"]
+    print(f"\n🎮 LOADED: {current_season.upper()} L1 with {len(cubes)} obstacles")
+    timer_seconds = theme["l1_timer"]
+    l1_finish_axis = theme.get("l1_finish_axis", "y")
+    l1_finish_pos = theme.get("l1_finish_pos", 40)
+    l1_finish_y = theme.get("l1_finish_y", 40)
+    l1_finish_x1 = theme.get("l1_finish_x1", 100)
+    l1_finish_x2 = theme.get("l1_finish_x2", 1150)
+    l1_finish_y1 = theme.get("l1_finish_y1", 0)
+    l1_finish_y2 = theme.get("l1_finish_y2", HEIGHT)
+    l1_slow_zones = theme.get("l1_slow_zones", [])
+
+    # Generate theme-specific surface
+    if current_season == "forest":
+        forest_surface = create_forest_surface(cubes, WIDTH, HEIGHT, forest_floor, tree_canopy1, tree_canopy2)
+    elif current_season == "snow":
+        forest_surface = create_snow_surface(cubes, WIDTH, HEIGHT)
+    elif current_season == "desert":
+        forest_surface = create_desert_surface(cubes, WIDTH, HEIGHT)
+    elif current_season == "tropics":
+        forest_surface = create_tropics_surface(cubes, WIDTH, HEIGHT)
+
+    # Render assets on the surface - load EXACT assets from map JSON
+    # Tree/canopy assets go on a separate surface rendered ABOVE the boat
+    map_data = load_map(current_season, 1)
+    canopy_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    TREE_NAMES = {'forest1', 'forest2', 'forest', 'tree', 'canopy', 'forest1-removebg-preview', 'forest2-removebg-preview'}
+
+    if map_data and "assets" in map_data:
+        for asset_info in map_data["assets"]:
+            asset_src = asset_info.get("src", "")
+            if asset_src:
+                asset_path = Path(asset_src)
+                if asset_path.exists():
+                    try:
+                        asset_img = pygame.image.load(asset_path).convert_alpha()
+                        json_w = asset_info.get("w")
+                        json_h = asset_info.get("h")
+
+                        if json_w and json_h:
+                            scaled_asset = pygame.transform.scale(asset_img, (int(json_w), int(json_h)))
+                        else:
+                            scaled_asset = asset_img
+
+                        x = int(asset_info.get("x", 0))
+                        y = int(asset_info.get("y", 0))
+                        w = int(json_w or scaled_asset.get_width())
+                        h = int(json_h or scaled_asset.get_height())
+
+                        rotation = asset_info.get("rotation", 0)
+                        if rotation != 0:
+                            # Rotate around center to match editor behavior
+                            cx, cy = x + w // 2, y + h // 2
+                            scaled_asset = pygame.transform.rotate(scaled_asset, rotation)
+                            new_rect = scaled_asset.get_rect(center=(cx, cy))
+                            blit_x, blit_y = new_rect.topleft
+                        else:
+                            blit_x, blit_y = x, y
+
+                        # Tree assets go on canopy (above boat), others on ground
+                        asset_name = asset_info.get("name", "")
+                        if asset_name in TREE_NAMES or "forest" in asset_name.lower() or "tree" in asset_name.lower() or "canopy" in asset_name.lower():
+                            canopy_surface.blit(scaled_asset, (blit_x, blit_y))
+                        else:
+                            forest_surface.blit(scaled_asset, (blit_x, blit_y))
+                    except Exception as e:
+                        print(f"  ⚠️ Could not load asset {asset_src}: {e}")
+
+    # Reset physics state - use calculate_spawn_pos for correct axis handling
+    boat_pos = calculate_spawn_pos(map_data)
+    l1_spawn_pos = pygame.Vector2(boat_pos.x, boat_pos.y)
+
+    spawn_angle = get_spawn_angle(map_data)
+
     boat_velocity = pygame.Vector2(0, 0)
-    boat_angle = 0
+    boat_angle = spawn_angle
     rotating = False
     rotation_direction = 0
-    target_angle = 0
+    target_angle = spawn_angle
     rotation_start_angle = 0
     input_buffer = 0
     left_pressed = False
@@ -2247,6 +2905,320 @@ def reset_game():
     l1_crash = CrashAnimation()
     l1_shake = ScreenShake()
 
+
+# ================================================================
+# SHARED GAMEPLAY HELPERS
+# ================================================================
+
+def _smooth_rotation(angle, target_angle, rotating, rotation_direction, dt):
+    """Advance angle toward target at ROTATION_SPEED deg/s."""
+    if rotating:
+        diff = (target_angle - angle + 180) % 360 - 180
+        step = math.copysign(min(abs(diff), ROTATION_SPEED * dt), diff)
+        angle += step
+        if abs((target_angle - angle + 180) % 360 - 180) < 0.01:
+            angle = target_angle % 360
+            rotating = False
+            rotation_direction = 0
+    return angle % 360, rotating, rotation_direction
+
+
+def _apply_boat_physics(vel, angle, input_buffer, left_pressed, right_pressed, dt, season=None):
+    """Acceleration + speed clamp + friction. Returns new vel."""
+    forward = pygame.Vector2(0, -1).rotate(angle)
+    if input_buffer > 0.01:
+        accel = BASE_ACCEL + ACCEL_PER_PRESS * input_buffer
+        if left_pressed != right_pressed:
+            accel *= SINGLE_KEY_ACCEL_MULT
+        vel = vel + forward * accel * dt
+    speed = vel.length()
+    if speed > MAX_SPEED:
+        vel = (vel / speed) * MAX_SPEED
+    if speed > 0.01:
+        alignment = vel.normalize().dot(forward)
+        sideways_effect = SIDEWAYS_DRIFT_MULT
+        if left_pressed != right_pressed:
+            sideways_effect *= SINGLE_KEY_SIDEWAYS_MULT
+        if season == "snow":
+            friction = 0.997
+        else:
+            friction = (
+                BASE_FRICTION
+                + (1 - abs(alignment))
+                * (SIDEWAYS_FRICTION - BASE_FRICTION)
+                * sideways_effect
+            )
+        vel = vel * friction
+    else:
+        vel = pygame.Vector2(0, 0)
+    return vel
+
+
+def _aabb_circle(px, py, r, cubes):
+    """True if circle (px,py,r) intersects any AABB in cubes."""
+    for cx, cy, cw, ch in cubes:
+        if px - r < cx + cw and px + r > cx and py - r < cy + ch and py + r > cy:
+            return True
+    return False
+
+
+def _poly_circle_hit(px, py, r, poly_obstacles):
+    """True if circle intersects any polygon obstacle."""
+    for poly in poly_obstacles:
+        pts = [(p["x"], p["y"]) for p in poly.get("points", [])]
+        if len(pts) >= 2 and circle_vs_polygon(px, py, r, pts):
+            return True
+    return False
+
+
+def _do_l1_respawn():
+    global boat_pos, boat_velocity, boat_angle, rotating, timer_seconds, target_angle
+    l1_map = load_map(current_season, 1)
+    boat_pos = calculate_spawn_pos(l1_map)
+    ra = get_spawn_angle(l1_map)
+    boat_velocity = pygame.Vector2(0, 0)
+    boat_angle = ra
+    target_angle = ra
+    rotating = False
+    timer_seconds = SEASON_DATA[current_season].get("l1_timer", 60)
+    wake.clear()
+
+
+def _do_l2_respawn():
+    global l2_boat_pos, l2_boat_vel, l2_boat_angle, l2_rotating, l2_timer, l2_target_angle
+    l2_map = load_map(current_season, 2)
+    l2_boat_pos = calculate_spawn_pos(l2_map)
+    ra = get_spawn_angle(l2_map)
+    l2_boat_vel = pygame.Vector2(0, 0)
+    l2_boat_angle = ra
+    l2_target_angle = ra
+    l2_rotating = False
+    l2_timer = SEASON_DATA[current_season].get("l2_timer", 45)
+    l2_wake.clear()
+
+
+def _do_l3_respawn():
+    global l3_boat_pos, l3_boat_vel, l3_boat_angle, l3_rotating, l3_timer, l3_target_angle
+    l3_map = load_map(current_season, 3)
+    l3_boat_pos = calculate_spawn_pos(l3_map)
+    ra = get_spawn_angle(l3_map)
+    l3_boat_vel = pygame.Vector2(0, 0)
+    l3_boat_angle = ra
+    l3_target_angle = ra
+    l3_rotating = False
+    l3_timer = SEASON_DATA[current_season].get("l3_timer", 40)
+    l3_wake.clear()
+
+
+def _check_win(pos, spawn_pos, axis, finish_pos, finish_y, finish_x1, finish_x2, finish_y1, finish_y2):
+    """Spawn-relative finish-line check for x-axis and y-axis rivers."""
+    if axis == "x":
+        in_gap = finish_y1 <= pos.y <= finish_y2
+        return (pos.x > finish_pos if finish_pos > spawn_pos.x else pos.x < finish_pos) and in_gap
+    else:
+        return pos.y < finish_y if finish_y < spawn_pos.y else pos.y > finish_y
+
+
+def _draw_finish_glow(frame, axis, finish_pos, finish_x1, finish_x2, finish_y, finish_y1, finish_y2, game_time):
+    """Pulsing green finish-line indicator."""
+    glow_pulse = 0.5 + 0.5 * math.sin(game_time * 3)
+    glow_alpha = int(60 + 80 * glow_pulse)
+    if axis == "x":
+        h = max(1, finish_y2 - finish_y1)
+        surf = pygame.Surface((12, h), pygame.SRCALPHA)
+        surf.fill((80, 255, 120, glow_alpha))
+        frame.blit(surf, (finish_pos - 6, finish_y1))
+        pygame.draw.line(frame, (80, 255, 120), (finish_pos, finish_y1), (finish_pos, finish_y2), 2)
+    else:
+        w = max(1, finish_x2 - finish_x1)
+        surf = pygame.Surface((w, 12), pygame.SRCALPHA)
+        surf.fill((80, 255, 120, glow_alpha))
+        frame.blit(surf, (finish_x1, finish_y - 6))
+        pygame.draw.line(frame, (80, 255, 120), (finish_x1, finish_y), (finish_x2, finish_y), 2)
+
+
+def _draw_speedrun_hud(frame, chrono, season_idx, level):
+    """Speedrun chrono + level label at top-left."""
+    sr_mins = int(chrono // 60)
+    sr_secs = chrono % 60
+    chrono_str = f"{sr_mins}:{sr_secs:04.1f}"
+    chrono_surf = font.render(chrono_str, True, (255, 220, 80))
+    chrono_shadow = font.render(chrono_str, True, (0, 0, 0))
+    frame.blit(chrono_shadow, (22, 22))
+    frame.blit(chrono_surf, (20, 20))
+    sr_label = f"{speedrun_season_order[season_idx].title()} L{level}"
+    label_surf = subtitle_font.render(sr_label, True, (200, 210, 230))
+    frame.blit(label_surf, (20, 60))
+
+
+def _draw_timer_hud(frame, timer_val):
+    """Countdown timer at top-center; hidden in seasons/speedrun; jitters at <=10s."""
+    if current_mode in ("seasons", "speedrun"):
+        return
+    color = (255, 0, 0) if timer_val <= 10 else (255, 255, 255)
+    txt = font.render(f"{timer_val:.1f}", True, color)
+    shd = font.render(f"{timer_val:.1f}", True, (0, 0, 0))
+    r = txt.get_rect(midtop=(WIDTH // 2, 20))
+    sr = r.copy()
+    sr.x += 2
+    sr.y += 2
+    if timer_val <= 10:
+        sx, sy = random.randint(-2, 2), random.randint(-2, 2)
+        r.x += sx; r.y += sy
+        sr.x += sx; sr.y += sy
+    frame.blit(shd, sr)
+    frame.blit(txt, r)
+
+
+def _advance_speedrun():
+    """Move to next season in speedrun, or complete the run."""
+    global game_state, speedrun_season_idx, speedrun_level, current_season
+    speedrun_season_idx += 1
+    if speedrun_season_idx >= len(speedrun_season_order):
+        speedrun_player_times[0] = speedrun_chrono
+        game_state = "speedrun_complete"
+    else:
+        speedrun_level = 1
+        current_season = speedrun_season_order[speedrun_season_idx]
+        game_state = "playing"
+        reset_game()
+
+
+def _draw_desert_storm(frame, boat_pos, shake, game_time, level):
+    """Desert sandstorm. level=2 moderate, level=3 heavy."""
+    if level == 2:
+        gust_freq = 0.6
+        tint_alpha = 50
+        curtain_base, curtain_swing = 60, 80
+        n_streaks, spx, spy, slen = 100, 200, 60, 60
+        vis_base, vis_shrink, vis_fade, fog_base = 140, 30, 60, 100
+        vig_y, vig_x, vig_base_a, vig_swing = 80, 60, 80, 30
+        vib_base, vib_scale = 0.5, 1.5
+    else:
+        gust_freq = 0.5
+        tint_alpha = 60
+        curtain_base, curtain_swing = 80, 90
+        n_streaks, spx, spy, slen = 130, 220, 70, 70
+        vis_base, vis_shrink, vis_fade, fog_base = 120, 35, 70, 120
+        vig_y, vig_x, vig_base_a, vig_swing = 100, 80, 100, 40
+        vib_base, vib_scale = 0.7, 2.0
+
+    gust_cycle = math.sin(game_time * gust_freq) * 0.5 + 0.5
+
+    tint = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    tint.fill((160, 120, 60, tint_alpha))
+    frame.blit(tint, (0, 0))
+
+    curtain = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    curtain.fill((190, 155, 90, int(curtain_base + curtain_swing * gust_cycle)))
+    frame.blit(curtain, (0, 0))
+
+    wind_dx = math.sin(game_time * 1.0) * 0.5 + 0.7
+    wind_dy = math.cos(game_time * 0.8) * 0.3
+    seed_off = 999 if level == 3 else 0
+    for i in range(n_streaks):
+        rng = random.Random(int(game_time * 8) + i + seed_off)
+        sx = (rng.randint(-100, WIDTH) + int(game_time * spx * wind_dx)) % (WIDTH + 100) - 50
+        sy = (rng.randint(-50, HEIGHT) + int(game_time * spy * wind_dy)) % (HEIGHT + 50) - 25
+        length = rng.randint(25 if level == 3 else 20, slen)
+        color = (210 + rng.randint(-20, 20), 175 + rng.randint(-20, 20), 110 + rng.randint(-15, 15))
+        pygame.draw.line(frame, color,
+            (int(sx), int(sy)),
+            (int(sx + length * wind_dx), int(sy + length * wind_dy * 0.5)),
+            rng.randint(1, 2 if level == 2 else 3))
+
+    bx, by = int(boat_pos.x), int(boat_pos.y)
+    vis_r = int(vis_base - vis_shrink * gust_cycle)
+    vis_surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    vis_surf.fill((170, 140, 80, int(fog_base + 40 * gust_cycle)))
+    if level == 2:
+        for r in range(vis_r, 0, -4):
+            pygame.draw.circle(vis_surf, (0, 0, 0, 0), (bx, by), r)
+    for r in range(vis_r, vis_r + vis_fade, 2):
+        a = min(255, int((r - vis_r) / vis_fade * (180 if level == 2 else 200)))
+        pygame.draw.circle(vis_surf, (170, 140, 80, a), (bx, by), r, 2)
+    pygame.draw.circle(vis_surf, (0, 0, 0, 0), (bx, by), vis_r)
+    frame.blit(vis_surf, (0, 0))
+
+    vig = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    vig_alpha = int(vig_base_a + vig_swing * gust_cycle)
+    for yb in range(vig_y):
+        a = int(vig_alpha * (1 - yb / vig_y))
+        pygame.draw.line(vig, (80, 60, 30, a), (0, yb), (WIDTH, yb))
+        pygame.draw.line(vig, (80, 60, 30, a), (0, HEIGHT - yb), (WIDTH, HEIGHT - yb))
+    for xb in range(vig_x):
+        a = int(vig_alpha * 0.7 * (1 - xb / vig_x))
+        pygame.draw.line(vig, (80, 60, 30, a), (xb, 0), (xb, HEIGHT))
+        pygame.draw.line(vig, (80, 60, 30, a), (WIDTH - xb, 0), (WIDTH - xb, HEIGHT))
+    frame.blit(vig, (0, 0))
+
+    vib = vib_base + gust_cycle * vib_scale
+    shake.offset_x += math.sin(game_time * 18) * vib
+    shake.offset_y += math.cos(game_time * 14) * vib * 0.6
+
+
+def _draw_snow_storm(frame, boat_pos, shake, game_time):
+    """Blizzard storm effect for snow L2."""
+    gust_cycle = math.sin(game_time * 0.4) * 0.5 + 0.5
+    cold_tint = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    cold_tint.fill((40, 50, 80, 45))
+    frame.blit(cold_tint, (0, 0))
+    whiteout = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    whiteout.fill((220, 230, 245, int(30 + 70 * gust_cycle)))
+    frame.blit(whiteout, (0, 0))
+    wind_dx = math.sin(game_time * 1.5) * 0.4 + math.sin(game_time * 0.7) * 0.3
+    for i in range(200):
+        rng = random.Random(int(game_time * 6) + i)
+        sm = 0.5 + (i % 4) * 0.4
+        sx = (rng.randint(-50, WIDTH + 50) + int(game_time * 80 * wind_dx * sm)) % (WIDTH + 100) - 50
+        sy = (rng.randint(-50, HEIGHT + 50) + int(game_time * (60 + i % 5 * 30) * sm)) % (HEIGHT + 100) - 50
+        pygame.draw.circle(frame, (240, 245, 255, rng.randint(120, 240)), (int(sx), int(sy)), rng.randint(1, 4))
+    for i in range(80):
+        rng = random.Random(int(game_time * 5) + i + 300)
+        sx = (rng.randint(-100, WIDTH) + int(game_time * 150 * (wind_dx + 0.5))) % (WIDTH + 100) - 50
+        sy = (rng.randint(-50, HEIGHT) + int(game_time * 100)) % (HEIGHT + 50) - 25
+        length = rng.randint(15, 45)
+        pygame.draw.line(frame, (220, 230, 250, rng.randint(40, 120)),
+            (int(sx), int(sy)), (int(sx + length * (wind_dx + 0.3)), int(sy + length * 0.8)), 1)
+    bx, by = int(boat_pos.x), int(boat_pos.y)
+    vis_r = int(150 - 40 * gust_cycle)
+    fog_a = int(90 + 50 * gust_cycle)
+    vis_surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    vis_surf.fill((210, 220, 240, fog_a))
+    pygame.draw.circle(vis_surf, (0, 0, 0, 0), (bx, by), vis_r)
+    for r in range(vis_r, vis_r + 70, 2):
+        a = min(255, int((r - vis_r) / 70 * fog_a))
+        pygame.draw.circle(vis_surf, (210, 220, 240, a), (bx, by), r, 2)
+    frame.blit(vis_surf, (0, 0))
+    vig = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    vig_a = int(70 + 30 * gust_cycle)
+    for yb in range(90):
+        a = int(vig_a * (1 - yb / 90))
+        pygame.draw.line(vig, (200, 210, 230, a), (0, yb), (WIDTH, yb))
+        pygame.draw.line(vig, (200, 210, 230, a), (0, HEIGHT - yb), (WIDTH, HEIGHT - yb))
+    for xb in range(70):
+        a = int(vig_a * 0.7 * (1 - xb / 70))
+        pygame.draw.line(vig, (200, 210, 230, a), (xb, 0), (xb, HEIGHT))
+        pygame.draw.line(vig, (200, 210, 230, a), (WIDTH - xb, 0), (WIDTH - xb, HEIGHT))
+    frame.blit(vig, (0, 0))
+    frost = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    frost_a = int(50 + 20 * math.sin(game_time * 0.3))
+    for edge_i in range(40):
+        for _ in range(8):
+            fx = random.Random(edge_i * 100 + _ + 7777).choice([
+                random.Random(edge_i * 100 + _).randint(0, 50 + edge_i),
+                random.Random(edge_i * 100 + _ + 50).randint(WIDTH - 50 - edge_i, WIDTH)])
+            fy = random.Random(edge_i * 200 + _ + 8888).randint(0, HEIGHT)
+            pygame.draw.circle(frost, (230, 240, 255, frost_a), (fx, fy), random.Random(edge_i + _).randint(2, 6))
+    frame.blit(frost, (0, 0))
+    lc = math.sin(game_time * 0.35) + math.sin(game_time * 0.47)
+    if lc > 1.85:
+        flash = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        flash.fill((240, 245, 255, min(180, int(180 * (lc - 1.85) / 0.15))))
+        frame.blit(flash, (0, 0))
+    vib = 0.4 + gust_cycle * 1.2
+    shake.offset_x += math.sin(game_time * 16) * vib
+    shake.offset_y += math.cos(game_time * 13) * vib * 0.5
 
 while running:
     dt = clock.tick(60) / 1000.0
@@ -2424,7 +3396,8 @@ while running:
                     elif selected_mode == "Seasons":
                         def go_seasons():
                             global game_state, seasons_scroll_idx, seasons_prev_idx
-                            global seasons_scroll_offset, seasons_bg_color
+                            global seasons_scroll_offset, seasons_bg_color, current_mode
+                            current_mode = "seasons"
                             game_state = "seasons"
                             seasons_scroll_idx = 0
                             seasons_prev_idx = 0
@@ -2433,6 +3406,27 @@ while running:
                             if season_videos[0]:
                                 season_videos[0].restart()
                         fade.start(go_seasons)
+                    elif selected_mode == "Speed Run":
+                        def go_speedrun_setup():
+                            global game_state, current_mode
+                            global speedrun_active, speedrun_season_idx, speedrun_level, speedrun_chrono
+                            global speedrun_num_players, speedrun_current_player
+                            global speedrun_player_names, speedrun_player_times
+                            global speedrun_name_input, speedrun_name_phase, speedrun_choosing_players
+                            current_mode = "speedrun"
+                            game_state = "speedrun_setup"
+                            speedrun_active = False
+                            speedrun_season_idx = 0
+                            speedrun_level = 1
+                            speedrun_chrono = 0.0
+                            speedrun_num_players = 1
+                            speedrun_current_player = 1
+                            speedrun_player_names = ["", ""]
+                            speedrun_player_times = [0.0, 0.0]
+                            speedrun_name_input = ""
+                            speedrun_name_phase = 1
+                            speedrun_choosing_players = True
+                        fade.start(go_speedrun_setup)
 
         # Back button
         if mode_back_btn.update(mouse_pos, mouse_click, dt):
@@ -2520,11 +3514,9 @@ while running:
             if not tutorial_vo_triggered:
                 tutorial_vo_triggered = True
                 intro_text = (
-                    "Alright captains, welcome to the river. "
-                    "In this game, you share one canoe. Every paddle stroke matters. "
-                    "Each of you controls one paddle. Those paddles generate force, not direction. "
-                    "To move forward smoothly, you'll need real-time synchronization. "
-                    "Think rhythm. Think teamwork. Alright, let's try it."
+                    "Welcome, captains! You share one canoe — one paddle each. "
+                    "Player 1 uses the Left key, Player 2 uses the Right key. "
+                    "Sync your strokes to move forward. Let's try it!"
                 )
                 dur = voiceover.play("tutorial_intro.mp3", 0.9)
                 if dur > 0:
@@ -2600,16 +3592,12 @@ while running:
             if not tutorial_vo_triggered:
                 tutorial_vo_triggered = True
                 dur = voiceover.play("tutorial_practice.mp3", 0.9)
-                text = (
-                    "Try paddling together and see what happens. "
-                    "If you stay in sync, you'll glide forward like river legends. "
-                    "You're free to practice here as long as you want."
-                )
+                text = "Now paddle together. Alternate left and right to go straight."
                 if dur > 0:
                     dialog.show(text, dur)
                 else:
                     dialog.show(text)
-            if not voiceover.is_playing() and tutorial_step_timer > 8.0:
+            if not voiceover.is_playing() and tutorial_step_timer > 3.0:
                 tutorial_step = 6
                 tutorial_step_timer = 0.0
                 tutorial_vo_triggered = False
@@ -2620,15 +3608,12 @@ while running:
             if not tutorial_vo_triggered:
                 tutorial_vo_triggered = True
                 dur = voiceover.play("tutorial_outro.mp3", 0.9)
-                text = (
-                    "When you're ready for the real adventure, meet me in Mode Seasons. "
-                    "Alright captains. Grab your paddles. And try not to crash."
-                )
+                text = "Well done! Head to Seasons mode to start your adventure. Good luck, captains!"
                 if dur > 0:
                     dialog.show(text, dur)
                 else:
                     dialog.show(text)
-            if not voiceover.is_playing() and tutorial_step_timer > 3.0:
+            if not voiceover.is_playing() and tutorial_step_timer > 2.0:
                 tutorial_step = 7
 
         # Step 7: Done - stay in tutorial for free practice
@@ -2663,10 +3648,19 @@ while running:
         dialog.update(dt)
         dialog.draw(screen, game_time)
 
-        # Show back button after voiceover is done (step 7)
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_down = pygame.mouse.get_pressed()[0]
+
+        # Skip button: visible from step 0 through step 6
+        if tutorial_step < 7:
+            if tutorial_skip_btn.update(mouse_pos, mouse_down, dt):
+                voiceover.stop()
+                dialog.hide()
+                tutorial_step = 7
+            tutorial_skip_btn.draw(screen)
+
+        # Back button: visible once tutorial is done (step 7)
         if tutorial_step == 7:
-            mouse_pos = pygame.mouse.get_pos()
-            mouse_down = pygame.mouse.get_pressed()[0]
             if tutorial_back_btn.update(mouse_pos, mouse_down, dt):
                 if not fade.active:
                     def go_mode_from_tutorial_back():
@@ -2709,7 +3703,8 @@ while running:
                 elif event.key == pygame.K_RETURN:
                     if seasons_list[seasons_scroll_idx].playable and not fade.active:
                         def start_from_seasons():
-                            global game_state
+                            global game_state, current_season
+                            current_season = seasons_list[seasons_scroll_idx].name.lower()
                             game_state = "playing"
                             reset_game()
                         fade.start(start_from_seasons)
@@ -2749,7 +3744,8 @@ while running:
 
         if play_clicked and not fade.active:
             def start_from_seasons_btn():
-                global game_state
+                global game_state, current_season
+                current_season = seasons_list[seasons_scroll_idx].name.lower()
                 game_state = "playing"
                 reset_game()
             fade.start(start_from_seasons_btn)
@@ -2762,6 +3758,139 @@ while running:
         continue
 
     # ============================================================
+    # SPEED RUN SETUP STATE
+    # ============================================================
+    if game_state == "speedrun_setup":
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if not fade.active:
+                        def sr_back():
+                            global game_state
+                            game_state = "menu"
+                        fade.start(sr_back)
+                if speedrun_choosing_players:
+                    if event.key == pygame.K_1:
+                        speedrun_num_players = 1
+                        speedrun_choosing_players = False
+                        speedrun_name_input = ""
+                        speedrun_name_phase = 1
+                    elif event.key == pygame.K_2:
+                        speedrun_num_players = 2
+                        speedrun_choosing_players = False
+                        speedrun_name_input = ""
+                        speedrun_name_phase = 1
+                else:
+                    if event.key == pygame.K_RETURN and len(speedrun_name_input.strip()) > 0:
+                        speedrun_player_names[speedrun_name_phase - 1] = speedrun_name_input.strip()
+                        if speedrun_name_phase < speedrun_num_players:
+                            speedrun_name_phase += 1
+                            speedrun_name_input = ""
+                        else:
+                            def start_speedrun():
+                                global game_state, current_season, speedrun_active
+                                global speedrun_season_idx, speedrun_level, speedrun_chrono, speedrun_current_player
+                                speedrun_active = True
+                                speedrun_season_idx = 0
+                                speedrun_level = 1
+                                speedrun_current_player = 1
+                                speedrun_chrono = 0.0
+                                current_season = speedrun_season_order[0]
+                                game_state = "playing"
+                                reset_game()
+                            fade.start(start_speedrun)
+                    elif event.key == pygame.K_BACKSPACE:
+                        speedrun_name_input = speedrun_name_input[:-1]
+                    elif len(speedrun_name_input) < 12 and event.unicode.isprintable() and event.unicode:
+                        speedrun_name_input += event.unicode
+
+        water.draw(screen, dt, game_time)
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        screen.blit(overlay, (0, 0))
+
+        # Title
+        sr_title = title_font.render("SPEED RUN", True, (255, 180, 40))
+        screen.blit(sr_title, sr_title.get_rect(center=(WIDTH // 2, 120)))
+
+        if speedrun_choosing_players:
+            p_text = font.render("How many players?", True, (220, 220, 220))
+            screen.blit(p_text, p_text.get_rect(center=(WIDTH // 2, 250)))
+            b1 = font.render("Press 1 - Single Player", True, (100, 255, 150))
+            b2 = font.render("Press 2 - Two Players", True, (100, 200, 255))
+            screen.blit(b1, b1.get_rect(center=(WIDTH // 2, 340)))
+            screen.blit(b2, b2.get_rect(center=(WIDTH // 2, 400)))
+            info = subtitle_font.render("Forest > Snow > Desert  |  9 Levels  |  1 Run", True, (150, 150, 150))
+            screen.blit(info, info.get_rect(center=(WIDTH // 2, 500)))
+        else:
+            prompt = font.render(f"Player {speedrun_name_phase} - Enter your name:", True, (220, 220, 220))
+            screen.blit(prompt, prompt.get_rect(center=(WIDTH // 2, 260)))
+            # Input box
+            box_w, box_h = 400, 50
+            box_x = WIDTH // 2 - box_w // 2
+            box_y = 320
+            pygame.draw.rect(screen, (40, 40, 60), (box_x, box_y, box_w, box_h), border_radius=8)
+            pygame.draw.rect(screen, (100, 150, 255), (box_x, box_y, box_w, box_h), 2, border_radius=8)
+            name_surf = subtitle_font.render(speedrun_name_input, True, (255, 255, 255))
+            # Center text vertically in box
+            name_y = box_y + (box_h - name_surf.get_height()) // 2
+            screen.blit(name_surf, (box_x + 15, name_y))
+            # Cursor blink
+            if int(game_time * 2) % 2 == 0:
+                cx = box_x + 15 + name_surf.get_width() + 2
+                pygame.draw.line(screen, (255, 255, 255), (cx, name_y + 2), (cx, name_y + name_surf.get_height() - 2), 2)
+            hint = subtitle_font.render("Press ENTER to confirm", True, (150, 150, 150))
+            screen.blit(hint, hint.get_rect(center=(WIDTH // 2, 420)))
+
+        fade.draw(screen)
+        pygame.display.flip()
+        continue
+
+    # ============================================================
+    # SPEED RUN COMPLETE STATE
+    # ============================================================
+    if game_state == "speedrun_complete":
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+                    if not fade.active:
+                        def sr_to_menu():
+                            global game_state, speedrun_active
+                            game_state = "menu"
+                            speedrun_active = False
+                        fade.start(sr_to_menu)
+
+        water.draw(screen, dt, game_time)
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        screen.blit(overlay, (0, 0))
+
+        complete_title = title_font.render("SPEED RUN COMPLETE!", True, (255, 180, 40))
+        screen.blit(complete_title, complete_title.get_rect(center=(WIDTH // 2, 120)))
+
+        t = speedrun_player_times[0]
+        if speedrun_num_players == 1:
+            name = speedrun_player_names[0]
+            result = font.render(f"{name} finished in {int(t//60)}:{t%60:04.1f}", True, (100, 255, 150))
+            screen.blit(result, result.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+        else:
+            n1 = speedrun_player_names[0]
+            n2 = speedrun_player_names[1]
+            result = font.render(f"{n1} & {n2} finished in {int(t//60)}:{t%60:04.1f}", True, (100, 255, 150))
+            screen.blit(result, result.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+
+        hint = subtitle_font.render("Press ENTER", True, (150, 150, 150))
+        screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 80)))
+
+        fade.draw(screen)
+        pygame.display.flip()
+        continue
+
+    # ============================================================
     # LEVEL 1 COMPLETE STATE
     # ============================================================
     if game_state == "level1_complete":
@@ -2769,7 +3898,7 @@ while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        water.draw(screen, dt, game_time)
+        water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 160))
         screen.blit(overlay, (0, 0))
@@ -2782,10 +3911,12 @@ while running:
         # Subtitle
         sub = subtitle_font.render("Preparing Level 2...", True, (180, 200, 220))
         screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20)))
-        if l1_complete_timer >= 2.0 and not fade.active:
+        if l1_complete_timer >= (0.5 if speedrun_active else 2.0) and not fade.active:
             def start_l2():
-                global game_state
+                global game_state, speedrun_level
                 game_state = "level2"
+                if speedrun_active:
+                    speedrun_level = 2
                 reset_level2()
             fade.start(start_l2)
         fade.draw(screen)
@@ -2810,7 +3941,7 @@ while running:
                         fade.start(go_menu_from_win)
 
         # Draw water background
-        water.draw(screen, dt, game_time)
+        water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
         # Dark overlay
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -2826,11 +3957,12 @@ while running:
         screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
         screen.blit(complete_text, complete_rect)
 
-        # Score
-        score_str = f"Time remaining: {l2_timer:.1f}s"
-        score_surf = font.render(score_str, True, (255, 255, 200))
-        score_rect = score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30))
-        screen.blit(score_surf, score_rect)
+        # Score (hidden in seasons mode)
+        if current_mode not in ("seasons",):
+            score_str = f"Time remaining: {l2_timer:.1f}s"
+            score_surf = font.render(score_str, True, (255, 255, 200))
+            score_rect = score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30))
+            screen.blit(score_surf, score_rect)
 
         # Blinking hint
         if int(l2_win_blink_timer * 2) % 2 == 0:
@@ -2843,13 +3975,306 @@ while running:
         continue
 
     # ============================================================
+    # LEVEL 2 COMPLETE STATE (transition to Level 3)
+    # ============================================================
+    if game_state == "level2_complete":
+        l2_complete_timer += dt
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 160))
+        screen.blit(overlay, (0, 0))
+        complete_text = title_font.render("LEVEL 2 COMPLETE!", True, (50, 255, 80))
+        glow = title_font.render("LEVEL 2 COMPLETE!", True, (30, 180, 50))
+        glow.set_alpha(60)
+        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
+        screen.blit(complete_text, complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60)))
+        sub = subtitle_font.render("Preparing Level 3...", True, (180, 200, 220))
+        screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20)))
+        if l2_complete_timer >= (0.5 if speedrun_active else 2.0) and not fade.active:
+            def start_l3():
+                global game_state, speedrun_level
+                game_state = "level3"
+                if speedrun_active:
+                    speedrun_level = 3
+                reset_level3()
+            fade.start(start_l3)
+        fade.draw(screen)
+        pygame.display.flip()
+        continue
+
+    # ============================================================
+    # LEVEL 3 WIN STATE
+    # ============================================================
+    if game_state == "level3_win":
+        l3_win_blink_timer += dt
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+                    if not fade.active:
+                        if speedrun_active:
+                            fade.start(_advance_speedrun)
+                        else:
+                            def go_menu_from_l3():
+                                global game_state
+                                game_state = "menu"
+                            fade.start(go_menu_from_l3)
+
+        if current_season == "snow":
+            # Frozen water for L3 win screen
+            screen.fill((220, 230, 245))
+        else:
+            water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
+
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 160))
+        screen.blit(overlay, (0, 0))
+        complete_text = title_font.render("YOU WIN!", True, (50, 255, 80))
+        glow = title_font.render("YOU WIN!", True, (30, 180, 50))
+        glow.set_alpha(60)
+        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
+        screen.blit(complete_text, complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60)))
+        if current_mode not in ("seasons",):
+            score_str = f"Time remaining: {l3_timer:.1f}s"
+            score_surf = font.render(score_str, True, (255, 255, 200))
+            screen.blit(score_surf, score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30)))
+        if int(l3_win_blink_timer * 2) % 2 == 0:
+            hint_surf = subtitle_font.render("Press ENTER or ESC", True, (180, 200, 220))
+            screen.blit(hint_surf, hint_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100)))
+        fade.draw(screen)
+        pygame.display.flip()
+        continue
+
+    # ============================================================
+    # LEVEL 3 PLAYING STATE
+    # ============================================================
+    if game_state == "level3":
+        l3_input_this_frame = False
+
+        # Timer countdown (disabled in seasons/speedrun mode)
+        if current_mode not in ("seasons", "speedrun"):
+            l3_timer -= dt
+        if speedrun_active:
+            speedrun_chrono += dt
+        if l3_timer <= 0:
+            l3_timer = 0
+            if not fade.active:
+                def l3_timeout():
+                    global game_state
+                    game_state = "menu"
+                fade.start(l3_timeout)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if not fade.active:
+                        def go_menu_l3():
+                            global game_state, speedrun_active
+                            game_state = "menu"
+                            speedrun_active = False
+                        fade.start(go_menu_l3)
+
+                if not l3_crash.active:
+                    if event.key == pygame.K_LEFT:
+                        if not l3_left_pressed:
+                            l3_left_pressed = True
+                            l3_oar.trigger_left()
+                            play_paddle_sound()
+                            if not l3_rotating:
+                                l3_rotation_start_angle = l3_boat_angle
+                                l3_rotation_direction = 1
+                                l3_target_angle = (l3_rotation_start_angle + ROTATION_STEP) % 360
+                                l3_rotating = True
+                            else:
+                                if l3_rotation_direction == -1:
+                                    l3_target_angle = l3_rotation_start_angle % 360
+                                    l3_rotation_direction = 0
+                        l3_input_buffer += 1
+                        last_input_time = current_time
+                        l3_input_this_frame = True
+
+                    if event.key == pygame.K_RIGHT:
+                        if not l3_right_pressed:
+                            l3_right_pressed = True
+                            l3_oar.trigger_right()
+                            play_paddle_sound()
+                            if not l3_rotating:
+                                l3_rotation_start_angle = l3_boat_angle
+                                l3_rotation_direction = -1
+                                l3_target_angle = (l3_rotation_start_angle - ROTATION_STEP) % 360
+                                l3_rotating = True
+                            else:
+                                if l3_rotation_direction == 1:
+                                    l3_target_angle = l3_rotation_start_angle % 360
+                                    l3_rotation_direction = 0
+                        l3_input_buffer += 1
+                        last_input_time = current_time
+                        l3_input_this_frame = True
+
+                    if event.key == pygame.K_DOWN:
+                        if not l3_down_pressed:
+                            l3_down_pressed = True
+                            l3_oar.trigger_left()
+                            l3_oar.trigger_right()
+                            play_paddle_sound()
+                            if not l3_rotating:
+                                l3_rotation_start_angle = l3_boat_angle
+                                l3_rotation_direction = 1
+                                l3_target_angle = (l3_rotation_start_angle + ROTATION_STEP) % 360
+                                l3_rotating = True
+                            else:
+                                if l3_rotation_direction == -1:
+                                    l3_target_angle = l3_rotation_start_angle % 360
+                                    l3_rotation_direction = 0
+                        last_input_time = current_time
+                        l3_input_this_frame = True
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    l3_left_pressed = False
+                if event.key == pygame.K_RIGHT:
+                    l3_right_pressed = False
+                if event.key == pygame.K_DOWN:
+                    l3_down_pressed = False
+
+        if not l3_input_this_frame:
+            if current_time - last_input_time > input_decay_time:
+                l3_input_buffer = 0
+            else:
+                l3_input_buffer *= math.exp(-dt / input_decay_time)
+
+        # ---- SMOOTH ROTATION ----
+        l3_boat_angle, l3_rotating, l3_rotation_direction = _smooth_rotation(
+            l3_boat_angle, l3_target_angle, l3_rotating, l3_rotation_direction, dt)
+
+        # ---- PHYSICS ----
+        l3_boat_vel = _apply_boat_physics(
+            l3_boat_vel, l3_boat_angle, l3_input_buffer,
+            l3_left_pressed, l3_right_pressed, dt, season=current_season)
+
+        # Sandstorm wind for desert L3
+        if current_season == "desert":
+            l3_boat_vel.x += math.sin(game_time * 1.0) * 0.15 * dt
+            l3_boat_vel.y += math.cos(game_time * 0.8) * 0.1 * dt
+
+        # Slow zones
+        if l3_slow_zones and point_in_any_slow_zone(l3_boat_pos.x, l3_boat_pos.y, l3_slow_zones):
+            l3_boat_vel *= 0.5
+
+        l3_boat_pos += l3_boat_vel
+
+        # ---- COLLISION DETECTION ----
+        if (_aabb_circle(l3_boat_pos.x, l3_boat_pos.y, boat_collision_radius, l3_cubes) or
+                _poly_circle_hit(l3_boat_pos.x, l3_boat_pos.y, boat_collision_radius, l3_poly_obstacles)):
+            if not l3_crash.active:
+                l3_shake.trigger(6, 0.5)
+                play_sound(crash_sfx)
+                l3_crash.trigger(l3_boat_pos, l3_boat_angle, _do_l3_respawn)
+                l3_boat_vel = pygame.Vector2(0, 0)
+
+        # Clamp to screen
+        l3_boat_pos.x = max(boat_collision_radius, min(WIDTH - boat_collision_radius, l3_boat_pos.x))
+        l3_boat_pos.y = max(0, min(HEIGHT, l3_boat_pos.y))
+
+        # ---- WIN CONDITION ----
+        if (_check_win(l3_boat_pos, l3_spawn_pos,
+                       l3_finish_axis, l3_finish_pos, l3_finish_y,
+                       l3_finish_x1, l3_finish_x2, l3_finish_y1, l3_finish_y2)
+                and not l3_crash.active and not fade.active):
+            if speedrun_active:
+                fade.start(_advance_speedrun)
+            else:
+                def go_l3_win():
+                    global game_state, l3_win_blink_timer
+                    game_state = "level3_win"
+                    l3_win_blink_timer = 0
+                fade.start(go_l3_win)
+
+        # ---- UPDATE SYSTEMS ----
+        l3_crash.update(dt)
+        l3_oar.update(dt)
+        l3_wake.update(dt, l3_boat_pos, l3_boat_angle, l3_boat_vel.length())
+
+        # ---- DRAWING ----
+        frame = l3_frame
+
+        # Water: frozen (static white) for snow, normal for others
+        if current_season == "snow":
+            frame.fill((215, 228, 245))
+            # Ice cracks/texture
+            for i in range(20):
+                rng = random.Random(i * 777)
+                x1 = rng.randint(0, WIDTH)
+                y1 = rng.randint(0, HEIGHT)
+                x2 = x1 + rng.randint(-80, 80)
+                y2 = y1 + rng.randint(-80, 80)
+                pygame.draw.line(frame, (200, 215, 235), (x1, y1), (x2, y2), 1)
+        else:
+            water.draw(frame, dt, game_time, palette=WATER_PALETTES.get(current_season))
+
+        # Finish glow
+        _draw_finish_glow(frame, l3_finish_axis, l3_finish_pos,
+                          l3_finish_x1, l3_finish_x2, l3_finish_y,
+                          l3_finish_y1, l3_finish_y2, game_time)
+
+        # Foam
+        draw_foam(frame, l3_foam_points, game_time)
+
+        # Obstacle surface
+        frame.blit(l3_surface, (0, 0))
+
+        # Wake
+        l3_wake.draw(frame)
+
+        # Crash
+        l3_crash.draw(frame)
+
+        # Boat
+        if not l3_crash.active:
+            draw_boat(frame, l3_boat_pos, l3_boat_angle, l3_oar, l3_boat_vel.length())
+
+        # Canopy
+        frame.blit(l3_canopy, (0, 0))
+
+        # Speedrun chrono + countdown timer
+        if speedrun_active:
+            _draw_speedrun_hud(frame, speedrun_chrono, speedrun_season_idx, speedrun_level)
+        _draw_timer_hud(frame, l3_timer)
+
+        # Level indicator
+        lvl_text = subtitle_font.render("Level 3", True, (200, 200, 200))
+        frame.blit(lvl_text, (10, 10))
+
+        # SANDSTORM for desert L3
+        if current_season == "desert":
+            _draw_desert_storm(frame, l3_boat_pos, l3_shake, game_time, 3)
+
+        # Apply shake
+        l3_shake.update(dt)
+        shake_ox = int(l3_shake.offset_x)
+        shake_oy = int(l3_shake.offset_y)
+        screen.blit(frame, (shake_ox, shake_oy))
+        fade.draw(screen)
+        pygame.display.flip()
+        continue
+
+    # ============================================================
     # LEVEL 2 PLAYING STATE (single-screen, rocks, wind)
     # ============================================================
     if game_state == "level2":
         l2_input_this_frame = False
 
-        # Timer countdown
-        l2_timer -= dt
+        # Timer countdown (disabled in seasons/speedrun mode)
+        if current_mode not in ("seasons", "speedrun"):
+            l2_timer -= dt
+        if speedrun_active:
+            speedrun_chrono += dt
         if l2_timer <= 0:
             l2_timer = 0
             # Time's up - reset
@@ -2954,93 +4379,66 @@ while running:
                     l2_input_buffer *= math.exp(-dt / input_decay_time)
 
             # ---- SMOOTH ROTATION ----
-            if l2_rotating:
-                diff = (l2_target_angle - l2_boat_angle + 180) % 360 - 180
-                max_step = ROTATION_SPEED * dt
-                step = math.copysign(min(abs(diff), max_step), diff)
-                l2_boat_angle += step
-                remaining = (l2_target_angle - l2_boat_angle + 180) % 360 - 180
-                if abs(remaining) < 0.01:
-                    l2_boat_angle = l2_target_angle % 360
-                    l2_rotating = False
-                    l2_rotation_direction = 0
-            l2_boat_angle %= 360
+            l2_boat_angle, l2_rotating, l2_rotation_direction = _smooth_rotation(
+                l2_boat_angle, l2_target_angle, l2_rotating, l2_rotation_direction, dt)
 
             # ---- PHYSICS ----
-            forward_dir = pygame.Vector2(0, -1).rotate(l2_boat_angle)
+            # Pre-physics: wind force (not for forest)
+            if current_season != "forest":
+                l2_wind.update(dt)
+                if l2_wind.active and l2_wind.gust_timer < dt * 2:
+                    play_sound(wind_sfx, 0.5)
+                wind_force = l2_wind.get_force()
+                if current_season == "snow":
+                    wind_force.x = math.sin(game_time * 1.5) * 0.4 + math.sin(game_time * 0.7) * 0.3
+                    wind_force.y = math.cos(game_time * 1.2) * 0.35 + math.sin(game_time * 0.9) * 0.25
+                elif current_season == "desert":
+                    wind_force *= 0.5
+                    wind_force.x += math.sin(game_time * 1.0) * 0.2
+                    wind_force.y += math.cos(game_time * 0.8) * 0.15
+                l2_boat_vel += wind_force * dt
 
-            if l2_input_buffer > 0.01:
-                total_accel = BASE_ACCEL + ACCEL_PER_PRESS * l2_input_buffer
-                if l2_left_pressed != l2_right_pressed:
-                    total_accel *= SINGLE_KEY_ACCEL_MULT
-                l2_boat_vel += forward_dir * total_accel * dt
+            l2_boat_vel = _apply_boat_physics(
+                l2_boat_vel, l2_boat_angle, l2_input_buffer,
+                l2_left_pressed, l2_right_pressed, dt)
 
-            # Apply wind
-            l2_wind.update(dt)
-            # Wind sound
-            if l2_wind.active and l2_wind.gust_timer < dt * 2:
-                play_sound(wind_sfx, 0.5)
-            wind_force = l2_wind.get_force()
-            l2_boat_vel += wind_force * dt
-
-            l2_speed = l2_boat_vel.length()
-            if l2_speed > MAX_SPEED:
-                l2_boat_vel = (l2_boat_vel / l2_speed) * MAX_SPEED
-
-            if l2_speed > 0.01:
-                vel_dir = l2_boat_vel.normalize()
-                alignment = vel_dir.dot(forward_dir)
-                sideways_factor = abs(alignment)
-                sideways_effect = SIDEWAYS_DRIFT_MULT
-                if l2_left_pressed != l2_right_pressed:
-                    sideways_effect *= SINGLE_KEY_SIDEWAYS_MULT
-                friction_mult = (
-                    BASE_FRICTION
-                    + (1 - sideways_factor)
-                    * (SIDEWAYS_FRICTION - BASE_FRICTION)
-                    * sideways_effect
-                )
-                l2_boat_vel *= friction_mult
-            else:
-                l2_boat_vel = pygame.Vector2(0, 0)
+            # Slow zones (fix: was missing in L2)
+            if l2_slow_zones and point_in_any_slow_zone(l2_boat_pos.x, l2_boat_pos.y, l2_slow_zones):
+                l2_boat_vel *= 0.5
 
             l2_boat_pos += l2_boat_vel
 
-            # ---- COLLISION DETECTION (crash animation) ----
-            for cx, cy, cw, ch in level2_cubes:
-                if (
-                    l2_boat_pos.x - boat_collision_radius < cx + cw
-                    and l2_boat_pos.x + boat_collision_radius > cx
-                    and l2_boat_pos.y - boat_collision_radius < cy + ch
-                    and l2_boat_pos.y + boat_collision_radius > cy
-                ):
-                    if not l2_crash.active:
-                        l2_shake.trigger(6, 0.5)
-                        play_sound(crash_sfx)
-                        def l2_respawn():
-                            global l2_boat_pos, l2_boat_vel, l2_boat_angle, l2_rotating, l2_timer
-                            l2_boat_pos = LEVEL2_INITIAL_POS.copy()
-                            l2_boat_vel = pygame.Vector2(0, 0)
-                            l2_boat_angle = 0
-                            l2_rotating = False
-                            l2_timer = 45
-                            l2_wake.clear()
-                        l2_crash.trigger(l2_boat_pos, l2_boat_angle, l2_respawn)
-                        l2_boat_vel = pygame.Vector2(0, 0)
-                    break
+            # ---- COLLISION DETECTION ----
+            if _aabb_circle(l2_boat_pos.x, l2_boat_pos.y, boat_collision_radius, level2_cubes):
+                if not l2_crash.active:
+                    l2_shake.trigger(6, 0.5)
+                    play_sound(crash_sfx)
+                    l2_crash.trigger(l2_boat_pos, l2_boat_angle, _do_l2_respawn)
+                    l2_boat_vel = pygame.Vector2(0, 0)
 
             # Clamp boat to screen bounds
             l2_boat_pos.x = max(boat_collision_radius, min(WIDTH - boat_collision_radius, l2_boat_pos.x))
             l2_boat_pos.y = max(0, min(HEIGHT, l2_boat_pos.y))
 
             # ---- WIN CONDITION ----
-            if l2_boat_pos.y < LEVEL2_FINISH_Y and not l2_crash.active:
+            if (_check_win(l2_boat_pos, l2_spawn_pos,
+                           l2_finish_axis, l2_finish_pos, l2_finish_y,
+                           l2_finish_x1, l2_finish_x2, l2_finish_y1, l2_finish_y2)
+                    and not l2_crash.active):
                 if not fade.active:
-                    def go_l2_win():
-                        global game_state, l2_win_blink_timer
-                        game_state = "level2_win"
-                        l2_win_blink_timer = 0
-                    fade.start(go_l2_win)
+                    # Check if Level 3 exists for this season
+                    if SEASON_DATA[current_season].get("l3_cubes"):
+                        def go_l2_complete():
+                            global game_state, l2_complete_timer
+                            game_state = "level2_complete"
+                            l2_complete_timer = 0
+                        fade.start(go_l2_complete)
+                    else:
+                        def go_l2_win():
+                            global game_state, l2_win_blink_timer
+                            game_state = "level2_win"
+                            l2_win_blink_timer = 0
+                        fade.start(go_l2_win)
 
         # ---- UPDATE SYSTEMS ----
         l2_oar.update(dt)
@@ -3052,16 +4450,12 @@ while running:
         frame = l2_frame
 
         # 1. Water
-        water.draw(frame, dt, game_time)
+        water.draw(frame, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
-        # 2. Finish line glow at y=40
-        finish_glow_y = LEVEL2_FINISH_Y
-        glow_surf = pygame.Surface((WIDTH, 12), pygame.SRCALPHA)
-        glow_pulse = 0.5 + 0.5 * math.sin(game_time * 3)
-        glow_alpha = int(60 + 80 * glow_pulse)
-        glow_surf.fill((80, 255, 120, glow_alpha))
-        frame.blit(glow_surf, (0, finish_glow_y - 6))
-        pygame.draw.line(frame, (80, 255, 120), (150, finish_glow_y), (WIDTH - 150, finish_glow_y), 2)
+        # 2. Finish line glow
+        _draw_finish_glow(frame, l2_finish_axis, l2_finish_pos,
+                          l2_finish_x1, l2_finish_x2, l2_finish_y,
+                          l2_finish_y1, l2_finish_y2, game_time)
 
         # 3. Shoreline foam
         draw_foam(frame, l2_foam_points, game_time)
@@ -3083,47 +4477,20 @@ while running:
             draw_boat(frame, l2_boat_pos, l2_boat_angle, l2_oar, l2_speed_for_draw)
 
         # 9. HUD
-        # Timer
-        timer_color = (255, 0, 0) if l2_timer <= 10 else (255, 255, 255)
-        timer_text = font.render(f"{l2_timer:.1f}", True, timer_color)
-        timer_shadow = font.render(f"{l2_timer:.1f}", True, (0, 0, 0))
-        timer_rect = timer_text.get_rect(midtop=(WIDTH // 2, 20))
-        shadow_rect_t = timer_rect.copy()
-        shadow_rect_t.x += 2
-        shadow_rect_t.y += 2
-        if l2_timer <= 10:
-            sx = random.randint(-2, 2)
-            sy = random.randint(-2, 2)
-            timer_rect.x += sx
-            timer_rect.y += sy
-            shadow_rect_t.x += sx
-            shadow_rect_t.y += sy
-        frame.blit(timer_shadow, shadow_rect_t)
-        frame.blit(timer_text, timer_rect)
-
-        # Wind indicator (top right)
-        if l2_wind.active:
-            wind_label = hud_font.render("WIND", True, (255, 255, 200))
-            frame.blit(wind_label, (WIDTH - 120, 20))
-            # Arrow
-            arrow_x = WIDTH - 70
-            arrow_y = 55
-            wind_f = l2_wind.get_force()
-            arrow_len = min(30, int(abs(wind_f.x) * 18))
-            arrow_dir = 1 if wind_f.x > 0 else -1
-            pygame.draw.line(frame, (255, 255, 100),
-                             (arrow_x - arrow_dir * arrow_len, arrow_y),
-                             (arrow_x + arrow_dir * arrow_len, arrow_y), 3)
-            # Arrowhead
-            pygame.draw.polygon(frame, (255, 255, 100), [
-                (arrow_x + arrow_dir * arrow_len, arrow_y),
-                (arrow_x + arrow_dir * (arrow_len - 8), arrow_y - 5),
-                (arrow_x + arrow_dir * (arrow_len - 8), arrow_y + 5),
-            ])
+        if speedrun_active:
+            _draw_speedrun_hud(frame, speedrun_chrono, speedrun_season_idx, speedrun_level)
+        _draw_timer_hud(frame, l2_timer)
+        # Wind indicator removed per user request
 
         # "Level 2" label (bottom right)
         lvl_label = hud_font.render("Level 2", True, (180, 200, 220))
         frame.blit(lvl_label, (WIDTH - 100, HEIGHT - 35))
+
+        # SANDSTORM / SNOW STORM for L2
+        if current_season == "desert":
+            _draw_desert_storm(frame, l2_boat_pos, l2_shake, game_time, 2)
+        if current_season == "snow":
+            _draw_snow_storm(frame, l2_boat_pos, l2_shake, game_time)
 
         # Blit frame to screen with shake offset
         shake_ox = int(l2_shake.offset_x)
@@ -3140,8 +4507,11 @@ while running:
     # ============================================================
     input_this_frame = False
 
-    # Timer countdown
-    timer_seconds -= dt
+    # Timer countdown (disabled in seasons mode)
+    if current_mode not in ("seasons", "speedrun"):
+        timer_seconds -= dt
+    if speedrun_active:
+        speedrun_chrono += dt
     if timer_seconds <= 0:
         timer_seconds = 60
         boat_pos = INITIAL_BOAT_POS.copy()
@@ -3249,81 +4619,42 @@ while running:
                 input_buffer *= math.exp(-dt / input_decay_time)
 
         # ---- SMOOTH ROTATION ----
-        if rotating:
-            diff = (target_angle - boat_angle + 180) % 360 - 180
-            max_step = ROTATION_SPEED * dt
-            step = math.copysign(min(abs(diff), max_step), diff)
-            boat_angle += step
-            remaining = (target_angle - boat_angle + 180) % 360 - 180
-            if abs(remaining) < 0.01:
-                boat_angle = target_angle % 360
-                rotating = False
-                rotation_direction = 0
-        boat_angle %= 360
+        boat_angle, rotating, rotation_direction = _smooth_rotation(
+            boat_angle, target_angle, rotating, rotation_direction, dt)
 
         # ---- PHYSICS ----
-        forward_direction = pygame.Vector2(0, -1).rotate(boat_angle)
+        boat_velocity = _apply_boat_physics(
+            boat_velocity, boat_angle, input_buffer,
+            left_pressed, right_pressed, dt)
 
-        if input_buffer > 0.01:
-            total_accel = BASE_ACCEL + ACCEL_PER_PRESS * input_buffer
-            if left_pressed != right_pressed:
-                total_accel *= SINGLE_KEY_ACCEL_MULT
-            boat_velocity += forward_direction * total_accel * dt
-
-        speed = boat_velocity.length()
-        if speed > MAX_SPEED:
-            boat_velocity = (boat_velocity / speed) * MAX_SPEED
-
-        if speed > 0.01:
-            velocity_direction = boat_velocity.normalize()
-            alignment = velocity_direction.dot(forward_direction)
-            sideways_factor = abs(alignment)
-            sideways_effect_multiplier = SIDEWAYS_DRIFT_MULT
-            if left_pressed != right_pressed:
-                sideways_effect_multiplier *= SINGLE_KEY_SIDEWAYS_MULT
-            friction_multiplier = (
-                BASE_FRICTION
-                + (1 - sideways_factor)
-                * (SIDEWAYS_FRICTION - BASE_FRICTION)
-                * sideways_effect_multiplier
-            )
-            boat_velocity *= friction_multiplier
-        else:
-            boat_velocity = pygame.Vector2(0, 0)
+        # Slow zones
+        if l1_slow_zones and point_in_any_slow_zone(boat_pos.x, boat_pos.y, l1_slow_zones):
+            boat_velocity *= 0.5
 
         boat_pos += boat_velocity
 
+        # Screen clamp (fix: was missing in L1)
+        boat_pos.x = max(boat_collision_radius, min(WIDTH - boat_collision_radius, boat_pos.x))
+        boat_pos.y = max(0, min(HEIGHT, boat_pos.y))
+
         # ---- COLLISION DETECTION ----
-        for cube_x, cube_y, cube_w, cube_h in cubes:
-            if (
-                boat_pos.x - boat_collision_radius < cube_x + cube_w
-                and boat_pos.x + boat_collision_radius > cube_x
-                and boat_pos.y - boat_collision_radius < cube_y + cube_h
-                and boat_pos.y + boat_collision_radius > cube_y
-            ):
-                if not l1_crash.active:
-                    l1_shake.trigger(6, 0.5)
-                    play_sound(crash_sfx)
-                    def l1_respawn():
-                        global boat_pos, boat_velocity, boat_angle, rotating, timer_seconds
-                        boat_pos = INITIAL_BOAT_POS.copy()
-                        boat_velocity = pygame.Vector2(0, 0)
-                        boat_angle = 0
-                        rotating = False
-                        timer_seconds = 60
-                        wake.clear()
-                    l1_crash.trigger(boat_pos, boat_angle, l1_respawn)
-                    boat_velocity = pygame.Vector2(0, 0)
-                break
+        if _aabb_circle(boat_pos.x, boat_pos.y, boat_collision_radius, cubes):
+            if not l1_crash.active:
+                l1_shake.trigger(6, 0.5)
+                play_sound(crash_sfx)
+                l1_crash.trigger(boat_pos, boat_angle, _do_l1_respawn)
+                boat_velocity = pygame.Vector2(0, 0)
 
         # ---- WIN CONDITION ----
-        if boat_pos.y < 40 and not l1_crash.active:
-            if not fade.active:
-                def go_level1_complete():
-                    global game_state, l1_complete_timer
-                    game_state = "level1_complete"
-                    l1_complete_timer = 0
-                fade.start(go_level1_complete)
+        if (_check_win(boat_pos, l1_spawn_pos,
+                       l1_finish_axis, l1_finish_pos, l1_finish_y,
+                       l1_finish_x1, l1_finish_x2, l1_finish_y1, l1_finish_y2)
+                and not l1_crash.active and not fade.active):
+            def go_level1_complete():
+                global game_state, l1_complete_timer
+                game_state = "level1_complete"
+                l1_complete_timer = 0
+            fade.start(go_level1_complete)
 
     # ---- UPDATE ANIMATIONS ----
     oar_anim.update(dt)
@@ -3333,18 +4664,12 @@ while running:
     frame = l1_frame
 
     # 1. Animated water background
-    water.draw(frame, dt, game_time)
+    water.draw(frame, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
-    # 2. Exit glow indicator at finish gap (top of screen, between obstacles)
-    # The gap is between left wall (0-200) and obstacle at (330,0,720,230),
-    # so passable area is x=200 to x=330
-    glow_pulse = 0.5 + 0.5 * math.sin(game_time * 3)
-    glow_alpha = int(60 + 80 * glow_pulse)
-    # Draw glow line at y=0 area in the gap
-    glow_surf = pygame.Surface((130, 12), pygame.SRCALPHA)
-    glow_surf.fill((80, 255, 120, glow_alpha))
-    frame.blit(glow_surf, (200, 0))
-    pygame.draw.line(frame, (80, 255, 120), (200, 6), (330, 6), 2)
+    # 2. Exit glow indicator
+    _draw_finish_glow(frame, l1_finish_axis, l1_finish_pos,
+                      l1_finish_x1, l1_finish_x2, l1_finish_y,
+                      l1_finish_y1, l1_finish_y2, game_time)
 
     # 3. Shoreline foam (before forest so it's partly hidden at edges)
     draw_foam(frame, foam_points, game_time)
@@ -3362,25 +4687,13 @@ while running:
     if not l1_crash.active:
         draw_boat(frame, boat_pos, boat_angle, oar_anim, boat_velocity.length())
 
-    # 8. Timer display with drop shadow
-    timer_color = (255, 0, 0) if timer_seconds <= 10 else (255, 255, 255)
-    timer_text = font.render(f"{timer_seconds:.1f}", True, timer_color)
-    timer_shadow = font.render(f"{timer_seconds:.1f}", True, (0, 0, 0))
-    timer_rect = timer_text.get_rect(midtop=(WIDTH // 2, 20))
-    shadow_rect = timer_rect.copy()
-    shadow_rect.x += 2
-    shadow_rect.y += 2
+    # 7b. Tree canopy overlay (rendered ABOVE boat so boat goes under trees)
+    frame.blit(canopy_surface, (0, 0))
 
-    if timer_seconds <= 10:
-        sx = random.randint(-2, 2)
-        sy = random.randint(-2, 2)
-        timer_rect.x += sx
-        timer_rect.y += sy
-        shadow_rect.x += sx
-        shadow_rect.y += sy
-
-    frame.blit(timer_shadow, shadow_rect)
-    frame.blit(timer_text, timer_rect)
+    # Speedrun chrono + countdown timer
+    if speedrun_active:
+        _draw_speedrun_hud(frame, speedrun_chrono, speedrun_season_idx, speedrun_level)
+    _draw_timer_hud(frame, timer_seconds)
 
     # Blit frame to screen with shake offset
     shake_ox = int(l1_shake.offset_x)
