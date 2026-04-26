@@ -303,29 +303,10 @@ class DialogBox:
         sw = screen.get_width()
         sh = screen.get_height()
 
-        # Total width: avatar(64) + gap(15) + box
-        total_w = 64 + 15 + self.box_width
-        start_x = (sw - total_w) // 2
+        # Centered text box at bottom of screen
+        box_x = (sw - self.box_width) // 2
+        box_y = sh - 50 - self.box_height // 2
 
-        # Vertical: near bottom
-        ay = sh - 50
-        ax = start_x + 32  # avatar center
-
-        # Avatar with glow
-        glow_pulse = 0.5 + 0.5 * math.sin(game_time * 3)
-        glow_r = self.avatar_radius + 4 + int(glow_pulse * 3)
-        glow_surf = pygame.Surface((glow_r * 2 + 4, glow_r * 2 + 4), pygame.SRCALPHA)
-        pygame.draw.circle(glow_surf, (80, 140, 255, int(60 + 40 * glow_pulse)),
-                           (glow_r + 2, glow_r + 2), glow_r)
-        screen.blit(glow_surf, (ax - glow_r - 2, ay - glow_r - 2))
-
-        # Draw avatar
-        avatar_rect = self._avatar_surf.get_rect(center=(ax, ay))
-        screen.blit(self._avatar_surf, avatar_rect)
-
-        # Text box
-        box_x = start_x + 64 + 15
-        box_y = ay - self.box_height // 2
         box_surf = pygame.Surface((self.box_width, self.box_height), pygame.SRCALPHA)
         box_surf.fill((15, 20, 35, 200))
         pygame.draw.rect(box_surf, (80, 120, 200, 120),
@@ -333,24 +314,24 @@ class DialogBox:
                          width=2, border_radius=10)
         screen.blit(box_surf, (box_x, box_y))
 
-        # Render current sentence typing
+        # Render current sentence typing — horizontally centered lines
         current_text = self.sentences[self.current_sentence_idx]
         visible_text = current_text[:self.revealed_chars]
         lines = self._wrap_text(visible_text, self.box_width - 24)
+        line_h = 22
         for i, line in enumerate(lines[:3]):
             line_surf = self.font.render(line, True, (220, 230, 245))
-            screen.blit(line_surf, (box_x + 12, box_y + 10 + i * 22))
+            line_rect = line_surf.get_rect(midtop=(box_x + self.box_width // 2,
+                                                    box_y + 10 + i * line_h))
+            screen.blit(line_surf, line_rect)
 
-        # Blinking cursor
-        if not self._done and int(game_time * 4) % 2 == 0:
-            if lines:
-                last_line = lines[-1]
-                tw, _ = self.font.size(last_line)
-                cx = box_x + 12 + tw + 2
-                cy = box_y + 10 + (len(lines) - 1) * 22
-            else:
-                cx = box_x + 12
-                cy = box_y + 10
+        # Blinking cursor at end of last visible line (also centered)
+        if not self._done and int(game_time * 4) % 2 == 0 and lines:
+            last_line = lines[-1]
+            tw, _ = self.font.size(last_line)
+            line_left = box_x + (self.box_width - tw) // 2
+            cx = line_left + tw + 2
+            cy = box_y + 10 + (len(lines) - 1) * line_h
             cursor_surf = self.font.render("|", True, (180, 200, 255))
             screen.blit(cursor_surf, (cx, cy))
 
@@ -2684,13 +2665,14 @@ def reset_level2():
 
     # Reset physics state - use calculate_spawn_pos for correct axis handling
     l2_boat_pos = calculate_spawn_pos(map_data)
+    spawn_angle = get_spawn_angle(map_data)
 
     l2_boat_vel = pygame.Vector2(0, 0)
-    l2_boat_angle = 0
+    l2_boat_angle = spawn_angle
     l2_rotating = False
-    l2_rotation_start_angle = 0
+    l2_rotation_start_angle = spawn_angle
     l2_rotation_direction = 0
-    l2_target_angle = 0
+    l2_target_angle = spawn_angle
     l2_input_buffer = 0
     l2_left_pressed = False
     l2_right_pressed = False
