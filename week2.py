@@ -443,14 +443,253 @@ def _load_font(name, size):
 
 
 # Typography system
-font = _load_font("Inter-Bold.ttf", 52)                   # HUD timer, season names
-title_font = _load_font("BebasNeue-Regular.ttf", 82)      # Menu titles
+font = _load_font("Inter-Bold.ttf", 52)                   # Legacy fallback
+title_font = _load_font("LilitaOne.ttf", 100)             # Win/complete/speedrun titles — chunky adventure
 subtitle_font = _load_font("Inter-Regular.ttf", 22)       # Descriptions, hints
 button_font = _load_font("Inter-SemiBold.ttf", 28)        # Button labels
-hud_font = _load_font("Inter-Medium.ttf", 26)             # In-game HUD
+hud_font = _load_font("Inter-Medium.ttf", 26)             # In-game HUD (secondary)
+hud_timer_font = _load_font("LilitaOne.ttf", 68)          # In-game countdown + speedrun chrono
+hud_badge_font = _load_font("LilitaOne.ttf", 26)          # Level badges / labels
+score_font = _load_font("Inter-Regular.ttf", 26)          # Win screen score / secondary info
 card_title_font = _load_font("Inter-Bold.ttf", 26)        # Card titles
 card_sub_font = _load_font("Inter-Regular.ttf", 18)       # Card subtitles
 menu_title_font = _load_font("Sora-ExtraBold.ttf", 72)    # Main menu "CROSS RIVER"
+
+# Game UI color palette — anchored to the water/nature world
+UI_GOLD        = (255, 205, 55)    # Trophy gold — victories, timers
+UI_GOLD_MID    = (220, 150, 20)    # Mid-depth shadow for 3D stack
+UI_GOLD_DEEP   = (130, 75, 10)     # Deepest shadow layer for 3D stack
+UI_FOAM        = (235, 245, 255)   # Near-white foam — primary HUD text
+UI_WATER       = (160, 205, 245)   # River blue — secondary labels
+UI_MIST        = (130, 160, 195)   # Muted mist — hints, subtitles
+UI_CORAL       = (255, 85, 55)     # Coral danger — critical timer
+UI_SAGE        = (120, 210, 155)   # Sage green — success, results
+UI_SHADOW      = (8, 18, 38)       # Deep night shadow
+# Keep alias for older code
+UI_GOLD_GLOW   = UI_GOLD_DEEP
+
+
+def draw_text_3d(surface, text, fnt, cx, cy, color=UI_GOLD, shadow=UI_GOLD_DEEP, depth=7):
+    """Legacy stacked-shadow text. Kept for backward compatibility. New code should use draw_stylized_title."""
+    for i in range(depth, 0, -1):
+        t = i / depth
+        r = int(shadow[0] * (1 - t) + UI_GOLD_MID[0] * t)
+        g = int(shadow[1] * (1 - t) + UI_GOLD_MID[1] * t)
+        b = int(shadow[2] * (1 - t) + UI_GOLD_MID[2] * t)
+        layer = fnt.render(text, True, (r, g, b))
+        surface.blit(layer, layer.get_rect(center=(cx + i, cy + i)))
+    top = fnt.render(text, True, color)
+    surface.blit(top, top.get_rect(center=(cx, cy)))
+
+
+# ================================================================
+# STYLIZED TITLE SYSTEM — chunky 3D display text inspired by Wild Games / Adventure / Jungle posters
+# ================================================================
+# Each theme: (top_color, mid_color, bottom_color, stroke_color, glow_color)
+TITLE_THEMES = {
+    "victory": ((255, 235, 130), (255, 175, 55),  (200, 100, 25),  (38, 18, 8),    (255, 175, 50)),   # gold→amber→burnt
+    "primary": ((230, 245, 255), (160, 210, 250), (60, 130, 215),  (12, 26, 58),   (90, 170, 255)),   # foam→river blue
+    "ember":   ((255, 220, 120), (255, 140, 55),  (175, 45, 35),   (40, 15, 10),   (255, 110, 45)),   # gold→fire
+    "frost":   ((250, 255, 255), (190, 230, 255), (95, 165, 220),  (15, 35, 70),   (180, 220, 255)),  # ice
+    "sage":    ((220, 255, 220), (140, 230, 165), (45, 130, 80),   (15, 35, 25),   (130, 230, 165)),  # green
+    "sand":    ((255, 240, 175), (245, 185, 80),  (180, 95, 30),   (45, 25, 10),   (255, 185, 80)),   # desert
+}
+
+_title_cache = {}
+
+
+def _gradient_text_surface(text, fnt, top, mid, bot):
+    """Render text and apply a vertical 3-stop gradient masked by the glyph alpha."""
+    base = fnt.render(text, True, (255, 255, 255))
+    w, h = base.get_size()
+    grad = pygame.Surface((w, h), pygame.SRCALPHA)
+    split = h * 0.55
+    for y in range(h):
+        if y < split:
+            t = y / max(1, split)
+            r = int(top[0] * (1 - t) + mid[0] * t)
+            g = int(top[1] * (1 - t) + mid[1] * t)
+            b = int(top[2] * (1 - t) + mid[2] * t)
+        else:
+            t = (y - split) / max(1, h - split)
+            r = int(mid[0] * (1 - t) + bot[0] * t)
+            g = int(mid[1] * (1 - t) + bot[1] * t)
+            b = int(mid[2] * (1 - t) + bot[2] * t)
+        pygame.draw.line(grad, (r, g, b, 255), (0, y), (w, y))
+    grad.blit(base, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+    return grad
+
+
+def build_stylized_title(text, fnt, theme="victory", extrude=9, stroke=4, glow=True):
+    """Compose a chunky 3D title surface (gradient + stroke + extrusion + glow). Cached."""
+    key = (text, id(fnt), theme, extrude, stroke, glow)
+    cached = _title_cache.get(key)
+    if cached is not None:
+        return cached
+
+    top, mid, bot, stroke_col, glow_col = TITLE_THEMES.get(theme, TITLE_THEMES["victory"])
+    grad = _gradient_text_surface(text, fnt, top, mid, bot)
+    tw, th = grad.get_size()
+    pad = max(stroke + extrude + 32, 40)
+    surf = pygame.Surface((tw + pad * 2, th + pad * 2), pygame.SRCALPHA)
+    cx, cy = pad, pad
+
+    # 1. Outer glow halo — soft tight ring just around the letter edges, no separation
+    if glow:
+        glow_text = fnt.render(text, True, glow_col)
+        # 8 cardinal offsets at radius 2 → tight 2px halo blending into stroke
+        for ang_i in range(8):
+            ang = 2 * math.pi * ang_i / 8
+            stamp = glow_text.copy()
+            stamp.set_alpha(45)
+            surf.blit(stamp, (cx + 2 * math.cos(ang), cy + 2 * math.sin(ang)))
+
+    # 2. 3D extrusion — stacked dark copies offset down-right (deepest first)
+    for i in range(extrude, 0, -1):
+        t = i / extrude
+        # Blend stroke_col (deep) with bot (closer to surface) for a smooth bevel
+        r = int(stroke_col[0] * t + bot[0] * (1 - t) * 0.55)
+        g = int(stroke_col[1] * t + bot[1] * (1 - t) * 0.55)
+        b = int(stroke_col[2] * t + bot[2] * (1 - t) * 0.55)
+        col = (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)))
+        layer = fnt.render(text, True, col)
+        surf.blit(layer, (cx + i, cy + i))
+
+    # 3. Stroke outline (radial stamps)
+    stroke_surf = fnt.render(text, True, stroke_col)
+    steps = 18
+    for i in range(steps):
+        ang = 2 * math.pi * i / steps
+        dx = stroke * math.cos(ang)
+        dy = stroke * math.sin(ang)
+        surf.blit(stroke_surf, (cx + dx, cy + dy))
+
+    # 4. Gradient fill (the front face)
+    surf.blit(grad, (cx, cy))
+
+    # 5. Top-of-letter highlight bevel
+    highlight = fnt.render(text, True, (255, 255, 255))
+    highlight.set_alpha(70)
+    band = pygame.Surface((tw, max(2, int(th * 0.32))), pygame.SRCALPHA)
+    band.blit(highlight, (0, 0))
+    # mask the band to glyph shape
+    mask = fnt.render(text, True, (255, 255, 255))
+    band.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+    surf.blit(band, (cx, cy))
+
+    _title_cache[key] = surf
+    return surf
+
+
+def draw_stylized_title(screen, text, fnt, cx, cy, theme="victory",
+                         scale=1.0, alpha=255, extrude=9, stroke=4, glow=True,
+                         max_width=None):
+    """Blit a stylized title surface centered at (cx, cy). Auto-scales to fit max_width."""
+    surf = build_stylized_title(text, fnt, theme, extrude, stroke, glow)
+    eff_scale = scale
+    if max_width is None:
+        max_width = int(WIDTH * 0.86)
+    # Auto-shrink if too wide
+    rendered_w = surf.get_width() * eff_scale
+    if rendered_w > max_width:
+        eff_scale *= max_width / rendered_w
+    if abs(eff_scale - 1.0) > 0.001:
+        sw = max(1, int(surf.get_width() * eff_scale))
+        sh = max(1, int(surf.get_height() * eff_scale))
+        surf = pygame.transform.smoothscale(surf, (sw, sh))
+    if alpha < 255:
+        surf = surf.copy()
+        surf.set_alpha(int(max(0, min(255, alpha))))
+    screen.blit(surf, surf.get_rect(center=(cx, cy)))
+
+
+# ================================================================
+# ENTRANCE ANIMATION SYSTEM — staggered reveal for screen elements
+# ================================================================
+def _ease_back_out(t, overshoot=1.7):
+    t = max(0.0, min(1.0, t))
+    t -= 1
+    return t * t * ((overshoot + 1) * t + overshoot) + 1
+
+
+def _ease_out_cubic(t):
+    t = max(0.0, min(1.0, t))
+    return 1 - (1 - t) ** 3
+
+
+class ScreenEntrance:
+    """Per-screen reveal timer. Reset on screen change; query for staggered animations."""
+    def __init__(self):
+        self.t = 0.0
+
+    def reset(self):
+        self.t = 0.0
+
+    def update(self, dt):
+        if self.t < 6.0:
+            self.t = min(self.t + dt, 6.0)
+
+    def title(self, delay=0.0, dur=0.55):
+        u = max(0.0, min(1.0, (self.t - delay) / max(0.001, dur)))
+        scale = 0.45 + (1.0 - 0.45) * _ease_back_out(u, 1.7)
+        alpha = int(255 * _ease_out_cubic(u))
+        return scale, alpha
+
+    def slide_up(self, delay=0.15, dur=0.45):
+        u = max(0.0, min(1.0, (self.t - delay) / max(0.001, dur)))
+        eased = _ease_out_cubic(u)
+        return int(255 * eased), int((1.0 - eased) * 35)
+
+    def fade(self, delay=0.0, dur=0.45):
+        u = max(0.0, min(1.0, (self.t - delay) / max(0.001, dur)))
+        return int(255 * _ease_out_cubic(u))
+
+
+# ================================================================
+# CINEMATIC BACKDROP — vignette + radial light burst behind hero text
+# ================================================================
+_burst_cache = {}
+
+
+def _build_light_burst(theme):
+    """Pre-render a soft radial light burst — small surface scaled up for natural blur."""
+    if theme in _burst_cache:
+        return _burst_cache[theme]
+    glow_col = TITLE_THEMES.get(theme, TITLE_THEMES["victory"])[4]
+    # Render at low res for soft falloff, then smoothscale up
+    sw, sh = WIDTH // 8, HEIGHT // 8
+    small = pygame.Surface((sw, sh), pygame.SRCALPHA)
+    cx, cy = sw // 2, sh // 2 - 4
+    max_r = int(math.hypot(sw, sh) * 0.6)
+    for r in range(max_r, 0, -2):
+        # Quadratic falloff: alpha highest at center, smooth to 0 at edge
+        t = 1.0 - (r / max_r)
+        a = int(70 * t * t)
+        if a <= 0:
+            continue
+        pygame.draw.circle(small, (*glow_col, a), (cx, cy), r)
+    surf = pygame.transform.smoothscale(small, (WIDTH, HEIGHT))
+    _burst_cache[theme] = surf
+    return surf
+
+
+def draw_cinematic_backdrop(screen, game_time, theme="victory", vignette=True, burst=True, burst_alpha=1.0):
+    """Adds a soft radial light burst (themed) and corner vignette over the current screen."""
+    if burst:
+        b = _build_light_burst(theme)
+        pulse = 0.85 + 0.15 * math.sin(game_time * 1.4)
+        b.set_alpha(int(255 * burst_alpha * pulse))
+        screen.blit(b, (0, 0))
+    if vignette:
+        vig = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        for i in range(10):
+            a = max(0, 22 - i * 2)
+            if a == 0:
+                continue
+            rect = pygame.Rect(i * 22, i * 16, WIDTH - i * 44, HEIGHT - i * 32)
+            pygame.draw.rect(vig, (0, 0, 0, a), rect, border_radius=10)
+        screen.blit(vig, (0, 0))
+
 
 ASSET_PATH = os.path.join(os.path.dirname(__file__), "assets", "images")
 
@@ -1901,20 +2140,16 @@ def draw_menu(screen, water, game_time, dt, buttons, menu_boat_angle):
     # Animated water background
     water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
-    # Dark overlay with subtle vignette
+    # Dark overlay
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 80))
+    overlay.fill((0, 0, 0, 90))
     screen.blit(overlay, (0, 0))
 
-    # Center vignette (darker edges)
-    vig = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    for i in range(6):
-        r = pygame.Rect(i * 30, i * 20, WIDTH - i * 60, HEIGHT - i * 40)
-        pygame.draw.rect(vig, (0, 0, 0, max(0, 25 - i * 5)), r)
-    screen.blit(vig, (0, 0))
+    # Cinematic backdrop (radial light burst + vignette)
+    draw_cinematic_backdrop(screen, game_time, theme="primary", burst_alpha=0.85)
 
     # Decorative boat floating gently
-    menu_boat_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2 - 50 + math.sin(game_time * 0.8) * 6)
+    menu_boat_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2 + 30 + math.sin(game_time * 0.8) * 6)
     menu_oar = OarAnimator()
     menu_oar.left_angle = math.sin(game_time * 2) * 15
     menu_oar.right_angle = math.sin(game_time * 2 + math.pi) * 15
@@ -1922,36 +2157,32 @@ def draw_menu(screen, water, game_time, dt, buttons, menu_boat_angle):
     menu_oar.right_splash = 0
     draw_boat(screen, menu_boat_pos, menu_boat_angle, menu_oar, 0)
 
-    # Title
-    title_y = 60
-    title_str = "CROSS RIVER"
+    # Title — chunky 3D stylized
+    title_y = 100
+    title_scale, title_alpha = screen_anim.title(delay=0.05, dur=0.6)
+    draw_stylized_title(screen, "CROSS RIVER", title_font, WIDTH // 2, title_y,
+                        theme="primary", scale=title_scale, alpha=title_alpha)
 
-    # Soft glow behind title
-    for offset, alpha in [(3, 30), (1, 50)]:
-        glow = menu_title_font.render(title_str, True, (60, 130, 220))
-        glow.set_alpha(alpha)
-        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + offset, title_y + offset)))
-
-    # Main title
-    title_surf = menu_title_font.render(title_str, True, (210, 230, 250))
-    screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, title_y)))
-
-    # Subtitle with breathing room
+    # Subtitle slides up
+    sub_alpha, sub_dy = screen_anim.slide_up(delay=0.35, dur=0.5)
     sub_str = "Navigate the river. Avoid the forest."
-    sub_surf = subtitle_font.render(sub_str, True, (140, 170, 200))
-    screen.blit(sub_surf, sub_surf.get_rect(center=(WIDTH // 2, title_y + 50)))
+    sub_surf = subtitle_font.render(sub_str, True, (160, 195, 230))
+    sub_surf.set_alpha(sub_alpha)
+    screen.blit(sub_surf, sub_surf.get_rect(center=(WIDTH // 2, title_y + 75 + sub_dy)))
 
     # Thin separator
-    line_y = title_y + 75
-    sep_surf = pygame.Surface((240, 1), pygame.SRCALPHA)
-    for x in range(240):
-        a = int(60 * (1.0 - abs(x - 120) / 120.0))
-        sep_surf.set_at((x, 0), (100, 150, 220, a))
-    screen.blit(sep_surf, (WIDTH // 2 - 120, line_y))
+    line_y = title_y + 102
+    sep_surf = pygame.Surface((260, 2), pygame.SRCALPHA)
+    for x in range(260):
+        a = int(80 * (1.0 - abs(x - 130) / 130.0) * (sub_alpha / 255))
+        sep_surf.set_at((x, 0), (120, 180, 240, a))
+        sep_surf.set_at((x, 1), (120, 180, 240, a // 2))
+    screen.blit(sep_surf, (WIDTH // 2 - 130, line_y))
 
-    # Buttons
-    for btn in buttons:
-        btn.draw(screen)
+    # Buttons appear after title settles
+    if screen_anim.t >= 0.5:
+        for btn in buttons:
+            btn.draw(screen)
 
 
 
@@ -1960,19 +2191,19 @@ def draw_settings(screen, water, game_time, dt, sliders, back_btn):
     water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 130))
+    overlay.fill((0, 0, 0, 140))
     screen.blit(overlay, (0, 0))
 
-    # No panel - sliders float on overlay
+    draw_cinematic_backdrop(screen, game_time, theme="primary", burst_alpha=0.55)
 
-    # Title
-    title_str = "SETTINGS"
-    title_surf = title_font.render(title_str, True, (210, 225, 245))
-    screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, 100)))
+    # Stylized title
+    ts, ta = screen_anim.title(delay=0.0, dur=0.55)
+    draw_stylized_title(screen, "SETTINGS", title_font, WIDTH // 2, 110,
+                        theme="primary", scale=ts, alpha=ta, extrude=8, stroke=4)
 
-    # Sliders
-    for s in sliders:
-        s.draw(screen, card_sub_font)
+    if screen_anim.t >= 0.4:
+        for s in sliders:
+            s.draw(screen, card_sub_font)
 
     back_btn.draw(screen)
 
@@ -1982,21 +2213,26 @@ def draw_mode_select(screen, water, game_time, dt, cards, back_btn):
     water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 80))
+    overlay.fill((0, 0, 0, 95))
     screen.blit(overlay, (0, 0))
 
-    # Title
-    title_str = "SELECT MODE"
-    title_surf = title_font.render(title_str, True, (210, 225, 245))
-    screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, 55)))
+    draw_cinematic_backdrop(screen, game_time, theme="primary", burst_alpha=0.6)
 
-    # Subtitle
-    sub = subtitle_font.render("Choose how you want to play", True, (120, 150, 185))
-    screen.blit(sub, sub.get_rect(center=(WIDTH // 2, 95)))
+    # Stylized title
+    ts, ta = screen_anim.title(delay=0.0, dur=0.55)
+    draw_stylized_title(screen, "SELECT MODE", title_font, WIDTH // 2, 80,
+                        theme="primary", scale=ts, alpha=ta, extrude=8, stroke=4)
 
-    # Cards
-    for card in cards:
-        card.draw(screen, game_time, None, None)
+    # Subtitle slide-up
+    sa, sdy = screen_anim.slide_up(delay=0.3, dur=0.45)
+    sub = subtitle_font.render("Choose how you want to play", True, (140, 175, 215))
+    sub.set_alpha(sa)
+    screen.blit(sub, sub.get_rect(center=(WIDTH // 2, 135 + sdy)))
+
+    # Cards appear after title
+    if screen_anim.t >= 0.45:
+        for card in cards:
+            card.draw(screen, game_time, None, None)
 
     back_btn.draw(screen)
 
@@ -2018,13 +2254,16 @@ def draw_seasons_menu(screen, water, game_time, dt, seasons, scroll_idx, scroll_
     overlay.fill((0, 0, 0, 90))
     screen.blit(overlay, (0, 0))
 
-    # Title
-    title_str = "SELECT SEASON"
-    title_surf = title_font.render(title_str, True, (210, 225, 245))
-    screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, 85)))
+    # Stylized title
+    ts, ta = screen_anim.title(delay=0.0, dur=0.55)
+    draw_stylized_title(screen, "SELECT SEASON", title_font, WIDTH // 2, 90,
+                        theme="primary", scale=ts, alpha=ta, extrude=8, stroke=4)
 
-    sub = subtitle_font.render("Choose your environment", True, (255, 255, 255))
-    screen.blit(sub, sub.get_rect(center=(WIDTH // 2, 120)))
+    # Subtitle slide-up
+    sa, sdy = screen_anim.slide_up(delay=0.3, dur=0.45)
+    sub = subtitle_font.render("Choose your environment", True, (220, 235, 250))
+    sub.set_alpha(sa)
+    screen.blit(sub, sub.get_rect(center=(WIDTH // 2, 145 + sdy)))
 
     # Season items
     center_y = HEIGHT // 2
@@ -2401,6 +2640,10 @@ intro_vo_played = False
 # Fade transition
 fade = FadeTransition()
 
+# Screen entrance animation (auto-resets on game_state change in the main loop)
+screen_anim = ScreenEntrance()
+_last_game_state = None
+
 # Visual systems
 water = WaterRenderer(WIDTH, HEIGHT)
 oar_anim = OarAnimator()
@@ -2412,6 +2655,14 @@ timer_seconds = 60
 # Level 1 finish line positions (vary by theme, set in reset_game)
 l1_finish_x1 = 200
 l1_finish_x2 = 330
+l1_finish_axis = "y"
+l1_finish_pos = 40
+l1_finish_y = 40
+l1_finish_y1 = 0
+l1_finish_y2 = HEIGHT
+l1_slow_zones = []
+l1_spawn_pos = pygame.Vector2(WIDTH // 2, 600)
+canopy_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
 # Boat state
 INITIAL_BOAT_POS = pygame.Vector2(WIDTH // 2, 600)
@@ -2486,6 +2737,8 @@ l2_finish_x1 = 150
 l2_finish_x2 = WIDTH - 150
 l2_finish_y1 = 0
 l2_finish_y2 = HEIGHT
+l2_slow_zones = []
+l2_spawn_pos = pygame.Vector2(WIDTH // 2, 600)
 LEVEL2_INITIAL_POS = pygame.Vector2(WIDTH // 2, 600)
 
 # Level 2 walls are narrower (150px vs L1's 200px) for wider river
@@ -2586,7 +2839,7 @@ def reset_level2():
     global l2_input_buffer, l2_left_pressed, l2_right_pressed, l2_down_pressed
     global l2_oar, l2_wake, l2_particles, l2_shake, l2_wind, l2_crash
     global level2_cubes, level2_wall_cubes, level2_rock_cubes, l2_forest, l2_rock_surface, l2_foam_points, l2_wall_width
-    global l2_finish_axis, l2_finish_pos, l2_finish_y, l2_finish_x1, l2_finish_x2, l2_finish_y1, l2_finish_y2
+    global l2_finish_axis, l2_finish_pos, l2_finish_y, l2_finish_x1, l2_finish_x2, l2_finish_y1, l2_finish_y2, l2_slow_zones, l2_spawn_pos
 
     # Load theme-specific Level 2 data
     theme = SEASON_DATA[current_season]
@@ -2600,6 +2853,7 @@ def reset_level2():
     l2_finish_y2 = theme.get("l2_finish_y2", HEIGHT)
     l2_timer = theme["l2_timer"]
     l2_wall_width = theme["l2_wall_width"]
+    l2_slow_zones = theme.get("l2_slow_zones", [])
 
     # Split cubes into walls and obstacles
     level2_wall_cubes = [(0, 0, l2_wall_width, HEIGHT), (WIDTH - l2_wall_width, 0, l2_wall_width, HEIGHT)]
@@ -2665,6 +2919,7 @@ def reset_level2():
 
     # Reset physics state - use calculate_spawn_pos for correct axis handling
     l2_boat_pos = calculate_spawn_pos(map_data)
+    l2_spawn_pos = pygame.Vector2(l2_boat_pos.x, l2_boat_pos.y)
     spawn_angle = get_spawn_angle(map_data)
 
     l2_boat_vel = pygame.Vector2(0, 0)
@@ -3019,35 +3274,52 @@ def _draw_finish_glow(frame, axis, finish_pos, finish_x1, finish_x2, finish_y, f
         pygame.draw.line(frame, (80, 255, 120), (finish_x1, finish_y), (finish_x2, finish_y), 2)
 
 
+def _draw_pill(surface, rect, color, alpha=200, radius=10):
+    """Draw a rounded-rect pill background."""
+    pill = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+    pygame.draw.rect(pill, (*color, alpha), (0, 0, rect.width, rect.height), border_radius=radius)
+    surface.blit(pill, rect.topleft)
+
+
 def _draw_speedrun_hud(frame, chrono, season_idx, level):
-    """Speedrun chrono + level label at top-left."""
+    """Speedrun chrono + season/level badge — top-left pill."""
     sr_mins = int(chrono // 60)
     sr_secs = chrono % 60
     chrono_str = f"{sr_mins}:{sr_secs:04.1f}"
-    chrono_surf = font.render(chrono_str, True, (255, 220, 80))
-    chrono_shadow = font.render(chrono_str, True, (0, 0, 0))
-    frame.blit(chrono_shadow, (22, 22))
-    frame.blit(chrono_surf, (20, 20))
-    sr_label = f"{speedrun_season_order[season_idx].title()} L{level}"
-    label_surf = subtitle_font.render(sr_label, True, (200, 210, 230))
-    frame.blit(label_surf, (20, 60))
+    # Chrono in gold BebasNeue
+    chrono_surf = hud_timer_font.render(chrono_str, True, UI_GOLD)
+    chrono_shd  = hud_timer_font.render(chrono_str, True, UI_SHADOW)
+    cw, ch = chrono_surf.get_size()
+    pad = 10
+    pill_rect = pygame.Rect(12, 12, cw + pad * 2, ch + pad)
+    _draw_pill(frame, pill_rect, (10, 20, 45), alpha=180)
+    frame.blit(chrono_shd, (pill_rect.x + pad + 2, pill_rect.y + pad // 2 + 2))
+    frame.blit(chrono_surf, (pill_rect.x + pad,     pill_rect.y + pad // 2))
+    # Badge below chrono
+    sr_label = f"{speedrun_season_order[season_idx].title()}  ·  L{level}"
+    label_surf = hud_badge_font.render(sr_label, True, UI_WATER)
+    frame.blit(label_surf, (pill_rect.x + pad, pill_rect.bottom + 4))
 
 
 def _draw_timer_hud(frame, timer_val):
     """Countdown timer at top-center; hidden in seasons/speedrun; jitters at <=10s."""
     if current_mode in ("seasons", "speedrun"):
         return
-    color = (255, 0, 0) if timer_val <= 10 else (255, 255, 255)
-    txt = font.render(f"{timer_val:.1f}", True, color)
-    shd = font.render(f"{timer_val:.1f}", True, (0, 0, 0))
-    r = txt.get_rect(midtop=(WIDTH // 2, 20))
-    sr = r.copy()
-    sr.x += 2
-    sr.y += 2
+    color = UI_CORAL if timer_val <= 10 else UI_FOAM
+    txt = hud_timer_font.render(f"{timer_val:.1f}", True, color)
+    shd = hud_timer_font.render(f"{timer_val:.1f}", True, UI_SHADOW)
+    tw, th = txt.get_size()
+    pad_x, pad_y = 18, 6
+    pill_rect = pygame.Rect(0, 0, tw + pad_x * 2, th + pad_y * 2)
+    pill_rect.midtop = (WIDTH // 2, 10)
+    pill_color = (80, 10, 10) if timer_val <= 10 else (10, 20, 45)
+    _draw_pill(frame, pill_rect, pill_color, alpha=190)
+    r  = txt.get_rect(midtop=(WIDTH // 2, 10 + pad_y))
+    sr = r.move(2, 2)
     if timer_val <= 10:
         sx, sy = random.randint(-2, 2), random.randint(-2, 2)
-        r.x += sx; r.y += sy
-        sr.x += sx; sr.y += sy
+        r  = r.move(sx, sy)
+        sr = sr.move(sx, sy)
     frame.blit(shd, sr)
     frame.blit(txt, r)
 
@@ -3210,6 +3482,12 @@ while running:
 
     # Update fade transition globally
     fade.update(dt)
+
+    # Auto-reset screen entrance animation on state change
+    if game_state != _last_game_state:
+        screen_anim.reset()
+        _last_game_state = game_state
+    screen_anim.update(dt)
 
     # ============================================================
     # MENU STATE
@@ -3790,41 +4068,60 @@ while running:
 
         water.draw(screen, dt, game_time)
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
+        overlay.fill((0, 0, 0, 190))
         screen.blit(overlay, (0, 0))
 
-        # Title
-        sr_title = title_font.render("SPEED RUN", True, (255, 180, 40))
-        screen.blit(sr_title, sr_title.get_rect(center=(WIDTH // 2, 120)))
+        draw_cinematic_backdrop(screen, game_time, theme="ember", burst_alpha=0.85)
+
+        # Stylized title — chunky gold for speedrun
+        ts, ta = screen_anim.title(delay=0.0, dur=0.6)
+        draw_stylized_title(screen, "SPEED RUN", title_font, WIDTH // 2, 130,
+                            theme="ember", scale=ts, alpha=ta, extrude=10, stroke=5)
 
         if speedrun_choosing_players:
-            p_text = font.render("How many players?", True, (220, 220, 220))
-            screen.blit(p_text, p_text.get_rect(center=(WIDTH // 2, 250)))
-            b1 = font.render("Press 1 - Single Player", True, (100, 255, 150))
-            b2 = font.render("Press 2 - Two Players", True, (100, 200, 255))
-            screen.blit(b1, b1.get_rect(center=(WIDTH // 2, 340)))
-            screen.blit(b2, b2.get_rect(center=(WIDTH // 2, 400)))
-            info = subtitle_font.render("Forest > Snow > Desert  |  9 Levels  |  1 Run", True, (150, 150, 150))
-            screen.blit(info, info.get_rect(center=(WIDTH // 2, 500)))
+            sa, sdy = screen_anim.slide_up(delay=0.35, dur=0.45)
+            p_text = subtitle_font.render("HOW MANY PLAYERS?", True, UI_FOAM)
+            p_text.set_alpha(sa)
+            screen.blit(p_text, p_text.get_rect(center=(WIDTH // 2, 250 + sdy)))
+
+            ca = screen_anim.fade(delay=0.55, dur=0.5)
+            b1 = hud_badge_font.render("1  —  SINGLE PLAYER", True, UI_GOLD)
+            b2 = hud_badge_font.render("2  —  TWO PLAYERS", True, UI_WATER)
+            b1.set_alpha(ca); b2.set_alpha(ca)
+            screen.blit(b1, b1.get_rect(center=(WIDTH // 2, 330)))
+            screen.blit(b2, b2.get_rect(center=(WIDTH // 2, 380)))
+
+            ia = screen_anim.fade(delay=0.75, dur=0.5)
+            info = subtitle_font.render("Forest  ›  Snow  ›  Desert    ·    9 Levels    ·    1 Run", True, UI_MIST)
+            info.set_alpha(ia)
+            screen.blit(info, info.get_rect(center=(WIDTH // 2, 490)))
         else:
-            prompt = font.render(f"Player {speedrun_name_phase} - Enter your name:", True, (220, 220, 220))
-            screen.blit(prompt, prompt.get_rect(center=(WIDTH // 2, 260)))
-            # Input box
-            box_w, box_h = 400, 50
-            box_x = WIDTH // 2 - box_w // 2
-            box_y = 320
-            pygame.draw.rect(screen, (40, 40, 60), (box_x, box_y, box_w, box_h), border_radius=8)
-            pygame.draw.rect(screen, (100, 150, 255), (box_x, box_y, box_w, box_h), 2, border_radius=8)
-            name_surf = subtitle_font.render(speedrun_name_input, True, (255, 255, 255))
-            # Center text vertically in box
-            name_y = box_y + (box_h - name_surf.get_height()) // 2
-            screen.blit(name_surf, (box_x + 15, name_y))
-            # Cursor blink
-            if int(game_time * 2) % 2 == 0:
-                cx = box_x + 15 + name_surf.get_width() + 2
-                pygame.draw.line(screen, (255, 255, 255), (cx, name_y + 2), (cx, name_y + name_surf.get_height() - 2), 2)
-            hint = subtitle_font.render("Press ENTER to confirm", True, (150, 150, 150))
-            screen.blit(hint, hint.get_rect(center=(WIDTH // 2, 420)))
+            sa, sdy = screen_anim.slide_up(delay=0.3, dur=0.45)
+            prompt = subtitle_font.render(f"PLAYER {speedrun_name_phase}  —  Enter your name", True, UI_FOAM)
+            prompt.set_alpha(sa)
+            screen.blit(prompt, prompt.get_rect(center=(WIDTH // 2, 265 + sdy)))
+
+            box_alpha = screen_anim.fade(delay=0.5, dur=0.4)
+            if box_alpha > 8:
+                box_w, box_h = 460, 60
+                box_x = WIDTH // 2 - box_w // 2
+                box_y = 320
+                box_surf = pygame.Surface((box_w + 8, box_h + 8), pygame.SRCALPHA)
+                pygame.draw.rect(box_surf, (12, 25, 55, min(230, box_alpha)), (4, 4, box_w, box_h), border_radius=14)
+                pygame.draw.rect(box_surf, (*UI_GOLD, box_alpha), (4, 4, box_w, box_h), 3, border_radius=14)
+                screen.blit(box_surf, (box_x - 4, box_y - 4))
+                name_surf = hud_badge_font.render(speedrun_name_input, True, UI_FOAM)
+                name_surf.set_alpha(box_alpha)
+                name_y = box_y + (box_h - name_surf.get_height()) // 2
+                screen.blit(name_surf, (box_x + 20, name_y))
+                if int(game_time * 2) % 2 == 0 and box_alpha > 200:
+                    cx = box_x + 20 + name_surf.get_width() + 2
+                    pygame.draw.line(screen, UI_FOAM, (cx, name_y + 4), (cx, name_y + name_surf.get_height() - 4), 2)
+
+                hint_a = screen_anim.fade(delay=0.7, dur=0.4)
+                hint = subtitle_font.render("Press ENTER to confirm", True, UI_MIST)
+                hint.set_alpha(hint_a)
+                screen.blit(hint, hint.get_rect(center=(WIDTH // 2, 410)))
 
         fade.draw(screen)
         pygame.display.flip()
@@ -3848,25 +4145,38 @@ while running:
 
         water.draw(screen, dt, game_time)
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
+        overlay.fill((0, 0, 0, 190))
         screen.blit(overlay, (0, 0))
 
-        complete_title = title_font.render("SPEED RUN COMPLETE!", True, (255, 180, 40))
-        screen.blit(complete_title, complete_title.get_rect(center=(WIDTH // 2, 120)))
+        draw_cinematic_backdrop(screen, game_time, theme="victory", burst_alpha=1.0)
+
+        ts, ta = screen_anim.title(delay=0.0, dur=0.65)
+        draw_stylized_title(screen, "SPEED RUN COMPLETE!", title_font, WIDTH // 2, 140,
+                            theme="victory", scale=ts, alpha=ta, extrude=10, stroke=5)
 
         t = speedrun_player_times[0]
+        mins, secs = int(t // 60), t % 60
+        time_str = f"{mins}:{secs:04.1f}"
+        ts2, ta2 = screen_anim.title(delay=0.45, dur=0.55)
+        draw_stylized_title(screen, time_str, hud_timer_font, WIDTH // 2, HEIGHT // 2 + 10,
+                            theme="ember", scale=ts2, alpha=ta2, extrude=8, stroke=4)
+
+        ra = screen_anim.fade(delay=0.85, dur=0.5)
         if speedrun_num_players == 1:
             name = speedrun_player_names[0]
-            result = font.render(f"{name} finished in {int(t//60)}:{t%60:04.1f}", True, (100, 255, 150))
-            screen.blit(result, result.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+            result = score_font.render(f"{name}  ·  finished the run", True, UI_SAGE)
         else:
             n1 = speedrun_player_names[0]
             n2 = speedrun_player_names[1]
-            result = font.render(f"{n1} & {n2} finished in {int(t//60)}:{t%60:04.1f}", True, (100, 255, 150))
-            screen.blit(result, result.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+            result = score_font.render(f"{n1}  &  {n2}  ·  finished the run", True, UI_SAGE)
+        result.set_alpha(ra)
+        screen.blit(result, result.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 90)))
 
-        hint = subtitle_font.render("Press ENTER", True, (150, 150, 150))
-        screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 80)))
+        if int(game_time * 2) % 2 == 0:
+            ha = screen_anim.fade(delay=1.1, dur=0.5)
+            hint = subtitle_font.render("Press ENTER", True, UI_MIST)
+            hint.set_alpha(ha)
+            screen.blit(hint, hint.get_rect(center=(WIDTH // 2, HEIGHT - 80)))
 
         fade.draw(screen)
         pygame.display.flip()
@@ -3882,17 +4192,16 @@ while running:
                 running = False
         water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
+        overlay.fill((0, 0, 0, 170))
         screen.blit(overlay, (0, 0))
-        complete_text = title_font.render("LEVEL COMPLETE!", True, (50, 255, 80))
-        # glow
-        glow = title_font.render("LEVEL COMPLETE!", True, (30, 180, 50))
-        glow.set_alpha(60)
-        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
-        screen.blit(complete_text, complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60)))
-        # Subtitle
-        sub = subtitle_font.render("Preparing Level 2...", True, (180, 200, 220))
-        screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20)))
+        draw_cinematic_backdrop(screen, game_time, theme="victory", burst_alpha=0.95)
+        ts, ta = screen_anim.title(delay=0.0, dur=0.6)
+        draw_stylized_title(screen, "LEVEL COMPLETE!", title_font, WIDTH // 2, HEIGHT // 2 - 50,
+                            theme="victory", scale=ts, alpha=ta, extrude=10, stroke=5)
+        sa, sdy = screen_anim.slide_up(delay=0.4, dur=0.4)
+        sub = subtitle_font.render("Preparing Level 2...", True, UI_MIST)
+        sub.set_alpha(sa)
+        screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 55 + sdy)))
         if l1_complete_timer >= (0.5 if speedrun_active else 2.0) and not fade.active:
             def start_l2():
                 global game_state, speedrun_level
@@ -3927,30 +4236,27 @@ while running:
 
         # Dark overlay
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
+        overlay.fill((0, 0, 0, 175))
         screen.blit(overlay, (0, 0))
 
-        # "YOU WIN!" in green
-        complete_text = title_font.render("YOU WIN!", True, (50, 255, 80))
-        complete_rect = complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60))
-        # Glow
-        glow = title_font.render("YOU WIN!", True, (30, 180, 50))
-        glow.set_alpha(60)
-        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
-        screen.blit(complete_text, complete_rect)
+        draw_cinematic_backdrop(screen, game_time, theme="victory", burst_alpha=1.0)
 
-        # Score (hidden in seasons mode)
+        ts, ta = screen_anim.title(delay=0.0, dur=0.65)
+        draw_stylized_title(screen, "YOU WIN!", title_font, WIDTH // 2, HEIGHT // 2 - 50,
+                            theme="victory", scale=ts, alpha=ta, extrude=12, stroke=5)
+
         if current_mode not in ("seasons",):
-            score_str = f"Time remaining: {l2_timer:.1f}s"
-            score_surf = font.render(score_str, True, (255, 255, 200))
-            score_rect = score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30))
-            screen.blit(score_surf, score_rect)
+            ra = screen_anim.fade(delay=0.5, dur=0.45)
+            score_str = f"Time remaining  ·  {l2_timer:.1f}s"
+            score_surf = score_font.render(score_str, True, UI_WATER)
+            score_surf.set_alpha(ra)
+            screen.blit(score_surf, score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 60)))
 
-        # Blinking hint
         if int(l2_win_blink_timer * 2) % 2 == 0:
-            hint_surf = subtitle_font.render("Press ENTER or ESC", True, (180, 200, 220))
-            hint_rect = hint_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
-            screen.blit(hint_surf, hint_rect)
+            ha = screen_anim.fade(delay=0.85, dur=0.4)
+            hint_surf = subtitle_font.render("Press ENTER or ESC", True, UI_MIST)
+            hint_surf.set_alpha(ha)
+            screen.blit(hint_surf, hint_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120)))
 
         fade.draw(screen)
         pygame.display.flip()
@@ -3966,15 +4272,16 @@ while running:
                 running = False
         water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
+        overlay.fill((0, 0, 0, 170))
         screen.blit(overlay, (0, 0))
-        complete_text = title_font.render("LEVEL 2 COMPLETE!", True, (50, 255, 80))
-        glow = title_font.render("LEVEL 2 COMPLETE!", True, (30, 180, 50))
-        glow.set_alpha(60)
-        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
-        screen.blit(complete_text, complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60)))
-        sub = subtitle_font.render("Preparing Level 3...", True, (180, 200, 220))
-        screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 20)))
+        draw_cinematic_backdrop(screen, game_time, theme="victory", burst_alpha=0.95)
+        ts, ta = screen_anim.title(delay=0.0, dur=0.6)
+        draw_stylized_title(screen, "LEVEL 2 COMPLETE!", title_font, WIDTH // 2, HEIGHT // 2 - 55,
+                            theme="victory", scale=ts, alpha=ta, extrude=10, stroke=5)
+        sa, sdy = screen_anim.slide_up(delay=0.4, dur=0.4)
+        sub = subtitle_font.render("Preparing Level 3...", True, UI_MIST)
+        sub.set_alpha(sa)
+        screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 35 + sdy)))
         if l2_complete_timer >= (0.5 if speedrun_active else 2.0) and not fade.active:
             def start_l3():
                 global game_state, speedrun_level
@@ -4013,20 +4320,23 @@ while running:
             water.draw(screen, dt, game_time, palette=WATER_PALETTES.get(current_season))
 
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
+        overlay.fill((0, 0, 0, 175))
         screen.blit(overlay, (0, 0))
-        complete_text = title_font.render("YOU WIN!", True, (50, 255, 80))
-        glow = title_font.render("YOU WIN!", True, (30, 180, 50))
-        glow.set_alpha(60)
-        screen.blit(glow, glow.get_rect(center=(WIDTH // 2 + 3, HEIGHT // 2 - 57)))
-        screen.blit(complete_text, complete_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 60)))
+        draw_cinematic_backdrop(screen, game_time, theme="victory", burst_alpha=1.0)
+        ts, ta = screen_anim.title(delay=0.0, dur=0.65)
+        draw_stylized_title(screen, "YOU WIN!", title_font, WIDTH // 2, HEIGHT // 2 - 55,
+                            theme="victory", scale=ts, alpha=ta, extrude=12, stroke=5)
         if current_mode not in ("seasons",):
-            score_str = f"Time remaining: {l3_timer:.1f}s"
-            score_surf = font.render(score_str, True, (255, 255, 200))
-            screen.blit(score_surf, score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30)))
+            ra = screen_anim.fade(delay=0.5, dur=0.45)
+            score_str = f"Time remaining  ·  {l3_timer:.1f}s"
+            score_surf = score_font.render(score_str, True, UI_WATER)
+            score_surf.set_alpha(ra)
+            screen.blit(score_surf, score_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50)))
         if int(l3_win_blink_timer * 2) % 2 == 0:
-            hint_surf = subtitle_font.render("Press ENTER or ESC", True, (180, 200, 220))
-            screen.blit(hint_surf, hint_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100)))
+            ha = screen_anim.fade(delay=0.85, dur=0.4)
+            hint_surf = subtitle_font.render("Press ENTER or ESC", True, UI_MIST)
+            hint_surf.set_alpha(ha)
+            screen.blit(hint_surf, hint_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 115)))
         fade.draw(screen)
         pygame.display.flip()
         continue
@@ -4229,9 +4539,11 @@ while running:
             _draw_speedrun_hud(frame, speedrun_chrono, speedrun_season_idx, speedrun_level)
         _draw_timer_hud(frame, l3_timer)
 
-        # Level indicator
-        lvl_text = subtitle_font.render("Level 3", True, (200, 200, 200))
-        frame.blit(lvl_text, (10, 10))
+        # Level 3 badge (bottom right, consistent with L2)
+        lvl_text = hud_badge_font.render("LEVEL  3", True, UI_WATER)
+        lvl_rect = lvl_text.get_rect(bottomright=(WIDTH - 14, HEIGHT - 10))
+        _draw_pill(frame, lvl_rect.inflate(20, 10), (10, 20, 45), alpha=170)
+        frame.blit(lvl_text, lvl_rect)
 
         # SANDSTORM for desert L3
         if current_season == "desert":
@@ -4464,9 +4776,11 @@ while running:
         _draw_timer_hud(frame, l2_timer)
         # Wind indicator removed per user request
 
-        # "Level 2" label (bottom right)
-        lvl_label = hud_font.render("Level 2", True, (180, 200, 220))
-        frame.blit(lvl_label, (WIDTH - 100, HEIGHT - 35))
+        # "Level 2" badge (bottom right)
+        lvl_label = hud_badge_font.render("LEVEL  2", True, UI_WATER)
+        lvl_rect = lvl_label.get_rect(bottomright=(WIDTH - 14, HEIGHT - 10))
+        _draw_pill(frame, lvl_rect.inflate(20, 10), (10, 20, 45), alpha=170)
+        frame.blit(lvl_label, lvl_rect)
 
         # SANDSTORM / SNOW STORM for L2
         if current_season == "desert":
