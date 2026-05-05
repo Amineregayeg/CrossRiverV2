@@ -23,7 +23,7 @@ def load_editor_map_from_json(theme, level):
         filepath = SAVED_MAPS_DIR / filename
         if filepath.exists():
             try:
-                with open(filepath) as f:
+                with open(filepath, encoding="utf-8") as f:
                     json_data = json.load(f)
 
                 # Convert obstacles explicitly to ensure correct order (x, y, w, h)
@@ -54,10 +54,10 @@ def load_editor_map_from_json(theme, level):
                     "finish_x2": json_data.get("finish", {}).get("x2", 1250),
                     "l2_wall_width": 100,
                 }
-                print(f"✅ Loaded editor map: {theme}/{level} - {len(obstacles)} obstacles")
+                print(f"[OK] Loaded editor map: {theme}/{level} - {len(obstacles)} obstacles")
                 return map_data
             except Exception as e:
-                print(f"  ⚠️ Could not load {filepath}: {e}")
+                print(f"  [WARN] Could not load {filepath}: {e}")
 
     return None
 

@@ -7,6 +7,14 @@ import threading
 import json
 import cv2
 from pathlib import Path
+
+# Reconfigure stdout/stderr to UTF-8 so emoji prints don't crash on Windows (cp1252 console).
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 from maps import MAPS, get_map
 from editor_maps import get_editor_map
 
